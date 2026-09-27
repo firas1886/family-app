@@ -1140,7 +1140,7 @@ git commit -m "feat(core): models and To buy / Recently used placement logic"
 - Consumes: the data model in spec §3
 - Produces: `firestore.rules`, the file Firas pastes into the Firebase console (Task 14). Later tasks' repositories must only perform writes these rules allow. In particular, `createFamily` writes in three steps (family doc → own parent member doc → batch of join code + Other category + user doc).
 
-- [ ] **Step 1: Write the failing rules tests**
+- [x] **Step 1: Write the failing rules tests**
 
 Create `firebase.json`:
 
@@ -1347,12 +1347,12 @@ describe('users', () => {
 });
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `cd rules-tests && npm install && npm run emulate`
 Expected: FAIL. The emulator reports that `firestore.rules` can't be found, or every assertion fails.
 
-- [ ] **Step 3: Write the rules**
+- [x] **Step 3: Write the rules**
 
 Create `firestore.rules`:
 
@@ -1434,12 +1434,12 @@ service cloud.firestore {
 }
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `cd rules-tests && npm run emulate`
 Expected: PASS, all mocha tests passing (`24 passing` or similar), with no failures.
 
-- [ ] **Step 5: Add the rules job to CI**
+- [x] **Step 5: Add the rules job to CI**
 
 In `.github/workflows/ci.yml`, add this under `jobs:`, as a sibling of `flutter:`:
 
@@ -1463,7 +1463,7 @@ In `.github/workflows/ci.yml`, add this under `jobs:`, as a sibling of `flutter:
 
 Also add `rules-tests/node_modules/` to `.gitignore`.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add firestore.rules firebase.json rules-tests/package.json rules-tests/test .github/workflows/ci.yml .gitignore
