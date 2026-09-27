@@ -250,7 +250,7 @@ git commit -m "chore: scaffold Flutter Android project with Firebase deps and CI
   - `String formatNumber(double value)`
   - `double? parseNumber(String input)`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `test/core/text_test.dart`:
 
@@ -337,12 +337,12 @@ void main() {
 }
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `flutter test test/core/text_test.dart`
 Expected: FAIL, compilation error `Target of URI doesn't exist: 'package:family_app/core/text.dart'`.
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 Create `lib/core/text.dart`:
 
@@ -429,12 +429,12 @@ double? parseNumber(String input) {
 }
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `flutter test test/core/text_test.dart`
 Expected: PASS, `All tests passed!`
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add lib/core/text.dart test/core/text_test.dart
@@ -447,6 +447,7 @@ git commit -m "feat(core): name matching, tile letters, join codes, number parsi
 
 **Files:**
 - Create: `lib/core/models.dart`, `lib/core/placement.dart`
+- Modify (Step 5b only): `lib/core/text.dart`, `test/core/text_test.dart`
 - Test: `test/core/models_test.dart`, `test/core/placement_test.dart`
 
 **Interfaces:**
@@ -1116,6 +1117,32 @@ List<CategoryGroup<Item>> catalogGroups({
   return all;
 }
 ```
+
+- [ ] **Step 5b: Harden text utilities (added 2026-09-28, auto-decided after Task 2 test)**
+
+Test first: append to `test/core/text_test.dart` (inside `main()`):
+
+```dart
+  group('hardening', () {
+    test('invisible direction marks are ignored', () {
+      expect(nameKey('‏حليب‎'), 'حليب');
+      expect(nameKey('﻿ Milk'), nameKey('Milk'));
+      expect(tileLetter('‏ حليب'), 'ح');
+      expect(tileLetter('​'), '?');
+    });
+    test('parseNumber rejects non-finite and negative values', () {
+      expect(parseNumber('NaN'), isNull);
+      expect(parseNumber('Infinity'), isNull);
+      expect(parseNumber('-1'), isNull);
+      expect(parseNumber('0'), 0);
+    });
+  });
+```
+
+Then in `lib/core/text.dart`: add
+`final _invisible = RegExp('[​‎‏‪-‮⁦-⁩؜﻿]');`
+(ZWJ/ZWNJ `‌‍` are deliberately kept: emoji sequences need them). In `nameKey` and `tileLetter`, call `.replaceAll(_invisible, '')` on the input before `.trim()`. In `parseNumber`, replace `return double.tryParse(text);` with:
+`final value = double.tryParse(text); return (value != null && value.isFinite && value >= 0) ? value : null;`
 
 - [ ] **Step 6: Run the tests to verify they pass**
 

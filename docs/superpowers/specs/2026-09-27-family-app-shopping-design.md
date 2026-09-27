@@ -103,7 +103,7 @@ Because `dueAt` is calculated from the item's *current* `expiryDays`, editing ex
 - *A–Z:* one flat grid.
 - Sorting uses the current UI language's collation.
 
-**Name matching:** `nameKey` = trimmed, lower-cased, repeated spaces collapsed, Arabic diacritics removed, أ/إ/آ → ا, ة → ه, ى → ي. Two items with the same `nameKey` are treated as the same item.
+**Name matching:** `nameKey` = invisible direction marks removed (added 2026-09-28), trimmed, lower-cased, repeated spaces collapsed, Arabic diacritics removed, أ/إ/آ → ا, ة → ه, ى → ي. Two items with the same `nameKey` are treated as the same item.
 
 ---
 

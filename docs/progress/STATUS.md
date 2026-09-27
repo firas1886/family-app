@@ -3,8 +3,8 @@
 | Task | Title | Status | Attempts | Commit | Notes |
 |---|---|---|---|---|---|
 | 1 | Project scaffold and CI | Done (2026-09-28) | 1 | 651661e | Accepted deviations: caret constraints restored; `kotlin { compilerOptions { jvmTarget = JVM_11 } }` (Kotlin 2.4); template AGP 9.1.0 / Kotlin 2.4.0 kept; extra standard .gitignore entries. Debug APK stops only at missing google-services.json (expected). |
-| 2 | Text utilities | In progress (2026-09-28) | 1 | | |
-| 3 | Models and placement logic | Not started | 0 | | |
+| 2 | Text utilities | Done (2026-09-28) | 1 | 30f6910 | 16/16 tests. Literal Arabic characters instead of the plan's `\u` escapes (same codepoints) — accepted. |
+| 3 | Models and placement logic | In progress (2026-09-28) | 1 | | Includes plan Step 5b (text.dart hardening, auto-decided 2026-09-28). |
 | 4 | Firestore security rules | Done (2026-09-27) | 2 | 7270826 | Attempt 1 (2650074) passed as planned; attempt 2 = approved Option A tightening. 34/34 rules tests. |
 | 5 | Family repository | Not started | 0 | | The joinFamily contract is now in the plan's Task 5 (writes `joinCode: normalized` on the child member doc, with test assertion); follow the plan as written. |
 | 6 | Catalog repository | Not started | 0 | | |
@@ -17,7 +17,7 @@
 | 13 | App shell | Not started | 0 | | |
 | 14 | Release builds and setup guide | Not started | 0 | | Brief must include two one-line extras (existing constraints, not new scope): (a) `minSdk = 23` → `minSdk = 24` in `android/app/build.gradle.kts` (Global Constraint updated 2026-09-28); (b) `android:label="family_app"` → `android:label="Family"` in `android/app/src/main/AndroidManifest.xml` (Global Constraint: app title "Family"). |
 
-**Next runnable task:** Task 2 (in progress); then Task 3.
+**Next runnable task:** Task 3 (in progress); then Task 5.
 
 ## Decisions
 - 2026-09-27: Spec and plan approved by Firas. Execution: subagent-driven with PM / developer / tester agents.
@@ -28,6 +28,8 @@
 - 2026-09-28: Firas pre-authorised overnight work toward the APK: instead of "Decision needed" notes, PM picks the recommended option and logs "Auto-decided (Firas pre-authorised): <summary> — chose <option> because <reason>". Still Blocked for anything needing Firas's accounts (Firebase, GitHub secrets, keystore passwords) or after 3 failed attempts.
 - 2026-09-28: Task 1 PASS (651661e).
 - 2026-09-28: Auto-decided (Firas pre-authorised): minimum Android version — chose raise minSdk 23 → 24 (Android 7.0) over pinning an older Flutter, because Flutter 3.47.5 enforces 24 (it silently raises it at build time anyway) and Android 6 phones are a negligible share. Plan Global Constraints, plan Task 1 code block and spec tech-stack line updated. The one-line `android/app/build.gradle.kts` change is scheduled into Task 14 (the Android-release task), not Task 2 (pure Dart; keep it clean). Builds are unaffected meanwhile.
+- 2026-09-28: Task 2 PASS (30f6910).
+- 2026-09-28: Auto-decided (Firas pre-authorised): text hardening from the Task 2 test — chose a small fix now (plan Task 3 Step 5b) over parking, because (a) a name pasted with an invisible RTL/LTR mark gets a blank tile letter and doesn't match the same item (spec name matching, Review Focus #5), and (b) typing "NaN"/"Infinity" in the item sheet would crash on `.round()`, and a negative quantity or price makes no sense. Fix: `nameKey`/`tileLetter` strip invisible direction marks (not ZWJ, which emoji need); `parseNumber` returns null unless the value is finite and >= 0. Spec name-matching line updated. Placed in Task 3: it is the next pure-Dart `lib/core` task and runs before any caller (Tasks 6, 9, 11).
 - 2026-09-28: Manifest label: template `android:label="family_app"` breaks the existing Global Constraint app title "Family". Not new scope; one-line fix assigned to Task 14 (same Android-config touch as minSdk).
 
 ## Parking lot
