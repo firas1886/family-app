@@ -15,7 +15,7 @@
 ## Global Constraints
 
 - Android application id / namespace: `com.family.family_app`. Dart package name: `family_app`. App title: "Family".
-- Minimum Android SDK: 23.
+- Minimum Android SDK: 24 (Android 7.0). Changed from 23 on 2026-09-28: Flutter 3.47.5 requires 24 and auto-raises it at build time.
 - Dependency versions (use exactly these constraints): `firebase_core:^3.13.0`, `firebase_auth:^5.5.0`, `cloud_firestore:^5.6.0`, `google_sign_in:^6.2.2`, `flutter_riverpod:^2.6.1`, `share_plus:^10.1.4`, `intl:any`, `characters:any`, `flutter_localizations` (sdk), dev: `fake_cloud_firestore:^3.1.0`.
 - Firestore paths and field names exactly as spec §3.
 - Tile colors: To buy `0xFFEE6A6A`, Recently used `0xFF6DB5A8`. Background `0xFF2B3A42`.
@@ -49,7 +49,7 @@
 - Consumes: nothing
 - Produces: a buildable Flutter project named `family_app`, and a CI workflow file (`ci.yml`) with a job `flutter` (Task 4 adds a `rules` job)
 
-- [ ] **Step 1: Create the project**
+- [x] **Step 1: Create the project**
 
 Run from the repository root, which already contains `docs/`:
 
@@ -59,7 +59,7 @@ flutter create --org com.family --project-name family_app --platforms android .
 
 Expected: `All done!` and a `lib/main.dart` file.
 
-- [ ] **Step 2: Add dependencies**
+- [x] **Step 2: Add dependencies**
 
 ```bash
 flutter pub add firebase_core:^3.13.0 firebase_auth:^5.5.0 cloud_firestore:^5.6.0 google_sign_in:^6.2.2 flutter_riverpod:^2.6.1 share_plus:^10.1.4 intl:any characters:any 'flutter_localizations:{"sdk":"flutter"}'
@@ -68,7 +68,7 @@ flutter pub add --dev fake_cloud_firestore:^3.1.0
 
 Expected: `Changed N dependencies!`
 
-- [ ] **Step 3: Register the Google services Gradle plugin**
+- [x] **Step 3: Register the Google services Gradle plugin**
 
 In `android/settings.gradle.kts`, add this line inside the existing `plugins { ... }` block, after the `com.android.application` line:
 
@@ -76,7 +76,7 @@ In `android/settings.gradle.kts`, add this line inside the existing `plugins { .
     id("com.google.gms.google-services") version "4.4.2" apply false
 ```
 
-- [ ] **Step 4: Replace `android/app/build.gradle.kts`**
+- [x] **Step 4: Replace `android/app/build.gradle.kts`**
 
 ```kotlin
 import java.io.FileInputStream
@@ -111,7 +111,7 @@ android {
 
     defaultConfig {
         applicationId = "com.family.family_app"
-        minSdk = 23
+        minSdk = 24
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
@@ -146,7 +146,7 @@ flutter {
 
 Note: an Android build now requires `android/app/google-services.json`. That file is only present in the release workflow (Task 14). `flutter test` does not build Android, so CI tests are unaffected.
 
-- [ ] **Step 5: Ignore secrets**
+- [x] **Step 5: Ignore secrets**
 
 Append to `.gitignore`:
 
@@ -158,7 +158,7 @@ android/key.properties
 android/app/google-services.json
 ```
 
-- [ ] **Step 6: Replace `lib/main.dart` with a minimal app**
+- [x] **Step 6: Replace `lib/main.dart` with a minimal app**
 
 ```dart
 import 'package:flutter/material.dart';
@@ -177,7 +177,7 @@ class PlaceholderApp extends StatelessWidget {
 }
 ```
 
-- [ ] **Step 7: Replace the generated counter test**
+- [x] **Step 7: Replace the generated counter test**
 
 Delete `test/widget_test.dart`. Create `test/smoke_test.dart`:
 
@@ -193,7 +193,7 @@ void main() {
 }
 ```
 
-- [ ] **Step 8: Add CI**
+- [x] **Step 8: Add CI**
 
 Create `.github/workflows/ci.yml`:
 
@@ -219,12 +219,12 @@ jobs:
       - run: flutter test
 ```
 
-- [ ] **Step 9: Verify**
+- [x] **Step 9: Verify**
 
 Run: `flutter analyze --no-fatal-infos && flutter test`
 Expected: `No issues found!` (or infos only), then `All tests passed!`
 
-- [ ] **Step 10: Commit**
+- [x] **Step 10: Commit**
 
 ```bash
 git add -A

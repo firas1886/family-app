@@ -167,7 +167,7 @@ The app has three bottom tabs.
 
 ## 8. Technical stack
 
-- Flutter (stable), minimum Android SDK 23.
+- Flutter (stable), minimum Android SDK 24 (Android 7.0; raised from 23 on 2026-09-28 because current Flutter requires it).
 - Packages: `firebase_core`, `firebase_auth`, `google_sign_in`, `cloud_firestore`, `flutter_riverpod` (state), `flutter_localizations` + `intl` (ar/en).
 - Folder layout: `lib/core` (pure logic: status, sorting, name matching), `lib/data` (Firestore repositories), `lib/features/{auth,family,lists,history}` (screens and widgets), `lib/l10n` (ARB files).
 
