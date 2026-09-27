@@ -1605,7 +1605,7 @@ git commit -m "feat(rules): Firestore security rules with emulator tests"
     - `Future<void> clearFamily(String uid)`
     - `Future<String> regenerateCode(String familyId)`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `test/data/family_repository_test.dart`:
 
@@ -1724,12 +1724,12 @@ void main() {
 }
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `flutter test test/data/family_repository_test.dart`
 Expected: FAIL, `Target of URI doesn't exist: 'package:family_app/data/family_repository.dart'`.
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 Create `lib/data/family_repository.dart`:
 
@@ -1881,12 +1881,12 @@ class FamilyRepository {
 }
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `flutter test test/data/family_repository_test.dart`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add lib/data/family_repository.dart test/data/family_repository_test.dart

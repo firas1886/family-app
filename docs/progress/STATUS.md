@@ -6,18 +6,18 @@
 | 2 | Text utilities | Done (2026-09-28) | 1 | 30f6910 | 16/16 tests. Literal Arabic characters instead of the plan's `\u` escapes (same codepoints) — accepted. |
 | 3 | Models and placement logic | Done (2026-09-28) | 1 | ccbcfd8 | 40/40 tests, incl. Step 5b hardening. Accepted deviations: `_invisible` regex written with `\u` escapes (same code points, avoids analyzer warnings); two formatting-only line splits. |
 | 4 | Firestore security rules | Done (2026-09-27) | 2 | 7270826 | Attempt 1 (2650074) passed as planned; attempt 2 = approved Option A tightening. 34/34 rules tests. |
-| 5 | Family repository | In progress (2026-09-28) | 1 | | The joinFamily contract is now in the plan's Task 5 (writes `joinCode: normalized` on the child member doc, with test assertion); follow the plan as written. |
-| 6 | Catalog repository | Not started | 0 | | |
+| 5 | Family repository | Done (2026-09-28) | 1 | d48fbec | 50/50 tests; diff-identical to plan; every write checked against firestore.rules; Review Focus #4 passes. |
+| 6 | Catalog repository | In progress (2026-09-28) | 1 | | |
 | 7 | List and purchase repositories | Not started | 0 | | |
 | 8 | App foundation (l10n, providers) | Not started | 0 | | |
 | 9 | Item details sheet | Not started | 0 | | |
 | 10 | Lists tab and list screen | Not started | 0 | | |
 | 11 | History screen | Not started | 0 | | |
 | 12 | Family screen | Not started | 0 | | |
-| 13 | App shell | Not started | 0 | | |
+| 13 | App shell | Not started | 0 | | Brief must require (and tester confirm) that onboarding Join/Create are only reachable when `users/{uid}.familyId` is null (from Task 5 test: joinFamily by a user already in a family fails with a raw permission error, or leaves an orphan member doc in the old family). |
 | 14 | Release builds and setup guide | Not started | 0 | | Brief must include two one-line extras (existing constraints, not new scope): (a) `minSdk = 23` → `minSdk = 24` in `android/app/build.gradle.kts` (Global Constraint updated 2026-09-28); (b) `android:label="family_app"` → `android:label="Family"` in `android/app/src/main/AndroidManifest.xml` (Global Constraint: app title "Family"). |
 
-**Next runnable task:** Task 5 (in progress); then Task 6.
+**Next runnable task:** Task 6 (in progress); then Task 7.
 
 ## Decisions
 - 2026-09-27: Spec and plan approved by Firas. Execution: subagent-driven with PM / developer / tester agents.
@@ -32,6 +32,7 @@
 - 2026-09-28: Auto-decided (Firas pre-authorised): text hardening from the Task 2 test — chose a small fix now (plan Task 3 Step 5b) over parking, because (a) a name pasted with an invisible RTL/LTR mark gets a blank tile letter and doesn't match the same item (spec name matching, Review Focus #5), and (b) typing "NaN"/"Infinity" in the item sheet would crash on `.round()`, and a negative quantity or price makes no sense. Fix: `nameKey`/`tileLetter` strip invisible direction marks (not ZWJ, which emoji need); `parseNumber` returns null unless the value is finite and >= 0. Spec name-matching line updated. Placed in Task 3: it is the next pure-Dart `lib/core` task and runs before any caller (Tasks 6, 9, 11).
 - 2026-09-28: Task 3 PASS (ccbcfd8).
 - 2026-09-28: Manifest label: template `android:label="family_app"` breaks the existing Global Constraint app title "Family". Not new scope; one-line fix assigned to Task 14 (same Android-config touch as minSdk).
+- 2026-09-28: Task 5 PASS (d48fbec).
 
 ## Parking lot
 - Chores module (Release 2)
@@ -42,3 +43,5 @@
 - Build warning (from Task 1 test): the app applies the `kotlin-android` plugin (plan-required) and share_plus 10.x also applies it; Gradle warns that future Flutter versions will fail such builds. Warning only today; revisit if a Flutter upgrade breaks the build (drop `id("kotlin-android")` or upgrade share_plus).
 - Dev tooling: npm reports 13 vulnerabilities in rules-tests dev dependencies; local Node 25 vs CI Node 20.
 - Text (from Task 3 test): invisible-character stripping doesn't cover U+2060 word joiner or U+00AD soft hyphen (plan's chosen set); add only if a real name mismatches.
+- Family (from Task 5 test): the last-parent check (demote/remove/leave) isn't transactional; two parents demoting each other at the same moment could leave no parent.
+- Tests (from Task 5 test): removeMember has no last-parent test (the code applies the check).
