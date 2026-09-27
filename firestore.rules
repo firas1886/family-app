@@ -1,0 +1,75 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function uid() { return request.auth.uid; }
+    function familyPath(f) { return /databases/$(database)/documents/families/$(f); }
+    function memberPath(f) { return /databases/$(database)/documents/families/$(f)/members/$(uid()); }
+    function isMember(f) { return signedIn() && exists(memberPath(f)); }
+    function isParent(f) { return isMember(f) && get(memberPath(f)).data.role == 'parent'; }
+    function onlyChanges(keys) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(keys);
+    }
+
+    match /users/{userId} {
+      allow read, write: if signedIn() && uid() == userId;
+    }
+
+    match /joinCodes/{code} {
+      allow get: if signedIn();
+      allow list: if false;
+      allow create: if isParent(request.resource.data.familyId);
+      allow delete: if isParent(resource.data.familyId);
+    }
+
+    match /families/{f} {
+      allow get: if isMember(f);
+      allow create: if signedIn() && request.resource.data.createdBy == uid();
+      allow update: if isParent(f) && onlyChanges(['name', 'joinCode']);
+
+      match /members/{m} {
+        allow read: if isMember(f) || (signedIn() && uid() == m);
+        allow create: if signedIn() && uid() == m && (
+          (request.resource.data.role == 'child' && exists(familyPath(f)))
+          || (request.resource.data.role == 'parent' && get(familyPath(f)).data.createdBy == uid())
+        );
+        allow update: if isParent(f) && onlyChanges(['role'])
+          && request.resource.data.role in ['parent', 'child'];
+        allow delete: if isParent(f) || (signedIn() && uid() == m);
+      }
+
+      match /categories/{c} {
+        allow read: if isMember(f);
+        allow create: if (isMember(f) && request.resource.data.isDefault == false)
+          || (isParent(f) && request.resource.data.isDefault == true);
+        allow update: if isParent(f) && onlyChanges(['name']);
+        allow delete: if isParent(f) && resource.data.isDefault == false;
+      }
+
+      match /items/{i} {
+        allow read, create, update: if isMember(f);
+        allow delete: if isParent(f);
+      }
+
+      match /lists/{l} {
+        allow read: if isMember(f);
+        allow create, update, delete: if isParent(f);
+
+        match /entries/{e} {
+          allow read, create, update, delete: if isMember(f);
+        }
+      }
+
+      match /purchases/{p} {
+        allow read: if isMember(f);
+        allow create: if isMember(f) && request.resource.data.boughtBy == uid();
+        allow update: if isMember(f) && onlyChanges(['price']);
+        allow delete: if isParent(f) || (
+          isMember(f) && resource.data.boughtBy == uid()
+          && request.time < resource.data.boughtAt + duration.value(10, 'm')
+        );
+      }
+    }
+  }
+}
