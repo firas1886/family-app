@@ -21,3 +21,15 @@ jobs:
         working-directory: rules-tests
       - run: npm run emulate
         working-directory: rules-tests
+
+  flutter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter analyze --no-fatal-infos
+      - run: flutter test

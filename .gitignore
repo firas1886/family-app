@@ -1,3 +1,32 @@
 rules-tests/node_modules/
 .claude/settings.local.json
 *-debug.log
+
+# Signing and Firebase secrets — never commit
+android/key.properties
+*.jks
+*.keystore
+android/app/google-services.json
+
+# Flutter/Dart generated files
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/android/build/
+*.iml
+*.ipr
+*.iws
+.idea/
+.DS_Store
+**/doc/api/
+app.*.symbols
+app.*.map.json
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# Rules tests lockfile
+rules-tests/package-lock.json
