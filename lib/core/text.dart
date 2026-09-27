@@ -5,10 +5,12 @@ import 'package:characters/characters.dart';
 final _spaces = RegExp(r'\s+');
 final _arabicDiacritics = RegExp('[ً-ْٰ]');
 final _alefVariants = RegExp('[أإآ]'); // أ إ آ
+final _invisible = RegExp('[\u200B\u200E\u200F\u202A-\u202E\u2066-\u2069\u061C\uFEFF]');
 
 /// Normalized form used to decide whether two item names are the same item.
 String nameKey(String input) {
   return input
+      .replaceAll(_invisible, '')
       .trim()
       .toLowerCase()
       .replaceAll(_spaces, ' ')
@@ -20,7 +22,7 @@ String nameKey(String input) {
 
 /// The single character shown large on an item tile.
 String tileLetter(String name) {
-  final trimmed = name.trim();
+  final trimmed = name.replaceAll(_invisible, '').trim();
   if (trimmed.isEmpty) return '?';
   return trimmed.characters.first.toUpperCase();
 }
@@ -76,5 +78,6 @@ double? parseNumber(String input) {
   }
   final text = buffer.toString();
   if (text.isEmpty) return null;
-  return double.tryParse(text);
+  final value = double.tryParse(text);
+  return (value != null && value.isFinite && value >= 0) ? value : null;
 }

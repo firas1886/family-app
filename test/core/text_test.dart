@@ -77,4 +77,19 @@ void main() {
       expect(parseNumber('abc'), isNull);
     });
   });
+
+  group('hardening', () {
+    test('invisible direction marks are ignored', () {
+      expect(nameKey('‏حليب‎'), 'حليب');
+      expect(nameKey('﻿ Milk'), nameKey('Milk'));
+      expect(tileLetter('‏ حليب'), 'ح');
+      expect(tileLetter('​'), '?');
+    });
+    test('parseNumber rejects non-finite and negative values', () {
+      expect(parseNumber('NaN'), isNull);
+      expect(parseNumber('Infinity'), isNull);
+      expect(parseNumber('-1'), isNull);
+      expect(parseNumber('0'), 0);
+    });
+  });
 }
