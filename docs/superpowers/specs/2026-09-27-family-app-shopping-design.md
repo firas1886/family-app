@@ -53,7 +53,8 @@ families/{familyId}
     name, joinCode, createdBy, createdAt
 
   members/{uid}
-      name, role ("parent" | "child"), joinedAt
+      name, role ("parent" | "child"), joinedAt,
+      joinCode (child joins only: the normalized code used to join; never changed)
 
   categories/{categoryId}
       name, isDefault (true only for "Other"), createdBy, createdAt

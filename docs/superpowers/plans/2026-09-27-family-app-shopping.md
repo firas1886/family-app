@@ -1138,7 +1138,7 @@ git commit -m "feat(core): models and To buy / Recently used placement logic"
 
 **Interfaces:**
 - Consumes: the data model in spec §3
-- Produces: `firestore.rules`, the file Firas pastes into the Firebase console (Task 14). Later tasks' repositories must only perform writes these rules allow. In particular, `createFamily` writes in three steps (family doc → own parent member doc → batch of join code + Other category + user doc).
+- Produces: `firestore.rules`, the file Firas pastes into the Firebase console (Task 14). Later tasks' repositories must only perform writes these rules allow. In particular, `createFamily` must keep its three-step order (family doc with `joinCode` → own parent member doc without `joinCode` → batch of join code + Other category + user doc): the rules only let the creator make themselves parent while the family's `joinCodes` doc does not exist yet. `joinFamily` must write `joinCode` (the normalized code used) on the child member doc; the rules check it against the family's current code and its `joinCodes` doc.
 
 - [x] **Step 1: Write the failing rules tests**
 
@@ -1291,6 +1291,26 @@ describe('purchases', () => {
     await assertFails(deleteDoc(doc(as('kid'), `families/${F}/purchases/old`)));
     await assertSucceeds(deleteDoc(doc(as('dad'), `families/${F}/purchases/old`)));
   });
+  it('a purchase cannot be dated in the future', async () => {
+    const inAnHour = Timestamp.fromDate(new Date(Date.now() + 60 * 60 * 1000));
+    await assertFails(setDoc(doc(as('kid'), `families/${F}/purchases/p4`), { itemId: 'milk', boughtBy: 'kid', boughtAt: inAnHour, price: null }));
+  });
+  it('a purchase must have a purchase time', async () => {
+    await assertFails(setDoc(doc(as('kid'), `families/${F}/purchases/p5`), { itemId: 'milk', boughtBy: 'kid', price: null }));
+  });
+  it('an offline-queued purchase from days ago still syncs', async () => {
+    const twoDaysAgo = Timestamp.fromDate(new Date(Date.now() - 2 * 24 * 60 * 60 * 1000));
+    await assertSucceeds(setDoc(doc(as('kid'), `families/${F}/purchases/p6`), { itemId: 'milk', boughtBy: 'kid', boughtAt: twoDaysAgo, price: null }));
+  });
+  it('a phone clock a little ahead is tolerated', async () => {
+    const inTwoMinutes = Timestamp.fromDate(new Date(Date.now() + 2 * 60 * 1000));
+    await assertSucceeds(setDoc(doc(as('kid'), `families/${F}/purchases/p7`), { itemId: 'milk', boughtBy: 'kid', boughtAt: inTwoMinutes, price: null }));
+  });
+  it('the purchase time can never be changed', async () => {
+    const tomorrow = Timestamp.fromDate(new Date(Date.now() + 24 * 60 * 60 * 1000));
+    await assertFails(updateDoc(doc(as('kid'), `families/${F}/purchases/old`), { boughtAt: tomorrow }));
+    await assertFails(updateDoc(doc(as('kid'), `families/${F}/purchases/old`), { price: 5, boughtAt: tomorrow }));
+  });
 });
 
 describe('members and joining', () => {
@@ -1306,8 +1326,32 @@ describe('members and joining', () => {
     await assertSucceeds(deleteDoc(doc(as('dad'), `families/${F}/members/kid`)));
   });
   it('a newcomer can join as child but not as parent', async () => {
-    await assertFails(setDoc(doc(as('mum'), `families/${F}/members/mum`), { name: 'Mum', role: 'parent' }));
-    await assertSucceeds(setDoc(doc(as('mum'), `families/${F}/members/mum`), { name: 'Mum', role: 'child' }));
+    await assertFails(setDoc(doc(as('mum'), `families/${F}/members/mum`), { name: 'Mum', role: 'parent', joinCode: 'ABC234' }));
+    await assertSucceeds(setDoc(doc(as('mum'), `families/${F}/members/mum`), { name: 'Mum', role: 'child', joinCode: 'ABC234' }));
+  });
+  it('joining needs a join code', async () => {
+    await assertFails(setDoc(doc(as('mum'), `families/${F}/members/mum`), { name: 'Mum', role: 'child' }));
+  });
+  it('joining with a wrong code fails', async () => {
+    await assertFails(setDoc(doc(as('mum'), `families/${F}/members/mum`), { name: 'Mum', role: 'child', joinCode: 'ZZZ999' }));
+  });
+  it("another family's code does not open this family", async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      const db = ctx.firestore();
+      await setDoc(doc(db, 'families/fam2'), { name: 'Other home', joinCode: 'OTH234', createdBy: 'gran' });
+      await setDoc(doc(db, 'joinCodes/OTH234'), { familyId: 'fam2' });
+    });
+    await assertFails(setDoc(doc(as('mum'), `families/${F}/members/mum`), { name: 'Mum', role: 'child', joinCode: 'OTH234' }));
+  });
+  it('the old code stops working after regeneration', async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      const db = ctx.firestore();
+      await deleteDoc(doc(db, 'joinCodes/ABC234'));
+      await setDoc(doc(db, 'joinCodes/NEW234'), { familyId: F });
+      await updateDoc(doc(db, `families/${F}`), { joinCode: 'NEW234' });
+    });
+    await assertFails(setDoc(doc(as('mum'), `families/${F}/members/mum`), { name: 'Mum', role: 'child', joinCode: 'ABC234' }));
+    await assertSucceeds(setDoc(doc(as('mum'), `families/${F}/members/mum`), { name: 'Mum', role: 'child', joinCode: 'NEW234' }));
   });
   it('a removed user can still read their own (missing) member doc', async () => {
     await assertSucceeds(getDoc(doc(as('stranger'), `families/${F}/members/stranger`)));
@@ -1318,6 +1362,34 @@ describe('members and joining', () => {
     await assertSucceeds(setDoc(doc(db, 'families/fam2/members/newbie'), { name: 'N', role: 'parent' }));
     await assertSucceeds(setDoc(doc(db, 'joinCodes/XYZ789'), { familyId: 'fam2' }));
     await assertSucceeds(setDoc(doc(db, 'families/fam2/categories/o'), { name: 'Other', isDefault: true }));
+    await assertSucceeds(setDoc(doc(db, 'users/newbie'), { familyId: 'fam2' }, { merge: true }));
+  });
+  it('after setup the creator cannot re-make themselves parent', async () => {
+    const db = as('newbie');
+    await setDoc(doc(db, 'families/fam2'), { name: 'New', joinCode: 'XYZ789', createdBy: 'newbie' });
+    await setDoc(doc(db, 'families/fam2/members/newbie'), { name: 'N', role: 'parent' });
+    await setDoc(doc(db, 'joinCodes/XYZ789'), { familyId: 'fam2' });
+    await setDoc(doc(db, 'families/fam2/categories/o'), { name: 'Other', isDefault: true });
+    await setDoc(doc(db, 'users/newbie'), { familyId: 'fam2' }, { merge: true });
+    await assertSucceeds(deleteDoc(doc(db, 'families/fam2/members/newbie')));
+    await assertFails(setDoc(doc(db, 'families/fam2/members/newbie'), { name: 'N', role: 'parent' }));
+  });
+  it('a removed creator cannot rejoin as parent', async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      const db = ctx.firestore();
+      await setDoc(doc(db, `families/${F}/members/gran`), { name: 'Gran', role: 'parent' });
+      await deleteDoc(doc(db, `families/${F}/members/dad`));
+    });
+    await assertFails(setDoc(doc(as('dad'), `families/${F}/members/dad`), { name: 'Dad', role: 'parent' }));
+  });
+  it('a demoted creator who left cannot come back as parent', async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      const db = ctx.firestore();
+      await updateDoc(doc(db, `families/${F}/members/dad`), { role: 'child' });
+      await setDoc(doc(db, `families/${F}/members/gran`), { name: 'Gran', role: 'parent' });
+    });
+    await assertSucceeds(deleteDoc(doc(as('dad'), `families/${F}/members/dad`)));
+    await assertFails(setDoc(doc(as('dad'), `families/${F}/members/dad`), { name: 'Dad', role: 'parent' }));
   });
 });
 
@@ -1364,6 +1436,7 @@ service cloud.firestore {
     function signedIn() { return request.auth != null; }
     function uid() { return request.auth.uid; }
     function familyPath(f) { return /databases/$(database)/documents/families/$(f); }
+    function joinCodePath(c) { return /databases/$(database)/documents/joinCodes/$(c); }
     function memberPath(f) { return /databases/$(database)/documents/families/$(f)/members/$(uid()); }
     function isMember(f) { return signedIn() && exists(memberPath(f)); }
     function isParent(f) { return isMember(f) && get(memberPath(f)).data.role == 'parent'; }
@@ -1390,8 +1463,14 @@ service cloud.firestore {
       match /members/{m} {
         allow read: if isMember(f) || (signedIn() && uid() == m);
         allow create: if signedIn() && uid() == m && (
-          (request.resource.data.role == 'child' && exists(familyPath(f)))
-          || (request.resource.data.role == 'parent' && get(familyPath(f)).data.createdBy == uid())
+          (request.resource.data.role == 'child'
+            && request.resource.data.joinCode is string
+            && request.resource.data.joinCode == get(familyPath(f)).data.joinCode
+            && exists(joinCodePath(request.resource.data.joinCode))
+            && get(joinCodePath(request.resource.data.joinCode)).data.familyId == f)
+          || (request.resource.data.role == 'parent'
+            && get(familyPath(f)).data.createdBy == uid()
+            && !exists(joinCodePath(get(familyPath(f)).data.joinCode)))
         );
         allow update: if isParent(f) && onlyChanges(['role'])
           && request.resource.data.role in ['parent', 'child'];
@@ -1422,7 +1501,9 @@ service cloud.firestore {
 
       match /purchases/{p} {
         allow read: if isMember(f);
-        allow create: if isMember(f) && request.resource.data.boughtBy == uid();
+        allow create: if isMember(f) && request.resource.data.boughtBy == uid()
+          && request.resource.data.boughtAt is timestamp
+          && request.resource.data.boughtAt <= request.time + duration.value(5, 'm');
         allow update: if isMember(f) && onlyChanges(['price']);
         allow delete: if isParent(f) || (
           isMember(f) && resource.data.boughtBy == uid()
@@ -1437,7 +1518,7 @@ service cloud.firestore {
 - [x] **Step 4: Run the tests to verify they pass**
 
 Run: `cd rules-tests && npm run emulate`
-Expected: PASS, all mocha tests passing (`24 passing` or similar), with no failures.
+Expected: PASS, `34 passing`, with no failures.
 
 - [x] **Step 5: Add the rules job to CI**
 
@@ -1551,6 +1632,7 @@ void main() {
     final joined = await repo.joinFamily(uid: 'u2', userName: 'Sara', code: typed);
     expect(joined, f);
     expect((await repo.watchMember(f, 'u2').first)!.role, Role.child);
+    expect((await db.doc('families/$f/members/u2').get()).data()!['joinCode'], code.toUpperCase());
     expect((await repo.watchUser('u2').first)!.familyId, f);
   });
 
@@ -1699,7 +1781,12 @@ class FamilyRepository {
     if (!snap.exists) throw JoinCodeNotFound();
     final familyId = snap.data()!['familyId'] as String;
     final batch = _db.batch()
-      ..set(_members(familyId).doc(uid), {'name': userName, 'role': 'child', 'joinedAt': DateTime.now()})
+      ..set(_members(familyId).doc(uid), {
+        'name': userName,
+        'role': 'child',
+        'joinedAt': DateTime.now(),
+        'joinCode': normalized,
+      })
       ..set(_user(uid), {'familyId': familyId}, SetOptions(merge: true));
     await batch.commit();
     return familyId;

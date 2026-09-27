@@ -115,6 +115,26 @@ describe('purchases', () => {
     await assertFails(deleteDoc(doc(as('kid'), `families/${F}/purchases/old`)));
     await assertSucceeds(deleteDoc(doc(as('dad'), `families/${F}/purchases/old`)));
   });
+  it('a purchase cannot be dated in the future', async () => {
+    const inAnHour = Timestamp.fromDate(new Date(Date.now() + 60 * 60 * 1000));
+    await assertFails(setDoc(doc(as('kid'), `families/${F}/purchases/p4`), { itemId: 'milk', boughtBy: 'kid', boughtAt: inAnHour, price: null }));
+  });
+  it('a purchase must have a purchase time', async () => {
+    await assertFails(setDoc(doc(as('kid'), `families/${F}/purchases/p5`), { itemId: 'milk', boughtBy: 'kid', price: null }));
+  });
+  it('an offline-queued purchase from days ago still syncs', async () => {
+    const twoDaysAgo = Timestamp.fromDate(new Date(Date.now() - 2 * 24 * 60 * 60 * 1000));
+    await assertSucceeds(setDoc(doc(as('kid'), `families/${F}/purchases/p6`), { itemId: 'milk', boughtBy: 'kid', boughtAt: twoDaysAgo, price: null }));
+  });
+  it('a phone clock a little ahead is tolerated', async () => {
+    const inTwoMinutes = Timestamp.fromDate(new Date(Date.now() + 2 * 60 * 1000));
+    await assertSucceeds(setDoc(doc(as('kid'), `families/${F}/purchases/p7`), { itemId: 'milk', boughtBy: 'kid', boughtAt: inTwoMinutes, price: null }));
+  });
+  it('the purchase time can never be changed', async () => {
+    const tomorrow = Timestamp.fromDate(new Date(Date.now() + 24 * 60 * 60 * 1000));
+    await assertFails(updateDoc(doc(as('kid'), `families/${F}/purchases/old`), { boughtAt: tomorrow }));
+    await assertFails(updateDoc(doc(as('kid'), `families/${F}/purchases/old`), { price: 5, boughtAt: tomorrow }));
+  });
 });
 
 describe('members and joining', () => {
@@ -130,8 +150,32 @@ describe('members and joining', () => {
     await assertSucceeds(deleteDoc(doc(as('dad'), `families/${F}/members/kid`)));
   });
   it('a newcomer can join as child but not as parent', async () => {
-    await assertFails(setDoc(doc(as('mum'), `families/${F}/members/mum`), { name: 'Mum', role: 'parent' }));
-    await assertSucceeds(setDoc(doc(as('mum'), `families/${F}/members/mum`), { name: 'Mum', role: 'child' }));
+    await assertFails(setDoc(doc(as('mum'), `families/${F}/members/mum`), { name: 'Mum', role: 'parent', joinCode: 'ABC234' }));
+    await assertSucceeds(setDoc(doc(as('mum'), `families/${F}/members/mum`), { name: 'Mum', role: 'child', joinCode: 'ABC234' }));
+  });
+  it('joining needs a join code', async () => {
+    await assertFails(setDoc(doc(as('mum'), `families/${F}/members/mum`), { name: 'Mum', role: 'child' }));
+  });
+  it('joining with a wrong code fails', async () => {
+    await assertFails(setDoc(doc(as('mum'), `families/${F}/members/mum`), { name: 'Mum', role: 'child', joinCode: 'ZZZ999' }));
+  });
+  it("another family's code does not open this family", async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      const db = ctx.firestore();
+      await setDoc(doc(db, 'families/fam2'), { name: 'Other home', joinCode: 'OTH234', createdBy: 'gran' });
+      await setDoc(doc(db, 'joinCodes/OTH234'), { familyId: 'fam2' });
+    });
+    await assertFails(setDoc(doc(as('mum'), `families/${F}/members/mum`), { name: 'Mum', role: 'child', joinCode: 'OTH234' }));
+  });
+  it('the old code stops working after regeneration', async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      const db = ctx.firestore();
+      await deleteDoc(doc(db, 'joinCodes/ABC234'));
+      await setDoc(doc(db, 'joinCodes/NEW234'), { familyId: F });
+      await updateDoc(doc(db, `families/${F}`), { joinCode: 'NEW234' });
+    });
+    await assertFails(setDoc(doc(as('mum'), `families/${F}/members/mum`), { name: 'Mum', role: 'child', joinCode: 'ABC234' }));
+    await assertSucceeds(setDoc(doc(as('mum'), `families/${F}/members/mum`), { name: 'Mum', role: 'child', joinCode: 'NEW234' }));
   });
   it('a removed user can still read their own (missing) member doc', async () => {
     await assertSucceeds(getDoc(doc(as('stranger'), `families/${F}/members/stranger`)));
@@ -142,6 +186,34 @@ describe('members and joining', () => {
     await assertSucceeds(setDoc(doc(db, 'families/fam2/members/newbie'), { name: 'N', role: 'parent' }));
     await assertSucceeds(setDoc(doc(db, 'joinCodes/XYZ789'), { familyId: 'fam2' }));
     await assertSucceeds(setDoc(doc(db, 'families/fam2/categories/o'), { name: 'Other', isDefault: true }));
+    await assertSucceeds(setDoc(doc(db, 'users/newbie'), { familyId: 'fam2' }, { merge: true }));
+  });
+  it('after setup the creator cannot re-make themselves parent', async () => {
+    const db = as('newbie');
+    await setDoc(doc(db, 'families/fam2'), { name: 'New', joinCode: 'XYZ789', createdBy: 'newbie' });
+    await setDoc(doc(db, 'families/fam2/members/newbie'), { name: 'N', role: 'parent' });
+    await setDoc(doc(db, 'joinCodes/XYZ789'), { familyId: 'fam2' });
+    await setDoc(doc(db, 'families/fam2/categories/o'), { name: 'Other', isDefault: true });
+    await setDoc(doc(db, 'users/newbie'), { familyId: 'fam2' }, { merge: true });
+    await assertSucceeds(deleteDoc(doc(db, 'families/fam2/members/newbie')));
+    await assertFails(setDoc(doc(db, 'families/fam2/members/newbie'), { name: 'N', role: 'parent' }));
+  });
+  it('a removed creator cannot rejoin as parent', async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      const db = ctx.firestore();
+      await setDoc(doc(db, `families/${F}/members/gran`), { name: 'Gran', role: 'parent' });
+      await deleteDoc(doc(db, `families/${F}/members/dad`));
+    });
+    await assertFails(setDoc(doc(as('dad'), `families/${F}/members/dad`), { name: 'Dad', role: 'parent' }));
+  });
+  it('a demoted creator who left cannot come back as parent', async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      const db = ctx.firestore();
+      await updateDoc(doc(db, `families/${F}/members/dad`), { role: 'child' });
+      await setDoc(doc(db, `families/${F}/members/gran`), { name: 'Gran', role: 'parent' });
+    });
+    await assertSucceeds(deleteDoc(doc(as('dad'), `families/${F}/members/dad`)));
+    await assertFails(setDoc(doc(as('dad'), `families/${F}/members/dad`), { name: 'Dad', role: 'parent' }));
   });
 });
 

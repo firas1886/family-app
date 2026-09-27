@@ -5,6 +5,7 @@ service cloud.firestore {
     function signedIn() { return request.auth != null; }
     function uid() { return request.auth.uid; }
     function familyPath(f) { return /databases/$(database)/documents/families/$(f); }
+    function joinCodePath(c) { return /databases/$(database)/documents/joinCodes/$(c); }
     function memberPath(f) { return /databases/$(database)/documents/families/$(f)/members/$(uid()); }
     function isMember(f) { return signedIn() && exists(memberPath(f)); }
     function isParent(f) { return isMember(f) && get(memberPath(f)).data.role == 'parent'; }
@@ -31,8 +32,14 @@ service cloud.firestore {
       match /members/{m} {
         allow read: if isMember(f) || (signedIn() && uid() == m);
         allow create: if signedIn() && uid() == m && (
-          (request.resource.data.role == 'child' && exists(familyPath(f)))
-          || (request.resource.data.role == 'parent' && get(familyPath(f)).data.createdBy == uid())
+          (request.resource.data.role == 'child'
+            && request.resource.data.joinCode is string
+            && request.resource.data.joinCode == get(familyPath(f)).data.joinCode
+            && exists(joinCodePath(request.resource.data.joinCode))
+            && get(joinCodePath(request.resource.data.joinCode)).data.familyId == f)
+          || (request.resource.data.role == 'parent'
+            && get(familyPath(f)).data.createdBy == uid()
+            && !exists(joinCodePath(get(familyPath(f)).data.joinCode)))
         );
         allow update: if isParent(f) && onlyChanges(['role'])
           && request.resource.data.role in ['parent', 'child'];
@@ -63,7 +70,9 @@ service cloud.firestore {
 
       match /purchases/{p} {
         allow read: if isMember(f);
-        allow create: if isMember(f) && request.resource.data.boughtBy == uid();
+        allow create: if isMember(f) && request.resource.data.boughtBy == uid()
+          && request.resource.data.boughtAt is timestamp
+          && request.resource.data.boughtAt <= request.time + duration.value(5, 'm');
         allow update: if isMember(f) && onlyChanges(['price']);
         allow delete: if isParent(f) || (
           isMember(f) && resource.data.boughtBy == uid()
