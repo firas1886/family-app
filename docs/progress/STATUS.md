@@ -7,17 +7,17 @@
 | 3 | Models and placement logic | Done (2026-09-28) | 1 | ccbcfd8 | 40/40 tests, incl. Step 5b hardening. Accepted deviations: `_invisible` regex written with `\u` escapes (same code points, avoids analyzer warnings); two formatting-only line splits. |
 | 4 | Firestore security rules | Done (2026-09-27) | 2 | 7270826 | Attempt 1 (2650074) passed as planned; attempt 2 = approved Option A tightening. 34/34 rules tests. |
 | 5 | Family repository | Done (2026-09-28) | 1 | d48fbec | 50/50 tests; diff-identical to plan; every write checked against firestore.rules; Review Focus #4 passes. |
-| 6 | Catalog repository | In progress (2026-09-28) | 1 | | |
-| 7 | List and purchase repositories | Not started | 0 | | |
+| 6 | Catalog repository | Done (2026-09-28) | 1 | c9adbdd | 57/57 tests; byte-identical to plan; every write checked against firestore.rules; Review Focus #3 passes. |
+| 7 | List and purchase repositories | In progress (2026-09-28) | 1 | | |
 | 8 | App foundation (l10n, providers) | Not started | 0 | | |
-| 9 | Item details sheet | Not started | 0 | | |
-| 10 | Lists tab and list screen | Not started | 0 | | |
+| 9 | Item details sheet | Not started | 0 | | Must confirm (from Task 6 test): `_deleteFromCatalog` passes EVERY list id to `deleteItem` (it only clears entries in the lists it is given) — the sheet must keep `listsProvider` watched so lists are loaded, as the plan does; delete is parent-only. |
+| 10 | Lists tab and list screen | Not started | 0 | | Must confirm (from Task 6 test): (a) category delete is never offered for the default "Other" category (the server rejects the whole batch; offline it applies locally then rolls back) — plan gates the long-press on `isParent && !isDefault`; (b) `deleteCategory` receives the FULL catalog (`itemsProvider` value, not a filtered/section list), or items in the deleted category are left pointing at it. |
 | 11 | History screen | Not started | 0 | | |
 | 12 | Family screen | Not started | 0 | | |
 | 13 | App shell | Not started | 0 | | Brief must require (and tester confirm) that onboarding Join/Create are only reachable when `users/{uid}.familyId` is null (from Task 5 test: joinFamily by a user already in a family fails with a raw permission error, or leaves an orphan member doc in the old family). |
 | 14 | Release builds and setup guide | Not started | 0 | | Brief must include two one-line extras (existing constraints, not new scope): (a) `minSdk = 23` → `minSdk = 24` in `android/app/build.gradle.kts` (Global Constraint updated 2026-09-28); (b) `android:label="family_app"` → `android:label="Family"` in `android/app/src/main/AndroidManifest.xml` (Global Constraint: app title "Family"). |
 
-**Next runnable task:** Task 6 (in progress); then Task 7.
+**Next runnable task:** Task 7 (in progress); then Task 8.
 
 ## Decisions
 - 2026-09-27: Spec and plan approved by Firas. Execution: subagent-driven with PM / developer / tester agents.
@@ -33,6 +33,7 @@
 - 2026-09-28: Task 3 PASS (ccbcfd8).
 - 2026-09-28: Manifest label: template `android:label="family_app"` breaks the existing Global Constraint app title "Family". Not new scope; one-line fix assigned to Task 14 (same Android-config touch as minSdk).
 - 2026-09-28: Task 5 PASS (d48fbec).
+- 2026-09-28: Task 6 PASS (c9adbdd). Two tester observations attached as "must confirm" notes to Tasks 9 and 10; one parked.
 
 ## Parking lot
 - Chores module (Release 2)
@@ -45,3 +46,4 @@
 - Text (from Task 3 test): invisible-character stripping doesn't cover U+2060 word joiner or U+00AD soft hyphen (plan's chosen set); add only if a real name mismatches.
 - Family (from Task 5 test): the last-parent check (demote/remove/leave) isn't transactional; two parents demoting each other at the same moment could leave no parent.
 - Tests (from Task 5 test): removeMember has no last-parent test (the code applies the check).
+- Catalog (from Task 6 test): any member can `saveItem(isNew: true)` over an existing item id, overwriting `createdBy`/`createdAt` (rules and spec allow it).

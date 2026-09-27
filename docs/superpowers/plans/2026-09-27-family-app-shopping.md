@@ -1917,7 +1917,7 @@ git commit -m "feat(data): family repository — create/join, roles, join codes"
     - `Future<void> deleteItem({required String itemId, required Iterable<String> listIds})`
   - `Future<FakeFirebaseFirestore> seedFamily()` (`test/support/seed.dart`). It seeds family `f1` with parent `u1` "Dad", child `u2` "Sara", categories `other` (default) and `dairy`, items `milk` (Dairy, 2 L, 7 days) and `bread` (Other), list `l1` "Home", and a toBuy entry for `milk`.
 
-- [ ] **Step 1: Create the shared seed**
+- [x] **Step 1: Create the shared seed**
 
 Create `test/support/seed.dart`:
 
@@ -1948,7 +1948,7 @@ Future<FakeFirebaseFirestore> seedFamily() async {
 }
 ```
 
-- [ ] **Step 2: Write the failing tests**
+- [x] **Step 2: Write the failing tests**
 
 Create `test/data/catalog_repository_test.dart`:
 
@@ -2037,12 +2037,12 @@ void main() {
 }
 ```
 
-- [ ] **Step 3: Run the tests to verify they fail**
+- [x] **Step 3: Run the tests to verify they fail**
 
 Run: `flutter test test/data/catalog_repository_test.dart`
 Expected: FAIL, `Target of URI doesn't exist: 'package:family_app/data/catalog_repository.dart'`.
 
-- [ ] **Step 4: Implement**
+- [x] **Step 4: Implement**
 
 Create `lib/data/write.dart`:
 
@@ -2140,12 +2140,12 @@ class CatalogRepository {
 }
 ```
 
-- [ ] **Step 5: Run the tests to verify they pass**
+- [x] **Step 5: Run the tests to verify they pass**
 
 Run: `flutter test test/data/catalog_repository_test.dart`
 Expected: PASS
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add lib/data/catalog_repository.dart lib/data/write.dart test/support/seed.dart test/data/catalog_repository_test.dart
