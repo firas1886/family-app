@@ -1,1 +1,3 @@
 rules-tests/node_modules/
+.claude/settings.local.json
+*-debug.log
