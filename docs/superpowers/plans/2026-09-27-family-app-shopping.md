@@ -473,7 +473,7 @@ git commit -m "feat(core): name matching, tile letters, join codes, number parsi
   - `int compareCategories(ItemCategory? a, ItemCategory? b, String languageCode)`
   - `List<CategoryGroup<Item>> catalogGroups({required Iterable<Item> items, required Map<String, ItemCategory> categories, required String languageCode})`
 
-- [ ] **Step 1: Write the failing model tests**
+- [x] **Step 1: Write the failing model tests**
 
 Create `test/core/models_test.dart`:
 
@@ -533,7 +533,7 @@ void main() {
 }
 ```
 
-- [ ] **Step 2: Write the failing placement tests**
+- [x] **Step 2: Write the failing placement tests**
 
 Create `test/core/placement_test.dart`:
 
@@ -709,12 +709,12 @@ void main() {
 }
 ```
 
-- [ ] **Step 3: Run the tests to verify they fail**
+- [x] **Step 3: Run the tests to verify they fail**
 
 Run: `flutter test test/core`
 Expected: FAIL, `Target of URI doesn't exist: 'package:family_app/core/models.dart'`.
 
-- [ ] **Step 4: Implement models**
+- [x] **Step 4: Implement models**
 
 Create `lib/core/models.dart`:
 
@@ -947,7 +947,7 @@ class Purchase {
 }
 ```
 
-- [ ] **Step 5: Implement placement**
+- [x] **Step 5: Implement placement**
 
 Create `lib/core/placement.dart`:
 
@@ -1118,7 +1118,7 @@ List<CategoryGroup<Item>> catalogGroups({
 }
 ```
 
-- [ ] **Step 5b: Harden text utilities (added 2026-09-28, auto-decided after Task 2 test)**
+- [x] **Step 5b: Harden text utilities (added 2026-09-28, auto-decided after Task 2 test)**
 
 Test first: append to `test/core/text_test.dart` (inside `main()`):
 
@@ -1144,12 +1144,12 @@ Then in `lib/core/text.dart`: add
 (ZWJ/ZWNJ `‌‍` are deliberately kept: emoji sequences need them). In `nameKey` and `tileLetter`, call `.replaceAll(_invisible, '')` on the input before `.trim()`. In `parseNumber`, replace `return double.tryParse(text);` with:
 `final value = double.tryParse(text); return (value != null && value.isFinite && value >= 0) ? value : null;`
 
-- [ ] **Step 6: Run the tests to verify they pass**
+- [x] **Step 6: Run the tests to verify they pass**
 
 Run: `flutter test test/core`
 Expected: PASS, `All tests passed!`
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add lib/core test/core
