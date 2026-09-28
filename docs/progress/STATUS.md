@@ -54,6 +54,7 @@
 - Google sign-in is not covered by automated tests: check sign-in, cancel, and sign-out/sign-in again on a real phone (needs the SHA fingerprints registered in Firebase).
 
 ## Parking lot
+- Skylight-style family hub (calendar, chores + star rewards, meal planner, recipe bank, AI import, wall mode, photo screensaver): inventory in docs/ideas/2026-09-28-skylight-feature-inventory.md; needs a Release 2 spec.
 - Chores module (Release 2)
 - Budget reports and charts built on purchase history
 - Rules hardening (nice-to-have, from Task 4 test): enforce "last parent can't be demoted/leave" in rules too (spec §6 currently app-only); stop parents creating extra `isDefault: true` categories; check `users/{uid}.familyId` in rules rather than member-doc existence (spec §7 wording; current approach is equivalent in practice).
