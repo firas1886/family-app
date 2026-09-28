@@ -20,6 +20,7 @@
 **Next:** Firas's steps — (1) follow `docs/SETUP.md` (signing key, Firebase setup incl. SHA fingerprints, GitHub secrets, first release, install); (2) run the Task 14 Step 6 manual checklist on two phones; (3) run the Device test checklist below. All 14 plan tasks are otherwise Done.
 
 ## Decisions
+- 2026-09-28: Release 2 split into 2a (chores + look and feel), 2b (family calendar, wall mode, Google Calendar), 2c (star rewards). 2a spec drafted: docs/superpowers/specs/2026-09-28-release2a-chores-and-look-design.md, awaiting Firas's review.
 - 2026-09-27: Spec and plan approved by Firas. Execution: subagent-driven with PM / developer / tester agents.
 - 2026-09-27: Flutter SDK not installed; Firas: ignore Flutter for now. Task 4 run ahead of Task 1 (no Flutter dependency). Task 1 must merge into the existing ci.yml and .gitignore.
 - 2026-09-27: Task 4 attempt 1 PASS (2650074). Accepted deviation: `rules-tests/package.json` `emulate` script uses `\"npm test\"` quoting for Windows cmd.exe (also valid on Linux).
