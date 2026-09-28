@@ -3537,7 +3537,7 @@ git commit -m "feat(lists): long-press item details sheet"
   - `class ListScreen({required String listId})`, with widget keys `iNeedField`, `iNeedAdd`, `sortToggle`
   - `class ListsScreen()`, with FAB key `newListFab`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `test/features/list_screen_test.dart`:
 
@@ -3672,12 +3672,12 @@ void main() {
 }
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `flutter test test/features/list_screen_test.dart test/features/lists_screen_test.dart`
 Expected: FAIL, `Target of URI doesn't exist: 'package:family_app/features/lists/list_screen.dart'`.
 
-- [ ] **Step 3: Implement the tile**
+- [x] **Step 3: Implement the tile**
 
 Create `lib/features/lists/item_tile.dart`:
 
@@ -3770,7 +3770,7 @@ class ItemTile extends StatelessWidget {
 }
 ```
 
-- [ ] **Step 4: Implement the list screen**
+- [x] **Step 4: Implement the list screen**
 
 Create `lib/features/lists/list_screen.dart`:
 
@@ -4144,7 +4144,7 @@ class _ListScreenState extends ConsumerState<ListScreen> {
 }
 ```
 
-- [ ] **Step 5: Implement the Lists tab**
+- [x] **Step 5: Implement the Lists tab**
 
 Create `lib/features/lists/lists_screen.dart`:
 
@@ -4244,12 +4244,12 @@ class ListsScreen extends ConsumerWidget {
 }
 ```
 
-- [ ] **Step 6: Run the tests to verify they pass**
+- [x] **Step 6: Run the tests to verify they pass**
 
 Run: `flutter test test/features/list_screen_test.dart test/features/lists_screen_test.dart`
 Expected: PASS
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add lib/features/lists test/features/list_screen_test.dart test/features/lists_screen_test.dart
