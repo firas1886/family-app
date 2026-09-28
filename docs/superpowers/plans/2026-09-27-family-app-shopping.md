@@ -4557,7 +4557,7 @@ git commit -m "feat(history): purchase history with list filter and later price 
 - Consumes: `FamilyRepository`, `LastParentException` (Task 5); providers, `confirm` (Task 8); `tileLetter` (Task 2)
 - Produces: `class FamilyScreen()`. Keys: `regenerateCode`, `memberMenu-<uid>`, `leaveFamily`, `signOut`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `test/features/family_screen_test.dart`:
 
@@ -4629,12 +4629,12 @@ void main() {
 }
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `flutter test test/features/family_screen_test.dart`
 Expected: FAIL, `Target of URI doesn't exist: 'package:family_app/features/family/family_screen.dart'`.
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 Create `lib/features/family/family_screen.dart`:
 
@@ -4798,12 +4798,12 @@ class FamilyScreen extends ConsumerWidget {
 }
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `flutter test test/features/family_screen_test.dart`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add lib/features/family/family_screen.dart test/features/family_screen_test.dart

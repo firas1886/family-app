@@ -13,11 +13,11 @@
 | 9 | Item details sheet | Done (2026-09-28) | 1 | f2a7da0 | 74/74 tests; diff-identical to plan; all writes via fireAndForget; must-confirm satisfied (deleteItem gets every list id; parent-only, rules line 59); Review Focus #2 passes. 2 infos only (deprecated `value` on DropdownButtonFormField, as planned). Observations parked. |
 | 10 | Lists tab and list screen | Done (2026-09-28) | 2 | df5345b + 882bcf8 | 91/91 tests; 0 errors/0 warnings/3 pre-existing infos. Attempt 2 overflow fix verified: tester probe passed all 24 cases (360/412/320 dp, text scale 1.0/1.3/2.0, English/Arabic long names, with/without caption); letter, name and quantity stay visible. Accepted deviations: grid PageStorageKey, `GridView.extent(130)`, snackbar timer cancel, `childAspectRatio: 0.8`, ItemTile content wrapped in LayoutBuilder→Center→FittedBox(scaleDown), and positioning-only change (ensureVisible + settle) in test "tapping a catalog item adds it to To buy" (no assertion changed). |
 | 11 | History screen | Done (2026-09-28) | 1 | 3dcf609 | 97/97 tests; 0 errors/0 warnings/4 infos (1 new `unnecessary_underscores`, verbatim plan code). Accepted deviation: child's `onLongPress` is `() {}` instead of null in history_screen.dart (null made a long press count as a tap and broke the plan's own test; spec line 127 behaviour unchanged). |
-| 12 | Family screen | In progress (2026-09-28) | 0 | | |
-| 13 | App shell | Not started | 0 | | Brief must require (and tester confirm) that onboarding Join/Create are only reachable when `users/{uid}.familyId` is null (from Task 5 test: joinFamily by a user already in a family fails with a raw permission error, or leaves an orphan member doc in the old family). Also (from Task 8 test): family-scoped providers throw `StateError('No family selected')` while `familyIdProvider` is null, so RootGate must gate on `familyIdProvider` and never build family screens until it is non-null. |
+| 12 | Family screen | Done (2026-09-28) | 1 | 96a1f3e | 103/103 tests; 0 errors/0 warnings/4 pre-existing infos; verbatim from plan; all Produces keys present; spec lines 129/142/145 verified; parent-only controls backed by rules. One observation parked. |
+| 13 | App shell | In progress (2026-09-28) | 0 | | Brief must require (and tester confirm) that onboarding Join/Create are only reachable when `users/{uid}.familyId` is null (from Task 5 test: joinFamily by a user already in a family fails with a raw permission error, or leaves an orphan member doc in the old family). Also (from Task 8 test): family-scoped providers throw `StateError('No family selected')` while `familyIdProvider` is null, so RootGate must gate on `familyIdProvider` and never build family screens until it is non-null. |
 | 14 | Release builds and setup guide | Not started | 0 | | Brief must include two one-line extras (existing constraints, not new scope): (a) `minSdk = 23` → `minSdk = 24` in `android/app/build.gradle.kts` (Global Constraint updated 2026-09-28); (b) `android:label="family_app"` → `android:label="Family"` in `android/app/src/main/AndroidManifest.xml` (Global Constraint: app title "Family"); (c) `applicationId = "com.family.family_app"` → `applicationId = "com.firas.familia"` in `android/app/build.gradle.kts` (namespace and Kotlin package stay `com.family.family_app`). Firebase: project `familia-a1b9f` already exists; `android/app/google-services.json` is present locally (gitignored, never commit). Google Sign-In also needs debug SHA fingerprints registered + Google sign-in enabled (asked of Firas, pending); the release keystore fingerprints must be registered too. SETUP.md step 2 should account for the existing project. |
 
-**Next runnable task:** Task 12 (in progress); then Task 13.
+**Next runnable task:** Task 13 (in progress); then Task 14.
 
 ## Decisions
 - 2026-09-27: Spec and plan approved by Firas. Execution: subagent-driven with PM / developer / tester agents.
@@ -42,6 +42,8 @@
 - 2026-09-28: Task 10 PASS (df5345b + 882bcf8, attempt 2).
 - 2026-09-28: Auto-decided (Firas pre-authorised): Task 10 rework brief was self-contradictory (aspect 0.8 made an existing test's tap land under the I-need bar). Chose option A: keep 0.8 and allow a positioning-only ensureVisible in that test, because tiles stay more readable (0.8× vs 0.6× at 320dp/1.3).
 - 2026-09-28: Task 11 PASS (3dcf609). One observation parked.
+- 2026-09-28: Task 12 PASS (96a1f3e). One observation parked. Task 13 started.
+- 2026-09-28: Auto-decided (Firas pre-authorised): Task 13 RootGate — the plan's `error:` branch of `appUserProvider` shows OnboardingScreen, which would make Join/Create reachable while the user's familyId is unknown (breaks the Task 13 note; could leave an orphan member doc). Chose to show `_Loading()` on that error instead (one-line deviation) over keeping it verbatim, because reading your own user doc practically never errors, and a stuck spinner is harmless while an orphan membership is not.
 
 ## Parking lot
 - Chores module (Release 2)
@@ -60,4 +62,5 @@
 - Tests (from Task 10 test): no widget test covers the category or list rename/delete sheets.
 - Item sheet (from Task 9 test): unparseable expiry text saves as "no expiry"; a future `value`→`initialValue` switch on DropdownButtonFormField needs care (behaviour differs).
 - Rules hardening (from Task 11 test, belongs to Task 4): rules don't type-check purchase `price` as a number; only the UI's `parseNumber` keeps it valid.
+- Sign out (from Task 12 test): no try/catch, so if Google sign-out throws, the Firebase sign-out is skipped (minor robustness).
 - Tiles (from Task 10 test): on small phones with large text, tiles shrink to ~0.6–0.8×; check readability on a real device.
