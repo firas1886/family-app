@@ -187,5 +187,5 @@ The app has three bottom tabs.
 - Private GitHub repository.
 - A GitHub Actions workflow runs the tests on every push. On a version tag, it builds a signed release APK and attaches it to a GitHub Release.
 - The signing keystore and `google-services.json` are stored as GitHub secrets, never committed. A copy of the keystore is kept safely by Firas, because losing it means future updates can't install over the existing app.
-- One-time setup by Firas (step-by-step instructions to be provided): create the Firebase project, enable Google sign-in and Firestore, register the signing key's SHA-1, and add the secrets to GitHub.
+- One-time setup by Firas (step-by-step instructions to be provided): create the Firebase project, enable Google sign-in and Firestore, register the signing key's SHA-1, and add the secrets to GitHub. (2026-09-28: Firas created Firebase project `familia-a1b9f` with Android app id `com.firas.familia`; the app's application id was changed to match.)
 - Updating: tag a release, download the APK from GitHub, and send it to the family. Installing it keeps all data, which lives in Firebase.

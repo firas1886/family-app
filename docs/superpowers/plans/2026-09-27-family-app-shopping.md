@@ -14,7 +14,7 @@
 
 ## Global Constraints
 
-- Android application id / namespace: `com.family.family_app`. Dart package name: `family_app`. App title: "Family".
+- Android application id: `com.firas.familia` (changed 2026-09-28 by Firas to match the Firebase Android app registered in project `familia-a1b9f`; the one-line `applicationId` change is made in Task 14). Android namespace and Kotlin package stay `com.family.family_app`. Dart package name: `family_app`. App title: "Family".
 - Minimum Android SDK: 24 (Android 7.0). Changed from 23 on 2026-09-28: Flutter 3.47.5 requires 24 and auto-raises it at build time.
 - Dependency versions (use exactly these constraints): `firebase_core:^3.13.0`, `firebase_auth:^5.5.0`, `cloud_firestore:^5.6.0`, `google_sign_in:^6.2.2`, `flutter_riverpod:^2.6.1`, `share_plus:^10.1.4`, `intl:any`, `characters:any`, `flutter_localizations` (sdk), dev: `fake_cloud_firestore:^3.1.0`.
 - Firestore paths and field names exactly as spec §3.
@@ -2180,7 +2180,7 @@ git commit -m "feat(data): catalog repository for categories and items"
     - `Future<void> setPrice(String purchaseId, double? price)`
     - `Future<void> delete(String purchaseId)`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `test/data/list_repository_test.dart`:
 
@@ -2319,12 +2319,12 @@ void main() {
 }
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `flutter test test/data/list_repository_test.dart`
 Expected: FAIL, `Target of URI doesn't exist: 'package:family_app/data/list_repository.dart'`.
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 Create `lib/data/list_repository.dart`:
 
@@ -2484,12 +2484,12 @@ class PurchaseRepository {
 }
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `flutter test test/data`
 Expected: PASS for all data tests.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add lib/data/list_repository.dart lib/data/purchase_repository.dart test/data/list_repository_test.dart
@@ -5280,6 +5280,9 @@ git commit -m "feat(app): sign-in, onboarding, root gate and bottom navigation"
 
 **Files:**
 - Create: `.github/workflows/keystore.yml`, `.github/workflows/release.yml`, `docs/SETUP.md`
+- Modify (one-liners from 2026-09-28 decisions): `android/app/build.gradle.kts` (`minSdk = 24`; `applicationId = "com.firas.familia"`, namespace unchanged), `android/app/src/main/AndroidManifest.xml` (`android:label="Family"`)
+
+**Note (2026-09-28):** Firas already created Firebase project `familia-a1b9f` with Android app `com.firas.familia`; `android/app/google-services.json` is present locally (gitignored, never commit). Google Sign-In also needs the debug SHA-1/SHA-256 registered in Firebase and Google sign-in enabled (Firas, pending). The release keystore fingerprints from `fingerprints.txt` must also be added to that Firebase Android app.
 
 **Interfaces:**
 - Consumes: `android/app/build.gradle.kts` signing config (Task 1), which reads `android/key.properties` with keys `storeFile`, `storePassword`, `keyAlias`, `keyPassword`
@@ -5404,7 +5407,7 @@ Everything happens in a web browser: GitHub and the Firebase console. Nothing ne
 3. **Build → Firestore Database → Create database → Start in production mode**. Choose the location closest to you (for example `me-central2`, Dammam, if listed).
 4. In Firestore, open the **Rules** tab, replace everything with the contents of `firestore.rules` from this repository, and click **Publish**.
 5. **Project settings (gear icon) → Your apps → Add app → Android**:
-   - Package name: `com.family.family_app`
+   - Package name: `com.firas.familia`
    - Debug signing certificate SHA-1: the SHA1 value from `fingerprints.txt`
    - Register, then **download `google-services.json`**.
 6. Back in Project settings, open the Android app and **Add fingerprint** again with the SHA256 value.
