@@ -30,3 +30,4 @@ app.*.map.json
 
 # Rules tests lockfile
 rules-tests/package-lock.json
+android/.kotlin/

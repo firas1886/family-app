@@ -5288,7 +5288,7 @@ git commit -m "feat(app): sign-in, onboarding, root gate and bottom navigation"
 - Consumes: `android/app/build.gradle.kts` signing config (Task 1), which reads `android/key.properties` with keys `storeFile`, `storePassword`, `keyAlias`, `keyPassword`
 - Produces: GitHub secrets contract, as follows. `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`, `GOOGLE_SERVICES_JSON` (the raw JSON). A published GitHub Release gets `family-app-<tag>.apk` attached.
 
-- [ ] **Step 1: Add the one-time key generation workflow**
+- [x] **Step 1: Add the one-time key generation workflow**
 
 Create `.github/workflows/keystore.yml`:
 
@@ -5326,7 +5326,7 @@ jobs:
           retention-days: 1
 ```
 
-- [ ] **Step 2: Add the release workflow**
+- [x] **Step 2: Add the release workflow**
 
 Create `.github/workflows/release.yml`:
 
@@ -5381,7 +5381,7 @@ jobs:
           files: family-app-*.apk
 ```
 
-- [ ] **Step 3: Write the setup guide**
+- [x] **Step 3: Write the setup guide**
 
 Create `docs/SETUP.md`:
 
@@ -5433,12 +5433,12 @@ Publish a new release with a higher tag, then install the new APK over the old o
 If `firestore.rules` changes in a later version, paste it into the Firestore **Rules** tab again and click Publish.
 ```
 
-- [ ] **Step 4: Verify the workflows parse**
+- [x] **Step 4: Verify the workflows parse**
 
 Run: `python3 -c "import yaml,sys; [yaml.safe_load(open(f)) for f in sys.argv[1:]]; print('ok')" .github/workflows/*.yml`
 Expected: `ok`
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add .github/workflows/keystore.yml .github/workflows/release.yml docs/SETUP.md
