@@ -1,14 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-void main() => runApp(const PlaceholderApp());
+import 'app/app.dart';
 
-class PlaceholderApp extends StatelessWidget {
-  const PlaceholderApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(body: Center(child: Text('Family'))),
-    );
-  }
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(); // reads android/app/google-services.json
+  FirebaseFirestore.instance.settings = const Settings(persistenceEnabled: true);
+  runApp(const ProviderScope(child: FamilyApp()));
 }
