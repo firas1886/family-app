@@ -77,7 +77,7 @@ Rules of the model:
 
 ## 4. Core logic (pure Dart, `lib/core`, fully unit-tested)
 
-- `occursOn(Chore, date) → bool`: applies startDate, endDate, repeat, every, weekdays and monthDay. "Every N weeks" counts weeks from the week containing startDate (weeks start on the family's week start, default Sunday).
+- `occursOn(Chore, date) → bool`: applies startDate, endDate, repeat, every, weekdays and monthDay. "Every N weeks" counts weeks from the week containing startDate (weeks start on Sunday).
 - `choresForDay(chores, done, date, today) → DayView`: for each member, the chores occurring that day with done or not-done status, sorted: timed chores by time first, then untimed by title. Also an "Anyone" group.
 - `lateChores(chores, done, today) → list`: one-time and "anyone" chores whose date is before today and that have no done record. A repeating "anyone" chore is late only for its most recent missed occurrence, never a pile of them.
 - Progress per member for a day: done count over total.
