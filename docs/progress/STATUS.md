@@ -10,14 +10,14 @@
 | 6 | Catalog repository | Done (2026-09-28) | 1 | c9adbdd | 57/57 tests; byte-identical to plan; every write checked against firestore.rules; Review Focus #3 passes. |
 | 7 | List and purchase repositories | Done (2026-09-28) | 1 | 4aa6b26 | 64/64 tests; byte-identical to plan; every write checked against firestore.rules. Two observations parked. |
 | 8 | App foundation (l10n, providers) | Done (2026-09-28) | 1 | d72b994 | 68/68 tests; en/ar ARB 79 keys each. Accepted deviation: `import 'package:flutter_riverpod/flutter_riverpod.dart' hide Family;` in providers.dart (Riverpod 2.6.1 exports a `Family` class that clashes with our model; import-only). |
-| 9 | Item details sheet | In progress (2026-09-28) | 1 | | Must confirm (from Task 6 test): `_deleteFromCatalog` passes EVERY list id to `deleteItem` (it only clears entries in the lists it is given) — the sheet must keep `listsProvider` watched so lists are loaded, as the plan does; delete is parent-only. |
-| 10 | Lists tab and list screen | Not started | 0 | | Must confirm (from Task 6 test): (a) category delete is never offered for the default "Other" category (the server rejects the whole batch; offline it applies locally then rolls back) — plan gates the long-press on `isParent && !isDefault`; (b) `deleteCategory` receives the FULL catalog (`itemsProvider` value, not a filtered/section list), or items in the deleted category are left pointing at it. |
+| 9 | Item details sheet | Done (2026-09-28) | 1 | f2a7da0 | 74/74 tests; diff-identical to plan; all writes via fireAndForget; must-confirm satisfied (deleteItem gets every list id; parent-only, rules line 59); Review Focus #2 passes. 2 infos only (deprecated `value` on DropdownButtonFormField, as planned). Observations parked. |
+| 10 | Lists tab and list screen | In progress (2026-09-28) | 1 | | Must confirm (from Task 6 test): (a) category delete is never offered for the default "Other" category (the server rejects the whole batch; offline it applies locally then rolls back) — plan gates the long-press on `isParent && !isDefault`; (b) `deleteCategory` receives the FULL catalog (`itemsProvider` value, not a filtered/section list), or items in the deleted category are left pointing at it. |
 | 11 | History screen | Not started | 0 | | |
 | 12 | Family screen | Not started | 0 | | |
 | 13 | App shell | Not started | 0 | | Brief must require (and tester confirm) that onboarding Join/Create are only reachable when `users/{uid}.familyId` is null (from Task 5 test: joinFamily by a user already in a family fails with a raw permission error, or leaves an orphan member doc in the old family). Also (from Task 8 test): family-scoped providers throw `StateError('No family selected')` while `familyIdProvider` is null, so RootGate must gate on `familyIdProvider` and never build family screens until it is non-null. |
 | 14 | Release builds and setup guide | Not started | 0 | | Brief must include two one-line extras (existing constraints, not new scope): (a) `minSdk = 23` → `minSdk = 24` in `android/app/build.gradle.kts` (Global Constraint updated 2026-09-28); (b) `android:label="family_app"` → `android:label="Family"` in `android/app/src/main/AndroidManifest.xml` (Global Constraint: app title "Family"); (c) `applicationId = "com.family.family_app"` → `applicationId = "com.firas.familia"` in `android/app/build.gradle.kts` (namespace and Kotlin package stay `com.family.family_app`). Firebase: project `familia-a1b9f` already exists; `android/app/google-services.json` is present locally (gitignored, never commit). Google Sign-In also needs debug SHA fingerprints registered + Google sign-in enabled (asked of Firas, pending); the release keystore fingerprints must be registered too. SETUP.md step 2 should account for the existing project. |
 
-**Next runnable task:** Task 9 (in progress); then Task 10.
+**Next runnable task:** Task 10 (in progress); then Task 11.
 
 ## Decisions
 - 2026-09-27: Spec and plan approved by Firas. Execution: subagent-driven with PM / developer / tester agents.
@@ -37,6 +37,7 @@
 - 2026-09-28 (Firas's decision): Firas created Firebase project `familia-a1b9f` and registered the Android app as `com.firas.familia`; he chose to change the app's `applicationId` to `com.firas.familia` to match (namespace/Kotlin package stay `com.family.family_app`). Plan Global Constraint, plan Task 14 (Files, note, SETUP package name) and spec §deployment updated; the one-line change is scheduled into Task 14. Pending on Firas's account: register debug SHA fingerprints and enable Google sign-in; later, register the release keystore fingerprints.
 - 2026-09-28: Task 7 PASS (4aa6b26). Two observations parked.
 - 2026-09-28: Task 8 PASS (d72b994). RootGate note attached to Task 13; widget tests (Tasks 9–13) must seed users/{uid} with a familyId (pumpWithFamily does not override appUserProvider). Western digits in Arabic UI match the plan.
+- 2026-09-28: Task 9 PASS (f2a7da0). Observations parked.
 
 ## Parking lot
 - Chores module (Release 2)
@@ -51,3 +52,5 @@
 - Family (from Task 5 test): the last-parent check (demote/remove/leave) isn't transactional; two parents demoting each other at the same moment could leave no parent.
 - Tests (from Task 5 test): removeMember has no last-parent test (the code applies the check).
 - Catalog (from Task 6 test): any member can `saveItem(isNew: true)` over an existing item id, overwriting `createdBy`/`createdAt` (rules and spec allow it).
+- Item sheet (from Task 9 test): seed has one list, so multi-list catalog delete isn't directly tested; if `listsProvider` hasn't emitted before the delete confirm, some list entries could be missed (small timing gap).
+- Item sheet (from Task 9 test): unparseable expiry text saves as "no expiry"; a future `value`→`initialValue` switch on DropdownButtonFormField needs care (behaviour differs).

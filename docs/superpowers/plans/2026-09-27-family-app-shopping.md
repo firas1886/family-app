@@ -3156,7 +3156,7 @@ git commit -m "feat(app): Arabic/English localization, theme, providers, dialogs
 - Consumes: providers, `promptText`, `confirm`, `categoryLabel`, `unitLabel` (Task 8); `CatalogRepository`, `ListRepository`, `fireAndForget` (Tasks 6–7); `parseNumber`, `formatNumber` (Task 2); `compareCategories` (Task 3)
 - Produces: `Future<void> showItemSheet(BuildContext context, {required Item item, required String listId, Entry? entry})`. Widget keys: `sheetName`, `sheetQuantity`, `sheetUnit`, `sheetExpiry`, `sheetNotes`, `sheetRemove`, `sheetDelete`, `sheetSave`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `test/features/item_sheet_test.dart`:
 
@@ -3262,12 +3262,12 @@ void main() {
 }
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `flutter test test/features/item_sheet_test.dart`
 Expected: FAIL, `Target of URI doesn't exist: 'package:family_app/features/lists/item_sheet.dart'`.
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 Create `lib/features/lists/item_sheet.dart`:
 
@@ -3510,12 +3510,12 @@ class _ItemSheetState extends ConsumerState<ItemSheet> {
 }
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `flutter test test/features/item_sheet_test.dart`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add lib/features/lists/item_sheet.dart test/features/item_sheet_test.dart
