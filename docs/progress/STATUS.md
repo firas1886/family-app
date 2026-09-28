@@ -9,15 +9,15 @@
 | 5 | Family repository | Done (2026-09-28) | 1 | d48fbec | 50/50 tests; diff-identical to plan; every write checked against firestore.rules; Review Focus #4 passes. |
 | 6 | Catalog repository | Done (2026-09-28) | 1 | c9adbdd | 57/57 tests; byte-identical to plan; every write checked against firestore.rules; Review Focus #3 passes. |
 | 7 | List and purchase repositories | Done (2026-09-28) | 1 | 4aa6b26 | 64/64 tests; byte-identical to plan; every write checked against firestore.rules. Two observations parked. |
-| 8 | App foundation (l10n, providers) | In progress (2026-09-28) | 1 | | |
-| 9 | Item details sheet | Not started | 0 | | Must confirm (from Task 6 test): `_deleteFromCatalog` passes EVERY list id to `deleteItem` (it only clears entries in the lists it is given) — the sheet must keep `listsProvider` watched so lists are loaded, as the plan does; delete is parent-only. |
+| 8 | App foundation (l10n, providers) | Done (2026-09-28) | 1 | d72b994 | 68/68 tests; en/ar ARB 79 keys each. Accepted deviation: `import 'package:flutter_riverpod/flutter_riverpod.dart' hide Family;` in providers.dart (Riverpod 2.6.1 exports a `Family` class that clashes with our model; import-only). |
+| 9 | Item details sheet | In progress (2026-09-28) | 1 | | Must confirm (from Task 6 test): `_deleteFromCatalog` passes EVERY list id to `deleteItem` (it only clears entries in the lists it is given) — the sheet must keep `listsProvider` watched so lists are loaded, as the plan does; delete is parent-only. |
 | 10 | Lists tab and list screen | Not started | 0 | | Must confirm (from Task 6 test): (a) category delete is never offered for the default "Other" category (the server rejects the whole batch; offline it applies locally then rolls back) — plan gates the long-press on `isParent && !isDefault`; (b) `deleteCategory` receives the FULL catalog (`itemsProvider` value, not a filtered/section list), or items in the deleted category are left pointing at it. |
 | 11 | History screen | Not started | 0 | | |
 | 12 | Family screen | Not started | 0 | | |
-| 13 | App shell | Not started | 0 | | Brief must require (and tester confirm) that onboarding Join/Create are only reachable when `users/{uid}.familyId` is null (from Task 5 test: joinFamily by a user already in a family fails with a raw permission error, or leaves an orphan member doc in the old family). |
+| 13 | App shell | Not started | 0 | | Brief must require (and tester confirm) that onboarding Join/Create are only reachable when `users/{uid}.familyId` is null (from Task 5 test: joinFamily by a user already in a family fails with a raw permission error, or leaves an orphan member doc in the old family). Also (from Task 8 test): family-scoped providers throw `StateError('No family selected')` while `familyIdProvider` is null, so RootGate must gate on `familyIdProvider` and never build family screens until it is non-null. |
 | 14 | Release builds and setup guide | Not started | 0 | | Brief must include two one-line extras (existing constraints, not new scope): (a) `minSdk = 23` → `minSdk = 24` in `android/app/build.gradle.kts` (Global Constraint updated 2026-09-28); (b) `android:label="family_app"` → `android:label="Family"` in `android/app/src/main/AndroidManifest.xml` (Global Constraint: app title "Family"); (c) `applicationId = "com.family.family_app"` → `applicationId = "com.firas.familia"` in `android/app/build.gradle.kts` (namespace and Kotlin package stay `com.family.family_app`). Firebase: project `familia-a1b9f` already exists; `android/app/google-services.json` is present locally (gitignored, never commit). Google Sign-In also needs debug SHA fingerprints registered + Google sign-in enabled (asked of Firas, pending); the release keystore fingerprints must be registered too. SETUP.md step 2 should account for the existing project. |
 
-**Next runnable task:** Task 8 (in progress); then Task 9.
+**Next runnable task:** Task 9 (in progress); then Task 10.
 
 ## Decisions
 - 2026-09-27: Spec and plan approved by Firas. Execution: subagent-driven with PM / developer / tester agents.
@@ -36,6 +36,7 @@
 - 2026-09-28: Task 6 PASS (c9adbdd). Two tester observations attached as "must confirm" notes to Tasks 9 and 10; one parked.
 - 2026-09-28 (Firas's decision): Firas created Firebase project `familia-a1b9f` and registered the Android app as `com.firas.familia`; he chose to change the app's `applicationId` to `com.firas.familia` to match (namespace/Kotlin package stay `com.family.family_app`). Plan Global Constraint, plan Task 14 (Files, note, SETUP package name) and spec §deployment updated; the one-line change is scheduled into Task 14. Pending on Firas's account: register debug SHA fingerprints and enable Google sign-in; later, register the release keystore fingerprints.
 - 2026-09-28: Task 7 PASS (4aa6b26). Two observations parked.
+- 2026-09-28: Task 8 PASS (d72b994). RootGate note attached to Task 13; widget tests (Tasks 9–13) must seed users/{uid} with a familyId (pumpWithFamily does not override appUserProvider). Western digits in Arabic UI match the plan.
 
 ## Parking lot
 - Chores module (Release 2)

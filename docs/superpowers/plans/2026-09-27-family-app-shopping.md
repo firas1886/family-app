@@ -2523,7 +2523,7 @@ git commit -m "feat(data): lists, one-tap buy with undo, purchase history"
   - `class OfflineChip extends ConsumerWidget`
   - Test helpers: `final testNow = DateTime(2026, 10, 1, 12)`, `Future<void> settle(WidgetTester)`, `Future<void> pumpWithFamily(WidgetTester, {required FakeFirebaseFirestore db, required Widget child, String uid = 'u1'})`
 
-- [ ] **Step 1: Add localization files**
+- [x] **Step 1: Add localization files**
 
 In `pubspec.yaml`, under the top-level `flutter:` key, add `generate: true`:
 
@@ -2728,7 +2728,7 @@ Create `lib/l10n/app_ar.arb`:
 Run: `flutter gen-l10n`
 Expected: `lib/l10n/app_localizations.dart`, `app_localizations_en.dart` and `app_localizations_ar.dart` are generated, with no errors.
 
-- [ ] **Step 2: Write the failing formatting test**
+- [x] **Step 2: Write the failing formatting test**
 
 Create `test/app/formatting_test.dart`:
 
@@ -2777,7 +2777,7 @@ void main() {
 Run: `flutter test test/app/formatting_test.dart`
 Expected: FAIL, `Target of URI doesn't exist: 'package:family_app/app/formatting.dart'`.
 
-- [ ] **Step 3: Implement theme and formatting**
+- [x] **Step 3: Implement theme and formatting**
 
 Create `lib/app/theme.dart`:
 
@@ -2839,7 +2839,7 @@ String categoryLabel(AppLocalizations l, ItemCategory? category) {
 Run: `flutter test test/app/formatting_test.dart`
 Expected: PASS
 
-- [ ] **Step 4: Implement providers**
+- [x] **Step 4: Implement providers**
 
 Create `lib/app/providers.dart`:
 
@@ -2954,7 +2954,7 @@ final offlineProvider = StreamProvider<bool>((ref) {
 });
 ```
 
-- [ ] **Step 5: Implement dialogs and the offline chip**
+- [x] **Step 5: Implement dialogs and the offline chip**
 
 Create `lib/features/common/dialogs.dart`:
 
@@ -3087,7 +3087,7 @@ class OfflineChip extends ConsumerWidget {
 }
 ```
 
-- [ ] **Step 6: Create the widget-test pump helper**
+- [x] **Step 6: Create the widget-test pump helper**
 
 Create `test/support/pump.dart`:
 
@@ -3132,12 +3132,12 @@ Future<void> pumpWithFamily(
 }
 ```
 
-- [ ] **Step 7: Verify**
+- [x] **Step 7: Verify**
 
 Run: `flutter analyze --no-fatal-infos && flutter test`
 Expected: no errors or warnings; all tests pass.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add l10n.yaml pubspec.yaml lib/l10n lib/app lib/features/common test/app test/support/pump.dart
