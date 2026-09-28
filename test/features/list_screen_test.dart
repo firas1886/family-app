@@ -47,6 +47,8 @@ void main() {
     await openList(tester, db);
     await tester.tap(find.text('Other'));
     await settle(tester);
+    await tester.ensureVisible(find.text('Bread'));
+    await settle(tester);
     await tester.tap(find.text('Bread'));
     await settle(tester);
     final entry = await db.doc('families/f1/lists/l1/entries/bread').get();

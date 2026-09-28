@@ -188,6 +188,7 @@ class _ListScreenState extends ConsumerState<ListScreen> {
   // The key keeps a grid's scroll-offset slot apart from its ExpansionTile's
   // expanded-state slot in PageStorage.
   // Max-extent columns: 3 per row on phones, more on wider screens.
+  // Cells are taller than wide so letter, 2-line name and quantity fit.
   Widget _grid(List<Widget> tiles, {Key? key}) => GridView.extent(
         key: key,
         maxCrossAxisExtent: 130,
@@ -195,6 +196,7 @@ class _ListScreenState extends ConsumerState<ListScreen> {
         physics: const NeverScrollableScrollPhysics(),
         mainAxisSpacing: 6,
         crossAxisSpacing: 6,
+        childAspectRatio: 0.8,
         padding: const EdgeInsets.symmetric(vertical: 6),
         children: tiles,
       );
