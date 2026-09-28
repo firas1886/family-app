@@ -4267,7 +4267,7 @@ git commit -m "feat(lists): list screen with To buy, Recently used, catalog and 
 - Consumes: `Purchase` (Task 3); `parseNumber` (Task 2); providers, `promptText`, `confirm`, `quantityLabel` (Task 8)
 - Produces: `class DayGroup{day, purchases}`, `List<DayGroup> groupPurchasesByDay(Iterable<Purchase>)`, `class HistoryScreen()` (list filter key `historyFilter`)
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `test/core/history_test.dart`:
 
@@ -4379,12 +4379,12 @@ void main() {
 }
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `flutter test test/core/history_test.dart test/features/history_screen_test.dart`
 Expected: FAIL, `Target of URI doesn't exist: 'package:family_app/core/history.dart'`.
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 Create `lib/core/history.dart`:
 
@@ -4533,12 +4533,12 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
 }
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `flutter test test/core/history_test.dart test/features/history_screen_test.dart`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add lib/core/history.dart lib/features/history test/core/history_test.dart test/features/history_screen_test.dart
