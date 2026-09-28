@@ -4823,7 +4823,7 @@ git commit -m "feat(family): members, roles, join code, language, leave and sign
 - Consumes: everything above
 - Produces: `class FamilyApp`, `class RootGate`, `class HomeShell`, `class SignInScreen`, `class OnboardingScreen`. Onboarding keys: `familyNameField`, `createFamilyButton`, `joinCodeField`, `joinFamilyButton`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Delete `test/smoke_test.dart`. Create `test/app/root_gate_test.dart`:
 
@@ -4900,12 +4900,12 @@ void main() {
 
 The first test passes `uid: ''`. To make an empty uid mean "signed out", `RootGate` treats both `null` and `''` as signed out.
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `flutter test test/app/root_gate_test.dart`
 Expected: FAIL, `Target of URI doesn't exist: 'package:family_app/app/app.dart'`.
 
-- [ ] **Step 3: Implement sign-in**
+- [x] **Step 3: Implement sign-in**
 
 Create `lib/features/auth/sign_in_screen.dart`:
 
@@ -4991,7 +4991,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
 }
 ```
 
-- [ ] **Step 4: Implement onboarding**
+- [x] **Step 4: Implement onboarding**
 
 Create `lib/features/family/onboarding_screen.dart`:
 
@@ -5130,7 +5130,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 }
 ```
 
-- [ ] **Step 5: Implement the app, root gate and home shell**
+- [x] **Step 5: Implement the app, root gate and home shell**
 
 Create `lib/app/app.dart`:
 
@@ -5262,12 +5262,12 @@ Future<void> main() async {
 }
 ```
 
-- [ ] **Step 6: Run the full suite**
+- [x] **Step 6: Run the full suite**
 
 Run: `flutter analyze --no-fatal-infos && flutter test`
 Expected: no errors or warnings; all tests pass.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add -A lib test
