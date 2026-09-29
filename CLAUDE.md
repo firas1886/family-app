@@ -3,6 +3,7 @@
 This is a Flutter Android app built from an approved spec and plan:
 - Spec: `docs/superpowers/specs/2026-09-27-family-app-shopping-design.md`
 - Plan: `docs/superpowers/plans/2026-09-27-family-app-shopping.md`
+- Release 2a (current): spec `docs/superpowers/specs/2026-09-28-release2a-chores-and-look-design.md`, plan `docs/superpowers/plans/2026-09-28-release2a-chores-and-look.md` (10 tasks)
 - Progress: `docs/progress/STATUS.md` (kept by the project-manager agent)
 
 ## The team (in `.claude/agents/`)
