@@ -7479,7 +7479,7 @@ Notes:
 - `choresForDay` and `lateChores` get `languageCode: Localizations.localeOf(context).languageCode`.
 - **Coming back after midnight (orchestrator update):** `todayProvider` (Task 5) moves on with a midnight timer, but that timer can fire late on a sleeping phone. `TodayChores` registers an `AppLifecycleListener(onResume: () => ref.invalidate(todayProvider))` and disposes it with the widget. It sits on the Today tab, which `HomeShell`'s `IndexedStack` keeps alive, so the listener lives as long as the app shell. Today's date line (Task 2's `_TodayHeader`) now reads `todayProvider` instead of `clockProvider`, so the date and the chores under it always agree.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `test/features/chore_ticking_test.dart`:
 
@@ -7849,12 +7849,12 @@ void main() {
 }
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `flutter test test/features/chore_ticking_test.dart test/features/today_chores_test.dart`
 Expected: FAIL, `Target of URI doesn't exist: 'package:family_app/features/chores/late_strip.dart'` in `chore_ticking_test.dart`; in `today_chores_test.dart`, `Key('todayMembers')` and the other chores parts are not found.
 
-- [ ] **Step 3: Add the strings**
+- [x] **Step 3: Add the strings**
 
 In `lib/l10n/app_en.arb`, add a comma after the current last entry and append:
 
@@ -7880,7 +7880,7 @@ In `lib/l10n/app_ar.arb`, add a comma after the current last entry and append:
 Run: `flutter gen-l10n`
 Expected: no errors. (`late` is a built-in identifier in Dart, not a reserved word, so `String get late` is a valid getter.)
 
-- [ ] **Step 4: Implement "who did it?" and the celebration**
+- [x] **Step 4: Implement "who did it?" and the celebration**
 
 Create `lib/features/chores/who_did_it.dart`:
 
@@ -8028,7 +8028,7 @@ class _BurstState extends State<_Burst> with SingleTickerProviderStateMixin {
 }
 ```
 
-- [ ] **Step 5: Implement the late strip**
+- [x] **Step 5: Implement the late strip**
 
 Create `lib/features/chores/late_strip.dart`:
 
@@ -8178,7 +8178,7 @@ class LateStrip extends ConsumerWidget {
 }
 ```
 
-- [ ] **Step 6: Wire who-did-it, the celebration and the late strip into the Chores tab**
+- [x] **Step 6: Wire who-did-it, the celebration and the late strip into the Chores tab**
 
 Replace `lib/features/chores/chores_screen.dart` with (Task 6's screen plus Task 7's board, now with "who did it?", celebrations and the late strip):
 
@@ -8528,7 +8528,7 @@ class _ChoresScreenState extends ConsumerState<ChoresScreen> {
 }
 ```
 
-- [ ] **Step 7: Add the chores parts to Today**
+- [x] **Step 7: Add the chores parts to Today**
 
 In `lib/features/today/today_screen.dart` (as Task 2 left it):
 
@@ -8730,17 +8730,17 @@ class _MemberProgress extends StatelessWidget {
 
 Task 2's own Today tests keep passing: with only `seedFamily()` there are no chores, so `TodayChores` shows the members row, no late strip, "Your chores" and "No chores today".
 
-- [ ] **Step 8: Run the tests to verify they pass**
+- [x] **Step 8: Run the tests to verify they pass**
 
 Run: `flutter test test/features/chore_ticking_test.dart test/features/today_chores_test.dart test/features/chores_screen_test.dart test/features/chores_board_test.dart test/features/today_screen_test.dart`
 Expected: PASS
 
-- [ ] **Step 9: Run the full suite**
+- [x] **Step 9: Run the full suite**
 
 Run: `flutter analyze --no-fatal-infos` then `flutter test`
 Expected: no errors or warnings; all tests pass.
 
-- [ ] **Step 10: Commit**
+- [x] **Step 10: Commit**
 
 ```bash
 git add lib/features/chores lib/features/today/today_screen.dart lib/l10n test/features/chore_ticking_test.dart test/features/today_chores_test.dart
