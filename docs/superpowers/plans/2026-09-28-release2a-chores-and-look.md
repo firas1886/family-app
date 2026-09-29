@@ -7117,7 +7117,7 @@ Notes:
 - `ChoresBoard.minColumnWidth` (260) is public so the tests can refer to it.
 - The board tests wait with `pumpAndSettle` after drags, so a fling has fully stopped before scroll offsets are compared. Nothing on the board animates forever, and `pumpAndSettle` does not wait for timers such as Task 5's midnight timer.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `test/features/chores_board_test.dart`:
 
@@ -7276,12 +7276,12 @@ void main() {
 }
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `flutter test test/features/chores_board_test.dart`
 Expected: FAIL, `Target of URI doesn't exist: 'package:family_app/features/chores/chores_board.dart'`.
 
-- [ ] **Step 3: Implement the board**
+- [x] **Step 3: Implement the board**
 
 Create `lib/features/chores/chores_board.dart`:
 
@@ -7395,7 +7395,7 @@ class _BoardColumn extends ConsumerWidget {
 }
 ```
 
-- [ ] **Step 4: Use the board on wide screens**
+- [x] **Step 4: Use the board on wide screens**
 
 In `lib/features/chores/chores_screen.dart`:
 
@@ -7435,17 +7435,17 @@ with
 
 The day bar (day switcher and scope toggle) stays above `content`, so it is on top in both layouts.
 
-- [ ] **Step 5: Run the tests to verify they pass**
+- [x] **Step 5: Run the tests to verify they pass**
 
 Run: `flutter test test/features/chores_board_test.dart test/features/chores_screen_test.dart`
 Expected: PASS (the phone tests run at the default 800 dp width, below the breakpoint).
 
-- [ ] **Step 6: Run the full suite**
+- [x] **Step 6: Run the full suite**
 
 Run: `flutter analyze --no-fatal-infos` then `flutter test`
 Expected: no errors or warnings; all tests pass.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add lib/features/chores/chores_board.dart lib/features/chores/chores_screen.dart test/features/chores_board_test.dart
