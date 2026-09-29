@@ -160,5 +160,10 @@
   "@lateSince": { "placeholders": { "date": { "type": "String" } } },
   "whoDidIt": "Who did it?",
   "yourChores": "Your chores",
-  "allDone": "All done for today! 🎉"
+  "allDone": "All done for today! 🎉",
+  "remindersChannel": "Chore reminders",
+  "remindEveryone": "Remind me about everyone's chores",
+  "reminderBody": "Chore for {name}",
+  "@reminderBody": { "placeholders": { "name": { "type": "String" } } },
+  "notificationsDenied": "Notifications are off for Family, so chore reminders won't show on this phone. To turn them on, open the phone's Settings, then Apps, then Family, then Notifications."
 }

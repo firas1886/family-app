@@ -506,4 +506,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get allDone => 'All done for today! 🎉';
+
+  @override
+  String get remindersChannel => 'Chore reminders';
+
+  @override
+  String get remindEveryone => 'Remind me about everyone\'s chores';
+
+  @override
+  String reminderBody(String name) {
+    return 'Chore for $name';
+  }
+
+  @override
+  String get notificationsDenied =>
+      'Notifications are off for Family, so chore reminders won\'t show on this phone. To turn them on, open the phone\'s Settings, then Apps, then Family, then Notifications.';
 }

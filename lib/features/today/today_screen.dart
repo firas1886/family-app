@@ -151,22 +151,6 @@ class TodayChores extends ConsumerStatefulWidget {
 }
 
 class _TodayChoresState extends ConsumerState<TodayChores> {
-  late final AppLifecycleListener _lifecycle;
-
-  @override
-  void initState() {
-    super.initState();
-    // The midnight timer can fire late on a sleeping phone, so check the date
-    // again whenever the app comes back to the foreground.
-    _lifecycle = AppLifecycleListener(onResume: () => ref.invalidate(todayProvider));
-  }
-
-  @override
-  void dispose() {
-    _lifecycle.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;

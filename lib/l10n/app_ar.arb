@@ -142,5 +142,9 @@
   "lateSince": "متأخرة منذ {date}",
   "whoDidIt": "من قام بها؟",
   "yourChores": "مهامك",
-  "allDone": "أنجزت كل مهام اليوم! 🎉"
+  "allDone": "أنجزت كل مهام اليوم! 🎉",
+  "remindersChannel": "تذكير المهام",
+  "remindEveryone": "ذكّرني بمهام الجميع",
+  "reminderBody": "مهمة {name}",
+  "notificationsDenied": "الإشعارات متوقفة لتطبيق Family، لذلك لن تظهر تذكيرات المهام على هذا الهاتف. لتشغيلها افتح إعدادات الهاتف، ثم التطبيقات، ثم Family، ثم الإشعارات."
 }

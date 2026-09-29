@@ -338,7 +338,10 @@ class _ChoreSheetState extends ConsumerState<ChoreSheet> {
     });
   }
 
-  void _setRemind(bool on) => setState(() => _remind = on);
+  void _setRemind(bool on) {
+    setState(() => _remind = on);
+    if (on) askReminderPermission(context, ref.read(reminderSchedulerProvider));
+  }
 
   String _repeatName(AppLocalizations l, Repeat r) => switch (r) {
         Repeat.once => l.repeatOnce,

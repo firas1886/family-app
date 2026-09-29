@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../data/reminder_scheduler.dart';
 import '../../l10n/app_localizations.dart';
 
 Future<String?> promptText(
@@ -95,4 +96,25 @@ Future<bool> confirm(
     ),
   );
   return result ?? false;
+}
+
+/// Asks the phone for permission to show reminders. If the answer is no,
+/// explains how to turn notifications on in the phone's settings.
+Future<void> askReminderPermission(BuildContext context, ReminderScheduler scheduler) async {
+  final granted = await scheduler.requestPermission();
+  if (granted || !context.mounted) return;
+  final l = AppLocalizations.of(context)!;
+  await showDialog<void>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      key: const Key('notificationsDenied'),
+      content: Text(l.notificationsDenied),
+      actions: [
+        FilledButton(
+          onPressed: () => Navigator.of(dialogContext).pop(),
+          child: Text(MaterialLocalizations.of(dialogContext).okButtonLabel),
+        ),
+      ],
+    ),
+  );
 }

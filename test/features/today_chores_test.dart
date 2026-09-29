@@ -1,4 +1,5 @@
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
+import 'package:family_app/app/app.dart' show ReminderSync;
 import 'package:family_app/app/providers.dart';
 import 'package:family_app/core/chores.dart';
 import 'package:family_app/core/dates.dart';
@@ -11,7 +12,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../support/fake_scheduler.dart';
 import '../support/pump.dart';
 import '../support/seed.dart';
 
@@ -154,6 +157,8 @@ void main() {
   testWidgets('coming back to the app after midnight shows the new day', (tester) async {
     final db = await seeded();
     var now = DateTime(2026, 10, 1, 20);
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
     await tester.pumpWidget(ProviderScope(
       overrides: [
         firestoreProvider.overrideWithValue(db),
@@ -161,12 +166,14 @@ void main() {
         authReadyProvider.overrideWithValue(true),
         authPhotoUrlProvider.overrideWithValue(null),
         clockProvider.overrideWithValue(() => now), // a clock this test can move
+        sharedPreferencesProvider.overrideWithValue(prefs),
+        reminderSchedulerProvider.overrideWithValue(FakeReminderScheduler()),
       ],
       child: MaterialApp(
         locale: const Locale('en'),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
-        home: const TodayScreen(),
+        home: const ReminderSync(child: TodayScreen()),
       ),
     ));
     await settle(tester);

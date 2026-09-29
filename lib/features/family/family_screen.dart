@@ -180,6 +180,17 @@ class FamilyScreen extends ConsumerWidget {
                     },
                   ),
                 ),
+                if (isParent)
+                  SwitchListTile(
+                    key: const Key('remindEveryone'),
+                    secondary: const Icon(Icons.notifications_active_outlined),
+                    title: Text(l.remindEveryone),
+                    value: ref.watch(remindEveryoneProvider),
+                    onChanged: (on) {
+                      ref.read(remindEveryoneProvider.notifier).setOn(on);
+                      if (on) askReminderPermission(context, ref.read(reminderSchedulerProvider));
+                    },
+                  ),
               ],
             ),
           ),

@@ -1,8 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/dates.dart';
 import '../core/member_colors.dart';
 import '../core/models.dart';
+import '../core/reminders.dart';
 import '../data/write.dart';
 import '../features/auth/sign_in_screen.dart';
 import '../features/chores/chores_screen.dart';
@@ -53,7 +57,7 @@ class RootGate extends ConsumerWidget {
           error: (_, __) => const _Loading(),
           data: (user) => user?.familyId == null
               ? const OnboardingScreen()
-              : const _MembershipGuard(child: ProfileSync(child: HomeShell())),
+              : const _MembershipGuard(child: ProfileSync(child: ReminderSync(child: HomeShell()))),
         );
   }
 }
@@ -153,5 +157,66 @@ class _HomeShellState extends State<HomeShell> {
         ],
       ),
     );
+  }
+}
+
+/// Keeps this phone's chore reminders in step with the chores while the app
+/// runs: on start, and whenever chores, done records, the signed-in person or
+/// the "remind me about everyone" choice change.
+class ReminderSync extends ConsumerStatefulWidget {
+  const ReminderSync({super.key, required this.child});
+  final Widget child;
+
+  /// Set once this phone has been asked for the notification permission.
+  static const askedKey = 'notificationsAsked';
+
+  @override
+  ConsumerState<ReminderSync> createState() => _ReminderSyncState();
+}
+
+class _ReminderSyncState extends ConsumerState<ReminderSync> {
+  late final AppLifecycleListener _lifecycle;
+
+  @override
+  void initState() {
+    super.initState();
+    // The midnight timer can fire late on a sleeping phone, so check the date
+    // again whenever the app comes back to the foreground. This is the app's
+    // only resume listener: it lives as long as the signed-in session, while
+    // Today's widgets can be scrolled away and disposed.
+    _lifecycle = AppLifecycleListener(onResume: () => ref.invalidate(todayProvider));
+  }
+
+  @override
+  void dispose() {
+    _lifecycle.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final me = ref.watch(currentUidProvider);
+    final today = ref.watch(todayProvider);
+    final chores = ref.watch(choresProvider).valueOrNull;
+    final done = ref
+        .watch(choreDoneProvider((from: dateKey(today), to: dateKey(addDays(today, 7)))))
+        .valueOrNull;
+    final everyone = ref.watch(isParentProvider) && ref.watch(remindEveryoneProvider);
+    final scheduler = ref.watch(reminderSchedulerProvider);
+    final prefs = ref.watch(sharedPreferencesProvider);
+    final now = ref.watch(clockProvider)();
+    if (me != null && me.isNotEmpty && chores != null && done != null) {
+      final plan = planReminders(chores: chores, done: done, me: me, everyone: everyone, now: now);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        fireAndForget(scheduler.replaceAll(plan));
+        // Ask once, the first time this phone has something to remind about
+        // (for example a child whose parent switched a reminder on).
+        if (plan.isNotEmpty && prefs.getBool(ReminderSync.askedKey) != true) {
+          unawaited(prefs.setBool(ReminderSync.askedKey, true));
+          unawaited(scheduler.requestPermission());
+        }
+      });
+    }
+    return widget.child;
   }
 }

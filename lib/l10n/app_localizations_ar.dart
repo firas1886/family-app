@@ -522,4 +522,19 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get allDone => 'أنجزت كل مهام اليوم! 🎉';
+
+  @override
+  String get remindersChannel => 'تذكير المهام';
+
+  @override
+  String get remindEveryone => 'ذكّرني بمهام الجميع';
+
+  @override
+  String reminderBody(String name) {
+    return 'مهمة $name';
+  }
+
+  @override
+  String get notificationsDenied =>
+      'الإشعارات متوقفة لتطبيق Family، لذلك لن تظهر تذكيرات المهام على هذا الهاتف. لتشغيلها افتح إعدادات الهاتف، ثم التطبيقات، ثم Family، ثم الإشعارات.';
 }

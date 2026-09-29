@@ -6,6 +6,7 @@ import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' hide Family;
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/chores.dart';
 import '../core/dates.dart';
@@ -17,6 +18,8 @@ import '../data/chore_repository.dart';
 import '../data/family_repository.dart';
 import '../data/list_repository.dart';
 import '../data/purchase_repository.dart';
+import '../data/reminder_scheduler.dart';
+import '../l10n/app_localizations.dart';
 
 // Platform services — overridden in tests.
 final firebaseAuthProvider = Provider<FirebaseAuth>((ref) => FirebaseAuth.instance);
@@ -177,4 +180,44 @@ final offlineProvider = StreamProvider<bool>((ref) {
       .collection('members')
       .snapshots(includeMetadataChanges: true)
       .map((s) => s.metadata.isFromCache);
+});
+
+// Reminders (kept on this phone only).
+
+/// Opened in main() before the app starts; tests override it too.
+final sharedPreferencesProvider = Provider<SharedPreferences>(
+  (ref) => throw UnimplementedError('override in main'),
+);
+
+/// A parent's choice to be reminded about everyone's chores, saved on this phone.
+class RemindEveryone extends StateNotifier<bool> {
+  RemindEveryone(this._prefs) : super(_prefs.getBool(key) ?? false);
+
+  static const key = 'remindEveryone';
+  final SharedPreferences _prefs;
+
+  void setOn(bool on) {
+    state = on;
+    unawaited(_prefs.setBool(key, on));
+  }
+}
+
+final remindEveryoneProvider = StateNotifierProvider<RemindEveryone, bool>(
+  (ref) => RemindEveryone(ref.watch(sharedPreferencesProvider)),
+);
+
+/// Real notifications on the phone; tests override it with a fake.
+final reminderSchedulerProvider = Provider<ReminderScheduler>((ref) {
+  final code = ref.watch(localeProvider)?.languageCode ??
+      WidgetsBinding.instance.platformDispatcher.locale.languageCode;
+  final l = lookupAppLocalizations(Locale(code == 'ar' ? 'ar' : 'en'));
+  final names = {
+    for (final m in ref.watch(membersProvider).valueOrNull ?? const <Member>[]) m.uid: m.name,
+  };
+  return LocalReminderScheduler(
+    channelName: l.remindersChannel,
+    bodyFor: (r) => l.reminderBody(
+      r.assignee == null ? l.anyone : names[r.assignee] ?? l.formerMember,
+    ),
+  );
 });

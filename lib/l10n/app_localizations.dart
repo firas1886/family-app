@@ -955,6 +955,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'All done for today! 🎉'**
   String get allDone;
+
+  /// No description provided for @remindersChannel.
+  ///
+  /// In en, this message translates to:
+  /// **'Chore reminders'**
+  String get remindersChannel;
+
+  /// No description provided for @remindEveryone.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind me about everyone\'s chores'**
+  String get remindEveryone;
+
+  /// No description provided for @reminderBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Chore for {name}'**
+  String reminderBody(String name);
+
+  /// No description provided for @notificationsDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are off for Family, so chore reminders won\'t show on this phone. To turn them on, open the phone\'s Settings, then Apps, then Family, then Notifications.'**
+  String get notificationsDenied;
 }
 
 class _AppLocalizationsDelegate
