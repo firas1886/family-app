@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart' show ThemeMode;
@@ -5,10 +7,13 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' hide Family;
 import 'package:google_sign_in/google_sign_in.dart';
 
+import '../core/chores.dart';
+import '../core/dates.dart';
 import '../core/member_colors.dart';
 import '../core/models.dart';
 import '../core/placement.dart';
 import '../data/catalog_repository.dart';
+import '../data/chore_repository.dart';
 import '../data/family_repository.dart';
 import '../data/list_repository.dart';
 import '../data/purchase_repository.dart';
@@ -112,6 +117,51 @@ final entriesProvider = StreamProvider.family<List<Entry>, String>(
 );
 final purchasesProvider = StreamProvider<List<Purchase>>(
   (ref) => ref.watch(purchaseRepositoryProvider).watchPurchases(),
+);
+
+// Chores.
+final choreRepositoryProvider = Provider<ChoreRepository>(
+  (ref) => ChoreRepository(ref.watch(firestoreProvider), _requireFamily(ref)),
+);
+
+/// Today's local date at midnight. It moves on by itself just after local
+/// midnight, so a screen left open (the wall tablet) never shows yesterday as today.
+final todayProvider = NotifierProvider<TodayNotifier, DateTime>(TodayNotifier.new);
+
+class TodayNotifier extends Notifier<DateTime> {
+  Timer? _timer;
+
+  @override
+  DateTime build() {
+    final clock = ref.watch(clockProvider);
+    ref.onDispose(() {
+      _timer?.cancel();
+      _timer = null;
+    });
+    _scheduleNextDay(clock);
+    return dayOnly(clock());
+  }
+
+  /// One timer at a time, due 1 s after the next local midnight.
+  void _scheduleNextDay(DateTime Function() clock) {
+    _timer?.cancel();
+    final now = clock();
+    final next = addDays(dayOnly(now), 1).add(const Duration(seconds: 1));
+    _timer = Timer(next.difference(now), () {
+      final today = dayOnly(clock());
+      if (today != state) state = today;
+      _scheduleNextDay(clock);
+    });
+  }
+}
+
+final choresProvider = StreamProvider<List<Chore>>(
+  (ref) => ref.watch(choreRepositoryProvider).watchChores(),
+);
+
+/// Done records with `date` in `from`..`to` ("YYYY-MM-DD", inclusive).
+final choreDoneProvider = StreamProvider.family<List<ChoreDone>, ({String from, String to})>(
+  (ref, range) => ref.watch(choreRepositoryProvider).watchDone(fromDate: range.from, toDate: range.to),
 );
 
 final sortModeProvider = StateProvider<SortMode>((ref) => SortMode.category);

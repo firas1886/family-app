@@ -31,7 +31,13 @@ service cloud.firestore {
 
       match /members/{m} {
         allow read: if isMember(f) || (signedIn() && uid() == m);
-        allow create: if signedIn() && uid() == m && (
+        // Field types a new member doc may carry (same checks as the update rule).
+        function validNewMember(d) {
+          return (!('color' in d) || (d.color is int && d.color >= 0 && d.color <= 7))
+            && (!('photoUrl' in d) || d.photoUrl == null || d.photoUrl is string)
+            && (!('pictureTiles' in d) || d.pictureTiles is bool);
+        }
+        allow create: if signedIn() && uid() == m && validNewMember(request.resource.data) && (
           (request.resource.data.role == 'child'
             && request.resource.data.joinCode is string
             && request.resource.data.joinCode == get(familyPath(f)).data.joinCode
@@ -89,6 +95,73 @@ service cloud.firestore {
         allow delete: if isParent(f) || (
           isMember(f) && resource.data.boughtBy == uid()
           && request.time < resource.data.boughtAt + duration.value(10, 'm')
+        );
+      }
+
+      match /chores/{c} {
+        function isOwnChore(data) {
+          return data.createdBy == uid() && data.assignee == uid();
+        }
+        function validChore() {
+          let d = request.resource.data;
+          return d.title is string && d.title.size() >= 1 && d.title.size() <= 80
+            && d.repeat in ['once', 'daily', 'weekly', 'monthly']
+            && d.every is int && d.every >= 1
+            && d.startDate is string
+            && d.createdBy is string
+            && (!('icon' in d) || d.icon == null || d.icon is string)
+            && (!('assignee' in d) || d.assignee == null || d.assignee is string)
+            && (!('time' in d) || d.time == null || d.time is string)
+            && (!('endDate' in d) || d.endDate == null || d.endDate is string)
+            && (!('weekdays' in d) || d.weekdays is list)
+            && (!('monthDay' in d) || d.monthDay == null || d.monthDay is int)
+            && (!('remind' in d) || d.remind is bool);
+        }
+        allow read: if isMember(f);
+        allow create: if validChore() && (
+          isParent(f) || (isMember(f) && isOwnChore(request.resource.data))
+        );
+        allow update: if validChore() && (
+          isParent(f) || (isMember(f) && isOwnChore(resource.data) && isOwnChore(request.resource.data))
+        );
+        allow delete: if isParent(f) || (isMember(f) && isOwnChore(resource.data));
+      }
+
+      match /choreDone/{d} {
+        // Days since 1970-01-01 in UTC. A phone's local date can be one day
+        // either side of it; one more day back is the offline grace for yesterday.
+        function inTickWindow(n) {
+          let utcDay = math.floor(request.time.toMillis() / 86400000);
+          return n is int && n >= utcDay - 2 && n <= utcDay + 1;
+        }
+        // The "YYYY-MM-DD" date must be the calendar day of dayNumber.
+        function dateIsDay(date, n) {
+          let t = timestamp.value(n * 86400000);
+          return date.matches('[0-9]{4}-[0-9]{2}-[0-9]{2}')
+            && int(date[0:4]) == t.year() && int(date[5:7]) == t.month() && int(date[8:10]) == t.day();
+        }
+        function choreAssignee(choreId) {
+          return get(/databases/$(database)/documents/families/$(f)/chores/$(choreId)).data.get('assignee', null);
+        }
+        allow read: if isMember(f);
+        allow create: if isMember(f)
+          && request.resource.data.choreId is string
+          && request.resource.data.date is string
+          && d == request.resource.data.choreId + '_' + request.resource.data.date
+          && request.resource.data.dayNumber is int
+          && dateIsDay(request.resource.data.date, request.resource.data.dayNumber)
+          && request.resource.data.choreTitle is string
+          && request.resource.data.doneByName is string
+          && (!('assignee' in request.resource.data) || request.resource.data.assignee == null
+            || request.resource.data.assignee is string)
+          && (isParent(f) || (
+            request.resource.data.doneBy == uid()
+            && choreAssignee(request.resource.data.choreId) in [uid(), null]
+            && inTickWindow(request.resource.data.dayNumber)
+          ));
+        allow update: if false;
+        allow delete: if isParent(f) || (
+          isMember(f) && resource.data.doneBy == uid() && inTickWindow(resource.data.dayNumber)
         );
       }
     }

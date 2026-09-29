@@ -255,6 +255,24 @@ describe('member colours, photos and picture tiles', () => {
     await setDoc(doc(db, 'families/fam2'), { name: 'New', joinCode: 'XYZ789', createdBy: 'newbie' });
     await assertSucceeds(setDoc(doc(db, 'families/fam2/members/newbie'), { name: 'N', role: 'parent', color: 0 }));
   });
+  it("a joiner's member doc must have the right colour, photo and picture-tiles types", async () => {
+    const join = { name: 'Mum', role: 'child', joinCode: 'ABC234' };
+    const mum = doc(as('mum'), `families/${F}/members/mum`);
+    for (const bad of [{ color: 'x' }, { color: 9 }, { color: -1 }, { color: 2.5 }, { photoUrl: 42 }, { pictureTiles: 'yes' }]) {
+      await assertFails(setDoc(mum, { ...join, ...bad }));
+    }
+    const db = as('newbie');
+    await setDoc(doc(db, 'families/fam2'), { name: 'New', joinCode: 'XYZ789', createdBy: 'newbie' });
+    await assertFails(setDoc(doc(db, 'families/fam2/members/newbie'), { name: 'N', role: 'parent', color: 9 }));
+  });
+  it('a joiner may create their member doc with valid colour, photo and picture tiles', async () => {
+    await assertSucceeds(setDoc(doc(as('mum'), `families/${F}/members/mum`), {
+      name: 'Mum', role: 'child', joinCode: 'ABC234', color: 3, photoUrl: 'https://example.com/m.png', pictureTiles: true,
+    }));
+    await assertSucceeds(setDoc(doc(as('gran'), `families/${F}/members/gran`), {
+      name: 'Gran', role: 'child', joinCode: 'ABC234', color: 7, photoUrl: null, pictureTiles: false,
+    }));
+  });
 });
 
 describe('join codes', () => {
@@ -279,5 +297,194 @@ describe('users', () => {
     await assertSucceeds(setDoc(doc(as('kid'), 'users/kid'), { name: 'Kid', familyId: F }));
     await assertFails(setDoc(doc(as('kid'), 'users/dad'), { familyId: null }));
     await assertFails(getDoc(doc(as('kid'), 'users/dad')));
+  });
+});
+
+const DAY_MS = 86400000;
+const dateOf = (dayNumber) => new Date(dayNumber * DAY_MS).toISOString().slice(0, 10);
+const chore = (fields) => ({
+  title: 'Chore', icon: null, assignee: 'kid', time: null, repeat: 'daily', every: 1,
+  weekdays: [], monthDay: null, startDate: '2026-09-01', endDate: null, remind: false,
+  createdBy: 'dad', ...fields,
+});
+const tick = (choreId, dayNumber, doneBy, fields = {}) => ({
+  choreId, date: dateOf(dayNumber), choreTitle: 'Chore', assignee: null,
+  doneBy, doneByName: doneBy, doneAt: Timestamp.now(), dayNumber, ...fields,
+});
+const doneRef = (db, choreId, dayNumber) => doc(db, `families/${F}/choreDone/${choreId}_${dateOf(dayNumber)}`);
+
+describe('chores', () => {
+  beforeEach(async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      const db = ctx.firestore();
+      await setDoc(doc(db, `families/${F}/chores/bins`), chore({ title: 'Bins', assignee: 'dad' }));
+      await setDoc(doc(db, `families/${F}/chores/brush`), chore({ title: 'Brush teeth' }));
+      await setDoc(doc(db, `families/${F}/chores/kidOwn`), chore({ title: 'Read', createdBy: 'kid' }));
+    });
+  });
+
+  it('members read chores; outsiders cannot', async () => {
+    await assertSucceeds(getDocs(collection(as('kid'), `families/${F}/chores`)));
+    await assertFails(getDoc(doc(as('stranger'), `families/${F}/chores/bins`)));
+  });
+  it('parents create chores for anyone', async () => {
+    await assertSucceeds(setDoc(doc(as('dad'), `families/${F}/chores/c1`), chore({ assignee: 'kid' })));
+    await assertSucceeds(setDoc(doc(as('dad'), `families/${F}/chores/c2`), chore({ assignee: null })));
+    await assertSucceeds(setDoc(doc(as('dad'), `families/${F}/chores/c3`), chore({ assignee: 'dad', repeat: 'weekly', weekdays: [1, 4] })));
+  });
+  it('a child creates their own chore but not one for someone else', async () => {
+    await assertSucceeds(setDoc(doc(as('kid'), `families/${F}/chores/c1`), chore({ createdBy: 'kid' })));
+    await assertFails(setDoc(doc(as('kid'), `families/${F}/chores/c2`), chore({ assignee: 'dad', createdBy: 'kid' })));
+    await assertFails(setDoc(doc(as('kid'), `families/${F}/chores/c3`), chore({ assignee: null, createdBy: 'kid' })));
+    await assertFails(setDoc(doc(as('kid'), `families/${F}/chores/c4`), chore({ assignee: 'kid', createdBy: 'dad' })));
+  });
+  it('outsiders cannot create chores, even "their own"', async () => {
+    await assertFails(setDoc(doc(as('stranger'), `families/${F}/chores/c1`), chore({ assignee: 'stranger', createdBy: 'stranger' })));
+  });
+  it("a child cannot edit or delete a parent's chore, even one assigned to them", async () => {
+    await assertFails(updateDoc(doc(as('kid'), `families/${F}/chores/brush`), { title: 'No thanks' }));
+    await assertFails(updateDoc(doc(as('kid'), `families/${F}/chores/bins`), { title: 'Mine now' }));
+    await assertFails(deleteDoc(doc(as('kid'), `families/${F}/chores/brush`)));
+  });
+  it('a child edits and deletes their own chore but cannot hand it to someone else', async () => {
+    await assertSucceeds(updateDoc(doc(as('kid'), `families/${F}/chores/kidOwn`), { title: 'Read a book', repeat: 'weekly', weekdays: [6] }));
+    await assertFails(updateDoc(doc(as('kid'), `families/${F}/chores/kidOwn`), { assignee: 'dad' }));
+    await assertFails(updateDoc(doc(as('kid'), `families/${F}/chores/kidOwn`), { assignee: null }));
+    await assertSucceeds(deleteDoc(doc(as('kid'), `families/${F}/chores/kidOwn`)));
+  });
+  it('parents edit and delete any chore', async () => {
+    await assertSucceeds(updateDoc(doc(as('dad'), `families/${F}/chores/kidOwn`), { assignee: null }));
+    await assertSucceeds(updateDoc(doc(as('dad'), `families/${F}/chores/brush`), { title: 'Brush teeth well', repeat: 'weekly', weekdays: [1] }));
+    await assertSucceeds(deleteDoc(doc(as('dad'), `families/${F}/chores/bins`)));
+  });
+  it('titles must be 1 to 80 characters', async () => {
+    const db = as('dad');
+    await assertFails(setDoc(doc(db, `families/${F}/chores/c1`), chore({ title: '' })));
+    await assertFails(setDoc(doc(db, `families/${F}/chores/c2`), chore({ title: 'a'.repeat(81) })));
+    await assertFails(setDoc(doc(db, `families/${F}/chores/c3`), chore({ title: 42 })));
+    await assertSucceeds(setDoc(doc(db, `families/${F}/chores/c4`), chore({ title: 'a'.repeat(80) })));
+    await assertFails(updateDoc(doc(db, `families/${F}/chores/brush`), { title: '' }));
+  });
+  it('80-character Arabic and emoji titles are accepted', async () => {
+    const db = as('dad');
+    await assertSucceeds(setDoc(doc(db, `families/${F}/chores/c1`), chore({ title: 'ب'.repeat(80) })));
+    await assertSucceeds(setDoc(doc(db, `families/${F}/chores/c2`), chore({ title: '🪥'.repeat(40) })));
+  });
+  it('repeat and every are validated', async () => {
+    const db = as('dad');
+    await assertFails(setDoc(doc(db, `families/${F}/chores/c1`), chore({ repeat: 'hourly' })));
+    await assertFails(setDoc(doc(db, `families/${F}/chores/c2`), chore({ every: 0 })));
+    await assertFails(setDoc(doc(db, `families/${F}/chores/c3`), chore({ every: 1.5 })));
+    await assertFails(updateDoc(doc(db, `families/${F}/chores/brush`), { repeat: 'yearly' }));
+  });
+  it('chore and done-record fields must have the right types', async () => {
+    const utcDay = Math.floor(Date.now() / 86400000);
+    const dad = as('dad');
+    const kid = as('kid');
+    const badChores = [
+      { icon: 5 }, { assignee: 7 }, { time: 700 }, { endDate: 20270630 },
+      { weekdays: 'mon' }, { monthDay: '31' }, { remind: 'yes' },
+    ];
+    for (const [i, fields] of badChores.entries()) {
+      await assertFails(setDoc(doc(dad, `families/${F}/chores/bad${i}`), chore(fields)));
+    }
+    await assertFails(updateDoc(doc(dad, `families/${F}/chores/brush`), { time: 7 }));
+    for (const fields of [{ choreTitle: 42 }, { doneByName: 7 }, { assignee: 3 }]) {
+      await assertFails(setDoc(doneRef(dad, 'brush', utcDay), tick('brush', utcDay, 'kid', fields)));
+    }
+    await assertFails(setDoc(doneRef(kid, 'brush', utcDay), tick('brush', utcDay, 'kid', { choreTitle: 42 })));
+    await assertSucceeds(setDoc(doc(dad, `families/${F}/chores/full`), chore({
+      icon: '🪥', assignee: 'kid', time: '07:00', repeat: 'monthly', every: 2, monthDay: 31,
+      endDate: '2027-06-30', remind: true,
+    })));
+    await assertSucceeds(setDoc(doneRef(kid, 'brush', utcDay), tick('brush', utcDay, 'kid', { assignee: 'kid' })));
+  });
+});
+
+describe('chore done records', () => {
+  beforeEach(async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      const db = ctx.firestore();
+      await setDoc(doc(db, `families/${F}/chores/bins`), chore({ title: 'Bins', assignee: 'dad' }));
+      await setDoc(doc(db, `families/${F}/chores/brush`), chore({ title: 'Brush teeth' }));
+      await setDoc(doc(db, `families/${F}/chores/plants`), chore({ title: 'Water plants', assignee: null }));
+    });
+  });
+
+  it('child ticks today or yesterday only (timezone-safe window)', async () => {
+    const utcDay = Math.floor(Date.now() / 86400000);
+    const db = as('kid');
+    // Local "today" and "yesterday" can be one day either side of the UTC day
+    // (phones ahead of or behind UTC, an offline tick synced after midnight).
+    for (const n of [utcDay + 1, utcDay, utcDay - 1, utcDay - 2]) {
+      await assertSucceeds(setDoc(doneRef(db, 'brush', n), tick('brush', n, 'kid')));
+    }
+    await assertFails(setDoc(doneRef(db, 'brush', utcDay - 3), tick('brush', utcDay - 3, 'kid')));
+    await assertFails(setDoc(doneRef(db, 'brush', utcDay + 2), tick('brush', utcDay + 2, 'kid')));
+  });
+  it("a child ticks their own and anyone chores, not someone else's", async () => {
+    const utcDay = Math.floor(Date.now() / 86400000);
+    const db = as('kid');
+    await assertSucceeds(setDoc(doneRef(db, 'plants', utcDay), tick('plants', utcDay, 'kid')));
+    await assertFails(setDoc(doneRef(db, 'bins', utcDay), tick('bins', utcDay, 'kid')));
+  });
+  it('a child cannot record someone else as the doer', async () => {
+    const utcDay = Math.floor(Date.now() / 86400000);
+    await assertFails(setDoc(doneRef(as('kid'), 'brush', utcDay), tick('brush', utcDay, 'dad')));
+    await assertFails(setDoc(doneRef(as('kid'), 'plants', utcDay), tick('plants', utcDay, 'dad')));
+  });
+  it('a child cannot tick a chore that does not exist', async () => {
+    const utcDay = Math.floor(Date.now() / 86400000);
+    await assertFails(setDoc(doneRef(as('kid'), 'ghost', utcDay), tick('ghost', utcDay, 'kid')));
+  });
+  it('parents tick for anyone on any day', async () => {
+    const utcDay = Math.floor(Date.now() / 86400000);
+    const db = as('dad');
+    await assertSucceeds(setDoc(doneRef(db, 'brush', utcDay - 30), tick('brush', utcDay - 30, 'kid')));
+    await assertSucceeds(setDoc(doneRef(db, 'plants', utcDay + 5), tick('plants', utcDay + 5, 'kid')));
+    await assertSucceeds(setDoc(doneRef(db, 'bins', utcDay), tick('bins', utcDay, 'dad')));
+  });
+  it('the document id must be the chore id and the date', async () => {
+    const utcDay = Math.floor(Date.now() / 86400000);
+    for (const uid of ['kid', 'dad']) {
+      const db = as(uid);
+      await assertFails(setDoc(doc(db, `families/${F}/choreDone/brush_2020-01-01`), tick('brush', utcDay, 'kid')));
+      await assertFails(setDoc(doc(db, `families/${F}/choreDone/whatever`), tick('brush', utcDay, 'kid')));
+      await assertFails(setDoc(doneRef(db, 'plants', utcDay), tick('brush', utcDay, 'kid')));
+    }
+  });
+  it('the date must match the day number', async () => {
+    const utcDay = Math.floor(Date.now() / 86400000);
+    const old = dateOf(utcDay - 10);
+    await assertFails(setDoc(doc(as('kid'), `families/${F}/choreDone/brush_${old}`), tick('brush', utcDay, 'kid', { date: old })));
+    await assertFails(setDoc(doc(as('dad'), `families/${F}/choreDone/brush_${old}`), tick('brush', utcDay, 'kid', { date: old })));
+    await assertFails(setDoc(doneRef(as('dad'), 'brush', utcDay), tick('brush', utcDay, 'kid', { dayNumber: String(utcDay) })));
+  });
+  it('done records are never updated', async () => {
+    const utcDay = Math.floor(Date.now() / 86400000);
+    await setDoc(doneRef(as('kid'), 'brush', utcDay), tick('brush', utcDay, 'kid'));
+    await assertFails(setDoc(doneRef(as('kid'), 'brush', utcDay), tick('brush', utcDay, 'kid')));
+    await assertFails(updateDoc(doneRef(as('dad'), 'brush', utcDay), { doneBy: 'dad' }));
+  });
+  it('a child unticks only their own record, today or yesterday', async () => {
+    const utcDay = Math.floor(Date.now() / 86400000);
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      const db = ctx.firestore();
+      await setDoc(doneRef(db, 'brush', utcDay), tick('brush', utcDay, 'kid'));
+      await setDoc(doneRef(db, 'brush', utcDay - 3), tick('brush', utcDay - 3, 'kid'));
+      await setDoc(doneRef(db, 'plants', utcDay), tick('plants', utcDay, 'dad'));
+    });
+    await assertSucceeds(deleteDoc(doneRef(as('kid'), 'brush', utcDay)));
+    await assertFails(deleteDoc(doneRef(as('kid'), 'brush', utcDay - 3)));
+    await assertFails(deleteDoc(doneRef(as('kid'), 'plants', utcDay)));
+    await assertSucceeds(deleteDoc(doneRef(as('dad'), 'brush', utcDay - 3)));
+    await assertSucceeds(deleteDoc(doneRef(as('dad'), 'plants', utcDay)));
+  });
+  it('members read done records; outsiders cannot', async () => {
+    const utcDay = Math.floor(Date.now() / 86400000);
+    await setDoc(doneRef(as('kid'), 'brush', utcDay), tick('brush', utcDay, 'kid'));
+    await assertSucceeds(getDocs(collection(as('dad'), `families/${F}/choreDone`)));
+    await assertFails(getDoc(doneRef(as('stranger'), 'brush', utcDay)));
+    await assertFails(setDoc(doneRef(as('stranger'), 'plants', utcDay), tick('plants', utcDay, 'stranger')));
   });
 });
