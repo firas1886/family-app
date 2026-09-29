@@ -15,7 +15,11 @@ import '../common/offline_chip.dart';
 import 'chore_card.dart';
 import 'chore_groups.dart';
 import 'chore_sheet.dart';
+import 'chores_board.dart';
 import 'repeat_label.dart';
+
+/// From this available width the Chores tab shows the tablet board.
+const boardBreakpoint = 840.0;
 
 /// Ticks or unticks one chore for [day]. Every screen with chore cards ticks
 /// through here. Writes go through [fireAndForget] and are never awaited.
@@ -137,7 +141,11 @@ class _ChoresScreenState extends ConsumerState<ChoresScreen> {
         choreIds: {for (final c in chores) c.id},
       );
       final groups = buildChoreGroups(view: view, members: members, me: me, isParent: isParent, onlyMe: onlyMe);
-      content = _phoneList(l, info, groups);
+      content = LayoutBuilder(
+        builder: (context, constraints) => constraints.maxWidth >= boardBreakpoint
+            ? _board(info, groups)
+            : _phoneList(l, info, groups),
+      );
     } else if (membersAsync.hasError || choresAsync.hasError || doneAsync.hasError) {
       content = Center(child: Text(l.somethingWentWrong));
     } else {
@@ -238,6 +246,11 @@ class _ChoresScreenState extends ConsumerState<ChoresScreen> {
       ],
     );
   }
+
+  Widget _board(_DayInfo info, List<ChoreGroup> groups) => Padding(
+        padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+        child: ChoresBoard(groups: groups, cardBuilder: (group, status) => _card(info, group, status)),
+      );
 
   Widget _section(AppLocalizations l, _DayInfo info, ChoreGroup group) {
     final cards = [for (final s in group.items) _card(info, group, s)];
