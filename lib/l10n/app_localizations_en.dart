@@ -49,7 +49,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tabLists => 'Lists';
 
   @override
-  String get tabHistory => 'History';
+  String get tabToday => 'Today';
 
   @override
   String get tabFamily => 'Family';
@@ -73,10 +73,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get save => 'Save';
 
   @override
-  String get noListsParent => 'No lists yet. Create one to get started.';
+  String get noListsParent => 'Create one to get started.';
 
   @override
-  String get noListsChild => 'No lists yet. Ask a parent to create one.';
+  String get noListsChild => 'Ask a parent to create one.';
+
+  @override
+  String get noListsTitle => 'No lists yet';
+
+  @override
+  String get history => 'History';
+
+  @override
+  String get shopping => 'Shopping';
+
+  @override
+  String itemsToBuy(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items to buy',
+      one: '1 item to buy',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get nothingToBuy => 'Nothing to buy';
 
   @override
   String get toBuy => 'To buy';

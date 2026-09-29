@@ -5,8 +5,8 @@ import '../data/write.dart';
 import '../features/auth/sign_in_screen.dart';
 import '../features/family/family_screen.dart';
 import '../features/family/onboarding_screen.dart';
-import '../features/history/history_screen.dart';
 import '../features/lists/lists_screen.dart';
+import '../features/today/today_screen.dart';
 import '../l10n/app_localizations.dart';
 import 'providers.dart';
 import 'theme.dart';
@@ -93,14 +93,14 @@ class _HomeShellState extends State<HomeShell> {
     return Scaffold(
       body: IndexedStack(
         index: _index,
-        children: const [ListsScreen(), HistoryScreen(), FamilyScreen()],
+        children: const [TodayScreen(), ListsScreen(), FamilyScreen()],
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (i) => setState(() => _index = i),
         destinations: [
+          NavigationDestination(icon: const Icon(Icons.home_outlined), label: l.tabToday),
           NavigationDestination(icon: const Icon(Icons.checklist), label: l.tabLists),
-          NavigationDestination(icon: const Icon(Icons.receipt_long), label: l.tabHistory),
           NavigationDestination(icon: const Icon(Icons.group), label: l.tabFamily),
         ],
       ),

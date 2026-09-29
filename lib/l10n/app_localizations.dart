@@ -176,11 +176,11 @@ abstract class AppLocalizations {
   /// **'Lists'**
   String get tabLists;
 
-  /// No description provided for @tabHistory.
+  /// No description provided for @tabToday.
   ///
   /// In en, this message translates to:
-  /// **'History'**
-  String get tabHistory;
+  /// **'Today'**
+  String get tabToday;
 
   /// No description provided for @tabFamily.
   ///
@@ -227,14 +227,44 @@ abstract class AppLocalizations {
   /// No description provided for @noListsParent.
   ///
   /// In en, this message translates to:
-  /// **'No lists yet. Create one to get started.'**
+  /// **'Create one to get started.'**
   String get noListsParent;
 
   /// No description provided for @noListsChild.
   ///
   /// In en, this message translates to:
-  /// **'No lists yet. Ask a parent to create one.'**
+  /// **'Ask a parent to create one.'**
   String get noListsChild;
+
+  /// No description provided for @noListsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No lists yet'**
+  String get noListsTitle;
+
+  /// No description provided for @history.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get history;
+
+  /// No description provided for @shopping.
+  ///
+  /// In en, this message translates to:
+  /// **'Shopping'**
+  String get shopping;
+
+  /// No description provided for @itemsToBuy.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 item to buy} other{{count} items to buy}}'**
+  String itemsToBuy(int count);
+
+  /// No description provided for @nothingToBuy.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to buy'**
+  String get nothingToBuy;
 
   /// No description provided for @toBuy.
   ///

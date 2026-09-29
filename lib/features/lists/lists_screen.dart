@@ -5,8 +5,11 @@ import '../../app/providers.dart';
 import '../../core/models.dart';
 import '../../data/write.dart';
 import '../../l10n/app_localizations.dart';
+import '../common/app_card.dart';
 import '../common/dialogs.dart';
+import '../common/empty_state.dart';
 import '../common/offline_chip.dart';
+import '../history/history_screen.dart';
 import 'list_screen.dart';
 
 class ListsScreen extends ConsumerWidget {
@@ -19,7 +22,20 @@ class ListsScreen extends ConsumerWidget {
     final lists = ref.watch(listsProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l.tabLists), actions: const [OfflineChip()]),
+      appBar: AppBar(
+        title: Text(l.tabLists),
+        actions: [
+          const OfflineChip(),
+          IconButton(
+            key: const Key('openHistory'),
+            tooltip: l.history,
+            icon: const Icon(Icons.receipt_long),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(builder: (_) => const HistoryScreen()),
+            ),
+          ),
+        ],
+      ),
       floatingActionButton: isParent
           ? FloatingActionButton.extended(
               key: const Key('newListFab'),
@@ -30,22 +46,42 @@ class ListsScreen extends ConsumerWidget {
           : null,
       body: lists.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (_, __) => Center(child: Text(l.somethingWentWrong)),
-        data: (lists) => lists.isEmpty
-            ? Center(child: Text(isParent ? l.noListsParent : l.noListsChild))
-            : ListView(
-                children: [
-                  for (final list in lists)
-                    ListTile(
-                      title: Text(list.name),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute<void>(builder: (_) => ListScreen(listId: list.id)),
-                      ),
-                      onLongPress: isParent ? () => _manage(context, ref, list, l) : null,
-                    ),
-                ],
+        error: (_, _) => Center(child: Text(l.somethingWentWrong)),
+        data: (lists) => ListView(
+          // Bottom padding keeps the last card clear of the FAB.
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 88),
+          children: [
+            if (lists.isEmpty)
+              EmptyState(
+                emoji: '🛒',
+                title: l.noListsTitle,
+                message: isParent ? l.noListsParent : l.noListsChild,
               ),
+            for (final list in lists)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: AppCard(
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(builder: (_) => ListScreen(listId: list.id)),
+                  ),
+                  onLongPress: isParent ? () => _manage(context, ref, list, l) : null,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          list.name,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      ),
+                      const Icon(Icons.chevron_right),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

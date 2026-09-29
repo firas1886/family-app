@@ -11,7 +11,9 @@ import '../../core/placement.dart';
 import '../../core/text.dart';
 import '../../data/write.dart';
 import '../../l10n/app_localizations.dart';
+import '../common/app_card.dart';
 import '../common/dialogs.dart';
+import '../common/empty_state.dart';
 import '../common/offline_chip.dart';
 import 'item_sheet.dart';
 import 'item_tile.dart';
@@ -97,11 +99,7 @@ class _ListScreenState extends ConsumerState<ListScreen> {
               padding: const EdgeInsets.all(12),
               children: [
                 _header(context, l.toBuy),
-                if (sections.toBuy.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: Text(l.emptyToBuy, style: TextStyle(color: tokens.mutedText)),
-                  ),
+                if (sections.toBuy.isEmpty) EmptyState(emoji: '🎉', title: l.emptyToBuy),
                 for (final group in sections.toBuy) ...[
                   if (group.category != null)
                     Padding(
@@ -140,29 +138,38 @@ class _ListScreenState extends ConsumerState<ListScreen> {
                 const SizedBox(height: 12),
                 _header(context, l.categories),
                 for (final group in catalog)
-                  ExpansionTile(
-                    key: PageStorageKey('cat-${group.category?.id}'),
-                    tilePadding: EdgeInsets.zero,
-                    title: GestureDetector(
-                      onLongPress: isParent && group.category != null && !group.category!.isDefault
-                          ? () => _manageCategory(group.category!, items, categories, l)
-                          : null,
-                      child: Text(categoryLabel(l, group.category)),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: AppCard(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: ExpansionTile(
+                        key: PageStorageKey('cat-${group.category?.id}'),
+                        tilePadding: EdgeInsets.zero,
+                        shape: const Border(),
+                        collapsedShape: const Border(),
+                        title: GestureDetector(
+                          onLongPress: isParent && group.category != null && !group.category!.isDefault
+                              ? () => _manageCategory(group.category!, items, categories, l)
+                              : null,
+                          child: Text(categoryLabel(l, group.category)),
+                        ),
+                        children: [
+                          _grid([
+                            for (final item in group.members)
+                              ItemTile(
+                                name: item.name,
+                                // Catalog tiles sit inside a card, so they use the page colour.
+                                color: Theme.of(context).scaffoldBackgroundColor,
+                                caption: quantityLabel(l, item.quantity, item.unit),
+                                dimmed: sections.isOnToBuy(item.id),
+                                highlighted: _flashId == item.id,
+                                onTap: () => _addToBuy(item, sections),
+                                onLongPress: () => _openSheet(item, entryMap[item.id]),
+                              ),
+                          ], key: PageStorageKey('grid-${group.category?.id}')),
+                        ],
+                      ),
                     ),
-                    children: [
-                      _grid([
-                        for (final item in group.members)
-                          ItemTile(
-                            name: item.name,
-                            color: tokens.card,
-                            caption: quantityLabel(l, item.quantity, item.unit),
-                            dimmed: sections.isOnToBuy(item.id),
-                            highlighted: _flashId == item.id,
-                            onTap: () => _addToBuy(item, sections),
-                            onLongPress: () => _openSheet(item, entryMap[item.id]),
-                          ),
-                      ], key: PageStorageKey('grid-${group.category?.id}')),
-                    ],
                   ),
                 Align(
                   alignment: AlignmentDirectional.centerStart,
@@ -183,7 +190,10 @@ class _ListScreenState extends ConsumerState<ListScreen> {
 
   Widget _header(BuildContext context, String text) => Padding(
         padding: const EdgeInsets.only(bottom: 4),
-        child: Text(text, style: Theme.of(context).textTheme.titleLarge),
+        child: Text(
+          text,
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+        ),
       );
 
   // The key keeps a grid's scroll-offset slot apart from its ExpansionTile's

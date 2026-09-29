@@ -3,11 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../app/providers.dart';
+import '../../app/theme.dart';
 import '../../core/models.dart';
 import '../../core/text.dart';
 import '../../data/family_repository.dart';
 import '../../data/write.dart';
 import '../../l10n/app_localizations.dart';
+import '../common/app_card.dart';
 import '../common/dialogs.dart';
 import '../common/offline_chip.dart';
 
@@ -17,6 +19,7 @@ class FamilyScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context)!;
+    final text = Theme.of(context).textTheme;
     final family = ref.watch(familyProvider).valueOrNull;
     final isParent = ref.watch(isParentProvider);
     final uid = ref.watch(currentUidProvider);
@@ -31,14 +34,25 @@ class FamilyScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: Text(l.tabFamily), actions: const [OfflineChip()]),
       body: ListView(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
         children: [
           if (family != null)
-            ListTile(
-              title: Text(family.name, style: Theme.of(context).textTheme.titleLarge),
-              subtitle: Text('${l.joinCode}: ${family.joinCode}'),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
+            AppCard(
+              child: Row(
                 children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(family.name, style: text.titleLarge),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${l.joinCode}: ${family.joinCode}',
+                          style: text.bodyMedium?.copyWith(color: context.tokens.mutedText),
+                        ),
+                      ],
+                    ),
+                  ),
                   IconButton(
                     tooltip: l.share,
                     icon: const Icon(Icons.share),
@@ -58,36 +72,37 @@ class FamilyScreen extends ConsumerWidget {
                 ],
               ),
             ),
-          const Divider(),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-            child: Text(l.members, style: Theme.of(context).textTheme.titleSmall),
-          ),
-          for (final m in members)
-            ListTile(
-              leading: CircleAvatar(child: Text(tileLetter(m.name))),
-              title: Text(m.name),
-              subtitle: Text(m.role == Role.parent ? l.parent : l.child),
-              trailing: isParent && m.uid != uid && family != null
-                  ? PopupMenuButton<String>(
-                      key: ValueKey('memberMenu-${m.uid}'),
-                      onSelected: (action) => _onMemberAction(context, ref, family.id, m, action),
-                      itemBuilder: (_) => [
-                        PopupMenuItem(
-                          value: 'role',
-                          child: Text(m.role == Role.parent ? l.makeChild : l.makeParent),
-                        ),
-                        PopupMenuItem(value: 'remove', child: Text(l.removeMember)),
-                      ],
-                    )
-                  : null,
+          _SectionTitle(l.members),
+          AppCard(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Column(
+              children: [
+                for (final m in members)
+                  ListTile(
+                    leading: CircleAvatar(child: Text(tileLetter(m.name))),
+                    title: Text(m.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+                    subtitle: Text(m.role == Role.parent ? l.parent : l.child),
+                    trailing: isParent && m.uid != uid && family != null
+                        ? PopupMenuButton<String>(
+                            key: ValueKey('memberMenu-${m.uid}'),
+                            onSelected: (action) => _onMemberAction(context, ref, family.id, m, action),
+                            itemBuilder: (_) => [
+                              PopupMenuItem(
+                                value: 'role',
+                                child: Text(m.role == Role.parent ? l.makeChild : l.makeParent),
+                              ),
+                              PopupMenuItem(value: 'remove', child: Text(l.removeMember)),
+                            ],
+                          )
+                        : null,
+                  ),
+              ],
             ),
-          const Divider(),
-          ListTile(
-            leading: const Icon(Icons.language),
-            title: Text(l.language),
-            subtitle: Padding(
-              padding: const EdgeInsets.only(top: 8),
+          ),
+          _SectionTitle(l.language),
+          AppCard(
+            child: Align(
+              alignment: AlignmentDirectional.centerStart,
               child: SegmentedButton<String>(
                 segments: const [
                   ButtonSegment(value: 'en', label: Text('English')),
@@ -102,20 +117,28 @@ class FamilyScreen extends ConsumerWidget {
               ),
             ),
           ),
-          ListTile(
-            key: const Key('leaveFamily'),
-            leading: const Icon(Icons.logout),
-            title: Text(l.leaveFamily),
-            onTap: family == null || uid == null ? null : () => _leave(context, ref, family.id, uid),
-          ),
-          ListTile(
-            key: const Key('signOut'),
-            leading: const Icon(Icons.power_settings_new),
-            title: Text(l.signOut),
-            onTap: () async {
-              await ref.read(googleSignInProvider).signOut();
-              await ref.read(firebaseAuthProvider).signOut();
-            },
+          const SizedBox(height: 16),
+          AppCard(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Column(
+              children: [
+                ListTile(
+                  key: const Key('leaveFamily'),
+                  leading: const Icon(Icons.logout),
+                  title: Text(l.leaveFamily),
+                  onTap: family == null || uid == null ? null : () => _leave(context, ref, family.id, uid),
+                ),
+                ListTile(
+                  key: const Key('signOut'),
+                  leading: const Icon(Icons.power_settings_new),
+                  title: Text(l.signOut),
+                  onTap: () async {
+                    await ref.read(googleSignInProvider).signOut();
+                    await ref.read(firebaseAuthProvider).signOut();
+                  },
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -154,4 +177,15 @@ class FamilyScreen extends ConsumerWidget {
       messenger.showSnackBar(SnackBar(content: Text(l.lastParentError)));
     }
   }
+}
+
+class _SectionTitle extends StatelessWidget {
+  const _SectionTitle(this.text);
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsetsDirectional.fromSTEB(4, 20, 4, 8),
+        child: Text(text, style: Theme.of(context).textTheme.titleSmall),
+      );
 }

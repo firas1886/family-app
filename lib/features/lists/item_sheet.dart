@@ -161,7 +161,7 @@ class _ItemSheetState extends ConsumerState<ItemSheet> {
                 if (isParent)
                   TextButton(
                     key: const Key('sheetDelete'),
-                    style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
+                    style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.error),
                     onPressed: () => _deleteFromCatalog(l),
                     child: Text(l.deleteFromCatalog),
                   ),

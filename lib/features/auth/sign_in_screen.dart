@@ -68,7 +68,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                 ),
               if (_error != null) ...[
                 const SizedBox(height: 16),
-                Text(_error!, style: const TextStyle(color: Colors.redAccent)),
+                Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
               ],
             ],
           ),

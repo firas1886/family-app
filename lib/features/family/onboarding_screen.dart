@@ -123,7 +123,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           if (_error != null)
             Padding(
               padding: const EdgeInsets.all(16),
-              child: Text(_error!, style: const TextStyle(color: Colors.redAccent)),
+              child: Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
             ),
         ],
       ),

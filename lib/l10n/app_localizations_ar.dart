@@ -49,7 +49,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get tabLists => 'القوائم';
 
   @override
-  String get tabHistory => 'السجل';
+  String get tabToday => 'اليوم';
 
   @override
   String get tabFamily => 'العائلة';
@@ -73,11 +73,37 @@ class AppLocalizationsAr extends AppLocalizations {
   String get save => 'حفظ';
 
   @override
-  String get noListsParent => 'لا توجد قوائم بعد. أنشئ قائمة للبدء.';
+  String get noListsParent => 'أنشئ قائمة للبدء.';
 
   @override
-  String get noListsChild =>
-      'لا توجد قوائم بعد. اطلب من أحد الوالدين إنشاء قائمة.';
+  String get noListsChild => 'اطلب من أحد الوالدين إنشاء قائمة.';
+
+  @override
+  String get noListsTitle => 'لا توجد قوائم بعد';
+
+  @override
+  String get history => 'السجل';
+
+  @override
+  String get shopping => 'التسوق';
+
+  @override
+  String itemsToBuy(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count غرض للشراء',
+      many: '$count غرضًا للشراء',
+      few: '$count أغراض للشراء',
+      two: 'غرضان للشراء',
+      one: 'غرض واحد للشراء',
+      zero: 'لا شيء للشراء',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get nothingToBuy => 'لا شيء للشراء';
 
   @override
   String get toBuy => 'للشراء';

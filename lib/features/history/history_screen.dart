@@ -33,7 +33,8 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     final filter = lists.any((x) => x.id == _listFilter) ? _listFilter : null;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l.tabHistory), actions: const [OfflineChip()]),
+      // Pushed from the Lists app bar, so the AppBar shows a back button.
+      appBar: AppBar(title: Text(l.history), actions: const [OfflineChip()]),
       body: Column(
         children: [
           Padding(
