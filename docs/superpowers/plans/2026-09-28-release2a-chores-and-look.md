@@ -4948,7 +4948,7 @@ Notes for this task (additions inside this task's own files; see INTERFACE ISSUE
 - Widget tests scroll a target into view before tapping (`tapKey`): at the 800×600 test size the add button can cover the lowest tick, and from Task 8 on the late strip sits above the sections.
 - Task 5's `seedChores` creates every seeded chore with `createdBy: 'u1'` (Dad), so for Sara `brush` is a parent's chore she may tick but not edit.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `test/features/chores_screen_test.dart`:
 
@@ -5653,12 +5653,12 @@ void main() {
 }
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `flutter test test/features/chores_screen_test.dart test/features/chore_sheet_test.dart`
 Expected: FAIL, `Target of URI doesn't exist: 'package:family_app/features/chores/chore_card.dart'` (and the same for the other new chores files).
 
-- [ ] **Step 3: Make `fireAndForget` safe for writes that return a value**
+- [x] **Step 3: Make `fireAndForget` safe for writes that return a value**
 
 The chore sheet passes `addChore(...)` (a `Future<String>`) to `fireAndForget`. Today's `write.catchError((Object error) { ... })` returns null from the handler; on a `Future<String>` that is not a valid value, so a failed write turns into an uncaught `ArgumentError` instead of a log line.
 
@@ -5720,7 +5720,7 @@ void fireAndForget(Future<void> write) {
 Run: `flutter test test/data/write_test.dart`
 Expected: PASS
 
-- [ ] **Step 4: Add the strings**
+- [x] **Step 4: Add the strings**
 
 In `lib/l10n/app_en.arb`, add a comma after the current last entry and append these entries before the closing `}`:
 
@@ -5838,7 +5838,7 @@ Run: `flutter gen-l10n`
 Expected: no errors; `lib/l10n/app_localizations*.dart` regenerated with the new getters (e.g. `String everyNMonthsOnDay(int count, int day)`).
 
 
-- [ ] **Step 5: Implement labels and groups**
+- [x] **Step 5: Implement labels and groups**
 
 Create `lib/features/chores/repeat_label.dart`:
 
@@ -6064,7 +6064,7 @@ class ChoreGroupHeader extends StatelessWidget {
 }
 ```
 
-- [ ] **Step 6: Implement the chore card**
+- [x] **Step 6: Implement the chore card**
 
 Create `lib/features/chores/chore_card.dart`:
 
@@ -6316,7 +6316,7 @@ class PictureTileGrid extends StatelessWidget {
 }
 ```
 
-- [ ] **Step 7: Implement the chore sheet**
+- [x] **Step 7: Implement the chore sheet**
 
 Create `lib/features/chores/chore_sheet.dart`:
 
@@ -6755,7 +6755,7 @@ class _TapField extends StatelessWidget {
 
 `maxChoreTitleLength` (80) comes from `lib/core/chores.dart` (Task 4).
 
-- [ ] **Step 8: Implement the Chores tab**
+- [x] **Step 8: Implement the Chores tab**
 
 Create `lib/features/chores/chores_screen.dart`:
 
@@ -7044,7 +7044,7 @@ class _ChoresScreenState extends ConsumerState<ChoresScreen> {
 }
 ```
 
-- [ ] **Step 9: Add the Chores tab to the bottom bar**
+- [x] **Step 9: Add the Chores tab to the bottom bar**
 
 In `lib/app/app.dart`:
 
@@ -7077,17 +7077,17 @@ Everything else in `HomeShell` stays as Tasks 2 and 3 left it. The result reads:
 
 Task 2's `test/app/home_shell_test.dart` expects exactly three tabs. In it, rename the test `'the bottom bar is Today, Lists, Family and opens on Today'` to `'the bottom bar is Today, Chores, Lists, Family and opens on Today'` and replace `    expect(labels, ['Today', 'Lists', 'Family']);` with `    expect(labels, ['Today', 'Chores', 'Lists', 'Family']);`. Nothing else in that file changes (its History test taps `Icons.checklist`, which is still the Lists tab).
 
-- [ ] **Step 10: Run the tests to verify they pass**
+- [x] **Step 10: Run the tests to verify they pass**
 
 Run: `flutter test test/features/chores_screen_test.dart test/features/chore_sheet_test.dart test/data/write_test.dart test/app/home_shell_test.dart`
 Expected: PASS
 
-- [ ] **Step 11: Run the full suite**
+- [x] **Step 11: Run the full suite**
 
 Run: `flutter analyze --no-fatal-infos` then `flutter test`
 Expected: no errors or warnings; all tests pass, including Release 1's and Tasks 1–5's.
 
-- [ ] **Step 12: Commit**
+- [x] **Step 12: Commit**
 
 ```bash
 git add lib/features/chores lib/app/app.dart lib/data/write.dart lib/l10n test/features/chores_screen_test.dart test/features/chore_sheet_test.dart test/data/write_test.dart test/app/home_shell_test.dart
