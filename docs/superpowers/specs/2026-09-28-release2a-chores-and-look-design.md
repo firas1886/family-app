@@ -1,6 +1,6 @@
 # Family App — Release 2a: Chores, and a new look and feel
 
-Date: 2026-09-28. Status: draft for Firas's review.
+Date: 2026-09-28. Status: approved by Firas on 2026-09-28.
 Builds on: `2026-09-27-family-app-shopping-design.md` (Release 1). Everything there still applies unless this spec changes it.
 
 ## 1. Why

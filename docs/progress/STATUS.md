@@ -1,4 +1,29 @@
-# Family App — Release 1 status
+# Family App — status
+
+## Release 2a — Chores and look and feel
+
+Spec: `docs/superpowers/specs/2026-09-28-release2a-chores-and-look-design.md` · Plan: `docs/superpowers/plans/2026-09-28-release2a-chores-and-look.md` (10 tasks; its "Plan-level amendments" section overrides earlier text).
+
+| Task | Title | Status | Attempts | Commit | Notes |
+|---|---|---|---|---|---|
+| 1 | Visual system — palette, tokens, fonts, light and dark themes | In progress (2026-09-29) | 1 | | Font download approved. Amendment 8: also updates `item_tile.dart`. |
+| 2 | Navigation, Today screen (shopping), shared widgets, restyle | Not started | 0 | | |
+| 3 | Member colours, photos, picture tiles, theme choice on Family screen | Not started | 0 | | Rules change (rules tests). |
+| 4 | Dates and chore logic (pure Dart) | Not started | 0 | | Review Focus #1, #3. |
+| 5 | Chore data — rules, repository, providers | Not started | 0 | | Rules change. Review Focus #2. |
+| 6 | Chores tab (phone layout), chore cards and the chore sheet | Not started | 0 | | Review Focus #5. |
+| 7 | Tablet board (landscape columns that scroll on their own) | Not started | 0 | | Review Focus #4. |
+| 8 | Ticking polish — who did it, late chores, celebration, Today chores | Not started | 0 | | |
+| 9 | Reminders on each phone | Not started | 0 | | Adds the 4 approved packages. |
+| 10 | Release 1.1.0 — build, setup notes, device checklist | Not started | 0 | | |
+
+**Next:** Task 1 with the developer.
+
+## Release 1 (done)
+
+All 14 tasks Done (2026-09-27 → 2026-09-28): 108 tests, 34 rules tests.
+
+<details><summary>Release 1 task table</summary>
 
 | Task | Title | Status | Attempts | Commit | Notes |
 |---|---|---|---|---|---|
@@ -17,7 +42,9 @@
 | 13 | App shell | Done (2026-09-28) | 1 | 1913d6e | 108/108 tests; 0 errors/0 warnings/6 infos; requirements 1–7 verified (Join/Create only reachable with null familyId; family screens only built once familyId is set). Only deviation: pre-approved RootGate `error:` → `_Loading()`. Debug APK stops only at processDebugGoogleServices (package mismatch, expected until Task 14's applicationId change). Three observations → Device test checklist. |
 | 14 | Release builds and setup guide | Done (2026-09-28) | 1 | 047a1ce | 108/108 tests; 0 errors/0 warnings; workflows verbatim from plan; secrets contract correct; nothing secret tracked. Release APK (53.2 MB) verified: `com.firas.familia`, minSdk 24, label "Family", signed with the debug key (fallback; no release keystore yet). SETUP.md step 2 adapted to the existing project. Steps 1–5 ticked; **Step 6 (manual release checklist) is Firas's, still open.** |
 
-**Next:** Firas's steps — (1) follow `docs/SETUP.md` (signing key, Firebase setup incl. SHA fingerprints, GitHub secrets, first release, install); (2) run the Task 14 Step 6 manual checklist on two phones; (3) run the Device test checklist below. All 14 plan tasks are otherwise Done.
+</details>
+
+**Still open for Release 1:** Firas's steps — (1) follow `docs/SETUP.md` (signing key, Firebase setup incl. SHA fingerprints, GitHub secrets, first release, install); (2) run the Task 14 Step 6 manual checklist on two phones; (3) run the Device test checklist below. All 14 plan tasks are otherwise Done.
 
 ## Decisions
 - 2026-09-28: Release 2 split into 2a (chores + look and feel), 2b (family calendar, wall mode, Google Calendar), 2c (star rewards). 2a spec drafted: docs/superpowers/specs/2026-09-28-release2a-chores-and-look-design.md, awaiting Firas's review.
@@ -48,6 +75,10 @@
 - 2026-09-28: Task 13 PASS (1913d6e). Three tester observations moved to the Device test checklist. Task 14 started.
 - 2026-09-28: Task 14 PASS (047a1ce). Release 1 build work complete; waiting on Firas (SETUP.md + Step 6 checklist). `android/.kotlin/` build cache to be gitignored by the main session.
 - 2026-09-28: Auto-decided (Firas pre-authorised): Task 14 verification — build a debug-key-signed release APK now so Firas can install and test tonight; the proper release keystore stays Firas's step in SETUP.md. The developer does not create the real keystore or choose its passwords (Firas's secrets); with no `android/key.properties`, the Task 1 signing fallback signs with the debug key. Such an APK cannot later be updated in place by the properly signed one (uninstall first).
+- 2026-09-29: Firas approved the Release 2a spec (2026-09-28) and plan (10 tasks). Execution: same PM / developer / tester loop.
+- 2026-09-29: Firas approved downloading the IBM Plex Sans Arabic font (Regular, Medium, SemiBold + OFL.txt, from google/fonts; Task 1) and adding `flutter_local_notifications`, `timezone`, `flutter_timezone` and `shared_preferences` (Task 9).
+- 2026-09-29: Firas pre-authorised Release 2a: the PM may again auto-decide routine questions on its own recommendation, logged as "Auto-decided (Firas pre-authorised): <summary> — chose <option> because <reason>". Stop (Blocked + Decision needed) only for Firas's accounts or secrets (Firebase, GitHub secrets, keystore passwords), or after 3 failed attempts.
+- 2026-09-29: Release 2a Task 1 started.
 
 ## Device test checklist (Firas, after installing)
 - RootGate: if reading your own user record fails, the app shows a spinner forever (no error message). Check it never sticks on a normal start.
@@ -55,8 +86,8 @@
 - Google sign-in is not covered by automated tests: check sign-in, cancel, and sign-out/sign-in again on a real phone (needs the SHA fingerprints registered in Firebase).
 
 ## Parking lot
-- Skylight-style family hub (calendar, chores + star rewards, meal planner, recipe bank, AI import, wall mode, photo screensaver): inventory in docs/ideas/2026-09-28-skylight-feature-inventory.md; needs a Release 2 spec.
-- Chores module (Release 2)
+- Skylight-style family hub (inventory in docs/ideas/2026-09-28-skylight-feature-inventory.md) → Release 2a/2b/2c: chores → 2a; calendar, wall mode, Google Calendar → 2b; star rewards → 2c. Still parked: recipe bank, photo screensaver; meal planner and AI import (out of scope for all of Release 2).
+- Release 2a items parked by the plan: see its "Plan-level amendments" item 9 and writer D's drafting note 9.
 - Budget reports and charts built on purchase history
 - Rules hardening (nice-to-have, from Task 4 test): enforce "last parent can't be demoted/leave" in rules too (spec §6 currently app-only); stop parents creating extra `isDefault: true` categories; check `users/{uid}.familyId` in rules rather than member-doc existence (spec §7 wording; current approach is equivalent in practice).
 - Rules hardening (from Task 4 rework): a parent deleting a `joinCodes` doc on its own, or setting `families/{f}.joinCode` to a code with no `joinCodes` doc, reopens the creator-setup window; could require these to change together (getAfter/existsAfter). An undo that syncs more than 10 min after `boughtAt` (long offline) is rejected by rules; a parent then deletes it in History.
