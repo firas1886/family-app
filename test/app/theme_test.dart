@@ -100,6 +100,17 @@ void main() {
       expect(AppTokens.dark.onLateTint, const Color(0xFFFCEBEB));
     });
 
+    test('text on To buy tiles is coral 900 in both themes and meets 4.5:1', () {
+      for (final brightness in Brightness.values) {
+        final tokens = buildTheme(brightness).extension<AppTokens>()!;
+        expect(tokens.onToBuy, const Color(0xFF4A1B0C), reason: '$brightness');
+        expect(contrast(tokens.onToBuy, tokens.toBuy), greaterThanOrEqualTo(4.5), reason: '$brightness');
+      }
+      expect(AppTokens.light.copyWith().onToBuy, AppTokens.light.onToBuy);
+      expect(AppTokens.light.copyWith(onToBuy: const Color(0xFF000000)).onToBuy, const Color(0xFF000000));
+      expect(AppTokens.light.lerp(AppTokens.dark, 0.5).onToBuy, const Color(0xFF4A1B0C));
+    });
+
     test('tokens copy and interpolate', () {
       expect(AppTokens.light.copyWith(card: const Color(0xFF000000)).card, const Color(0xFF000000));
       expect(AppTokens.light.copyWith().mutedText, AppTokens.light.mutedText);

@@ -24,6 +24,34 @@ void main() {
     expect(old.joinedAt, isNull);
   });
 
+  test('Member.fromMap ignores fields of the wrong type', () {
+    Member read(Map<String, dynamic> fields) =>
+        Member.fromMap('u9', {'name': 'Omar', 'role': 'child', ...fields});
+
+    for (final bad in <Object>['x', 9, -1, 2.5]) {
+      expect(read({'color': bad}).color, isNull, reason: 'color $bad');
+    }
+    expect(read({'color': 0}).color, 0);
+    expect(read({'color': 7}).color, 7);
+    expect(read({'photoUrl': 42}).photoUrl, isNull);
+    expect(read({'pictureTiles': 'yes'}).pictureTiles, isFalse);
+    expect(read({'name': 42}).name, '');
+    expect(read({'joinedAt': 'x'}).joinedAt, isNull);
+    expect(read({'joinedAt': 42}).joinedAt, isNull);
+
+    // All at once, as one bad joiner's doc would arrive in the members stream.
+    final m = read({
+      'name': 42, 'color': 'x', 'photoUrl': 42, 'pictureTiles': 'yes', 'joinedAt': 'x',
+    });
+    expect(m.uid, 'u9');
+    expect(m.name, '');
+    expect(m.role, Role.child);
+    expect(m.color, isNull);
+    expect(m.photoUrl, isNull);
+    expect(m.pictureTiles, isFalse);
+    expect(m.joinedAt, isNull);
+  });
+
   test('members without a colour get the lowest free index', () {
     final all = [member('a', color: 0), member('b', color: 2), member('c'), member('d')];
     expect(missingColorAssignments(all), {'c': 1, 'd': 3});

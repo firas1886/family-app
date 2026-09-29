@@ -23,18 +23,15 @@ class ItemTile extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
 
-  /// Text on the coral To buy tile: the palette's coral 900 stop, at full
-  /// opacity (4.75:1 on the tile; white was only 3.04:1).
-  static const _onToBuy = Color(0xFF4A1B0C);
-
   @override
   Widget build(BuildContext context) {
     final radius = BorderRadius.circular(8);
-    final isToBuy = color == context.tokens.toBuy;
+    final tokens = context.tokens;
+    final isToBuy = color == tokens.toBuy;
     // Text colour follows the tile colour, so light tiles (the catalog's
     // card colour in the light theme) get dark text.
     final onColor = isToBuy
-        ? _onToBuy
+        ? tokens.onToBuy
         : ThemeData.estimateBrightnessForColor(color) == Brightness.dark
             ? Colors.white
             : Colors.black87;

@@ -120,6 +120,60 @@ void main() {
     }
   });
 
+  group('settings controls stay full size', () {
+    const sizes = [Size(320, 640), Size(360, 740)];
+    const scales = [1.0, 1.3];
+    const locales = [Locale('en'), Locale('ar')];
+    for (final size in sizes) {
+      for (final scale in scales) {
+        for (final locale in locales) {
+          final name = '${size.width.toInt()}x${size.height.toInt()}, text x$scale, ${locale.languageCode}';
+          testWidgets('every segment is at least 48 dp at $name', (tester) async {
+            tester.view.physicalSize = size;
+            tester.view.devicePixelRatio = 1;
+            tester.platformDispatcher.textScaleFactorTestValue = scale;
+            addTearDown(tester.view.reset);
+            addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+
+            final db = await seedFamily();
+            await db.doc('families/f1/members/u2').update({'name': 'سارة عبدالله محمد الأحمد'});
+            if (locale.languageCode == 'ar') {
+              await db.doc('users/u1').update({'language': 'ar'});
+            }
+            await pumpWithFamily(tester, db: db, locale: locale, child: const FamilyScreen());
+            expect(tester.takeException(), isNull);
+
+            final buttons = find.byType(SegmentedButton<String>);
+            expect(buttons, findsNWidgets(2));
+            expect(find.byKey(const Key('themeMode')), findsOneWidget);
+            // Nothing above either control may scale it down.
+            expect(find.ancestor(of: buttons, matching: find.byType(FittedBox)), findsNothing);
+
+            var smallest = double.infinity;
+            var measured = 0;
+            for (var i = 0; i < 2; i++) {
+              await tester.ensureVisible(buttons.at(i));
+              await settle(tester);
+              final segments = find.descendant(of: buttons.at(i), matching: find.byType(TextButton));
+              final count = segments.evaluate().length;
+              for (var j = 0; j < count; j++) {
+                // getRect is in global coordinates, so any scaling would show.
+                final rect = tester.getRect(segments.at(j));
+                expect(rect.height, greaterThanOrEqualTo(48), reason: 'button $i segment $j height');
+                expect(rect.width, greaterThanOrEqualTo(48), reason: 'button $i segment $j width');
+                if (rect.height < smallest) smallest = rect.height;
+                measured++;
+              }
+            }
+            expect(measured, 5); // 2 language + 3 theme segments
+            expect(tester.takeException(), isNull);
+            debugPrint('settings segments at $name: smallest height ${smallest.toStringAsFixed(1)} dp');
+          });
+        }
+      }
+    }
+  });
+
   group('ProfileSync', () {
     const home = ProfileSync(child: Text('home'));
 

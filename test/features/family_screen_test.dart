@@ -34,6 +34,8 @@ void main() {
   testWidgets('the last parent cannot leave', (tester) async {
     final db = await seedFamily();
     await pumpWithFamily(tester, db: db, child: const FamilyScreen());
+    await tester.ensureVisible(find.byKey(const Key('leaveFamily'), skipOffstage: false));
+    await settle(tester);
     await tester.tap(find.byKey(const Key('leaveFamily')));
     await settle(tester);
     await tester.tap(find.byKey(const Key('confirmYes')));

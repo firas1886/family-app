@@ -20,6 +20,7 @@ Future<void> pumpWithFamily(
   required Widget child,
   String uid = 'u1',
   String? photoUrl,
+  Locale locale = const Locale('en'),
 }) async {
   await tester.pumpWidget(ProviderScope(
     overrides: [
@@ -31,7 +32,7 @@ Future<void> pumpWithFamily(
       authPhotoUrlProvider.overrideWithValue(photoUrl),
     ],
     child: MaterialApp(
-      locale: const Locale('en'),
+      locale: locale,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       home: child,

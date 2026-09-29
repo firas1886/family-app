@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 class AppTokens extends ThemeExtension<AppTokens> {
   const AppTokens({
     required this.toBuy,
+    required this.onToBuy,
     required this.recent,
     required this.late,
     required this.lateTint,
@@ -19,6 +20,10 @@ class AppTokens extends ThemeExtension<AppTokens> {
 
   /// Shopping: To buy tiles (same in both themes).
   final Color toBuy;
+
+  /// Text on To buy tiles: the palette's coral 900 stop, at full opacity,
+  /// same in both themes (4.75:1 on the tile; white was only 3.04:1).
+  final Color onToBuy;
 
   /// Shopping: Recently used tiles (same in both themes).
   final Color recent;
@@ -40,6 +45,7 @@ class AppTokens extends ThemeExtension<AppTokens> {
 
   static const light = AppTokens(
     toBuy: Color(0xFFEE6A6A),
+    onToBuy: Color(0xFF4A1B0C),
     recent: Color(0xFF6DB5A8),
     late: Color(0xFFA32D2D),
     lateTint: Color(0xFFFCEBEB),
@@ -51,6 +57,7 @@ class AppTokens extends ThemeExtension<AppTokens> {
 
   static const dark = AppTokens(
     toBuy: Color(0xFFEE6A6A),
+    onToBuy: Color(0xFF4A1B0C),
     recent: Color(0xFF6DB5A8),
     late: Color(0xFFF09595),
     lateTint: Color(0xFF791F1F),
@@ -63,6 +70,7 @@ class AppTokens extends ThemeExtension<AppTokens> {
   @override
   AppTokens copyWith({
     Color? toBuy,
+    Color? onToBuy,
     Color? recent,
     Color? late,
     Color? lateTint,
@@ -75,6 +83,7 @@ class AppTokens extends ThemeExtension<AppTokens> {
   }) =>
       AppTokens(
         toBuy: toBuy ?? this.toBuy,
+        onToBuy: onToBuy ?? this.onToBuy,
         recent: recent ?? this.recent,
         late: late ?? this.late,
         lateTint: lateTint ?? this.lateTint,
@@ -91,6 +100,7 @@ class AppTokens extends ThemeExtension<AppTokens> {
     if (other is! AppTokens) return this;
     return AppTokens(
       toBuy: Color.lerp(toBuy, other.toBuy, t)!,
+      onToBuy: Color.lerp(onToBuy, other.onToBuy, t)!,
       recent: Color.lerp(recent, other.recent, t)!,
       late: Color.lerp(late, other.late, t)!,
       lateTint: Color.lerp(lateTint, other.lateTint, t)!,

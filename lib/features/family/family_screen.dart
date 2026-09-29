@@ -256,7 +256,9 @@ class _SectionTitle extends StatelessWidget {
       );
 }
 
-/// An icon (labelled for screen readers) and a control that shrinks to fit narrow phones.
+/// A setting's icon and label on their own line, with its control full width
+/// underneath. The control is never scaled down, so its segments keep their
+/// 48 dp tap targets; a label that doesn't fit wraps and the control grows taller.
 class _SettingRow extends StatelessWidget {
   const _SettingRow({required this.icon, required this.label, required this.child});
   final IconData icon;
@@ -265,18 +267,21 @@ class _SettingRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        child: Row(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Tooltip(message: label, child: Icon(icon, semanticLabel: label)),
-            const SizedBox(width: 12),
-            Expanded(
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: AlignmentDirectional.centerStart,
-                child: child,
-              ),
+            Row(
+              children: [
+                // Decorative: the visible label names the setting.
+                Icon(icon, size: 20),
+                const SizedBox(width: 8),
+                Expanded(child: Text(label, style: Theme.of(context).textTheme.titleSmall)),
+              ],
             ),
+            const SizedBox(height: 8),
+            // Full width; the segments share it evenly.
+            child,
           ],
         ),
       );

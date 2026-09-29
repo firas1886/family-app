@@ -82,15 +82,35 @@ class Member {
   final bool pictureTiles;
   final DateTime? joinedAt;
 
-  factory Member.fromMap(String uid, Map<String, dynamic> m) => Member(
-        uid: uid,
-        name: m['name'] as String? ?? '',
-        role: m['role'] == 'parent' ? Role.parent : Role.child,
-        color: readInt(m['color']),
-        photoUrl: m['photoUrl'] as String?,
-        pictureTiles: m['pictureTiles'] == true,
-        joinedAt: readDate(m['joinedAt']),
-      );
+  /// Any joiner can write any fields on their own member doc, so a value of
+  /// the wrong type falls back to "not set" instead of breaking the members
+  /// stream for the whole family.
+  factory Member.fromMap(String uid, Map<String, dynamic> m) {
+    final name = m['name'];
+    final color = m['color'];
+    final photoUrl = m['photoUrl'];
+    return Member(
+      uid: uid,
+      name: name is String ? name : '',
+      role: m['role'] == 'parent' ? Role.parent : Role.child,
+      color: color is int && color >= 0 && color <= 7 ? color : null,
+      photoUrl: photoUrl is String ? photoUrl : null,
+      pictureTiles: m['pictureTiles'] == true,
+      joinedAt: _readMemberDate(m['joinedAt']),
+    );
+  }
+}
+
+/// Like [readDate], but anything that isn't a DateTime or a Timestamp reads as null.
+DateTime? _readMemberDate(Object? value) {
+  if (value == null) return null;
+  if (value is DateTime) return value;
+  try {
+    final date = (value as dynamic).toDate();
+    return date is DateTime ? date : null;
+  } on NoSuchMethodError {
+    return null;
+  }
 }
 
 class ItemCategory {
