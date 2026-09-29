@@ -41,8 +41,20 @@ service cloud.firestore {
             && get(familyPath(f)).data.createdBy == uid()
             && !exists(joinCodePath(get(familyPath(f)).data.joinCode)))
         );
-        allow update: if isParent(f) && onlyChanges(['role'])
-          && request.resource.data.role in ['parent', 'child'];
+        // Parents change role, colour and picture tiles; a member changes only their own photo.
+        allow update: if (isParent(f)
+            && onlyChanges(['role', 'color', 'pictureTiles'])
+            && request.resource.data.role in ['parent', 'child']
+            && (!('color' in request.resource.data)
+              || (request.resource.data.color is int
+                && request.resource.data.color >= 0
+                && request.resource.data.color <= 7))
+            && (!('pictureTiles' in request.resource.data)
+              || request.resource.data.pictureTiles is bool))
+          || (signedIn() && uid() == m
+            && onlyChanges(['photoUrl'])
+            && (request.resource.data.photoUrl == null
+              || request.resource.data.photoUrl is string));
         allow delete: if isParent(f) || (signedIn() && uid() == m);
       }
 

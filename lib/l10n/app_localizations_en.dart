@@ -102,6 +102,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nothingToBuy => 'Nothing to buy';
 
   @override
+  String get color => 'Colour';
+
+  @override
+  String get pickColor => 'Pick a colour';
+
+  @override
+  String get pictureTiles => 'Picture tiles';
+
+  @override
+  String get theme => 'Theme';
+
+  @override
+  String get themeSystem => 'System';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeDark => 'Dark';
+
+  @override
   String get toBuy => 'To buy';
 
   @override

@@ -19,6 +19,7 @@ Future<void> pumpWithFamily(
   required FakeFirebaseFirestore db,
   required Widget child,
   String uid = 'u1',
+  String? photoUrl,
 }) async {
   await tester.pumpWidget(ProviderScope(
     overrides: [
@@ -26,6 +27,8 @@ Future<void> pumpWithFamily(
       currentUidProvider.overrideWithValue(uid),
       authReadyProvider.overrideWithValue(true),
       clockProvider.overrideWithValue(() => testNow),
+      // Tests have no FirebaseAuth; the Google photo comes from here instead.
+      authPhotoUrlProvider.overrideWithValue(photoUrl),
     ],
     child: MaterialApp(
       locale: const Locale('en'),

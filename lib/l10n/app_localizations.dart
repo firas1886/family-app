@@ -266,6 +266,48 @@ abstract class AppLocalizations {
   /// **'Nothing to buy'**
   String get nothingToBuy;
 
+  /// No description provided for @color.
+  ///
+  /// In en, this message translates to:
+  /// **'Colour'**
+  String get color;
+
+  /// No description provided for @pickColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a colour'**
+  String get pickColor;
+
+  /// No description provided for @pictureTiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Picture tiles'**
+  String get pictureTiles;
+
+  /// No description provided for @theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get theme;
+
+  /// No description provided for @themeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get themeSystem;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get themeLight;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get themeDark;
+
   /// No description provided for @toBuy.
   ///
   /// In en, this message translates to:

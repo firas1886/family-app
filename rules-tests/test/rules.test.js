@@ -217,6 +217,46 @@ describe('members and joining', () => {
   });
 });
 
+describe('member colours, photos and picture tiles', () => {
+  it('a parent sets colours and picture tiles', async () => {
+    await assertSucceeds(updateDoc(doc(as('dad'), `families/${F}/members/kid`), { color: 3 }));
+    await assertSucceeds(updateDoc(doc(as('dad'), `families/${F}/members/kid`), { pictureTiles: true }));
+    await assertSucceeds(updateDoc(doc(as('dad'), `families/${F}/members/dad`), { color: 0 }));
+  });
+  it('a child cannot set a colour or picture tiles', async () => {
+    await assertFails(updateDoc(doc(as('kid'), `families/${F}/members/kid`), { color: 2 }));
+    await assertFails(updateDoc(doc(as('kid'), `families/${F}/members/dad`), { color: 2 }));
+    await assertFails(updateDoc(doc(as('kid'), `families/${F}/members/kid`), { pictureTiles: true }));
+  });
+  it('a parent cannot set colour 9 or other bad values', async () => {
+    await assertFails(updateDoc(doc(as('dad'), `families/${F}/members/kid`), { color: 9 }));
+    await assertFails(updateDoc(doc(as('dad'), `families/${F}/members/kid`), { color: -1 }));
+    await assertFails(updateDoc(doc(as('dad'), `families/${F}/members/kid`), { color: '3' }));
+    await assertFails(updateDoc(doc(as('dad'), `families/${F}/members/kid`), { pictureTiles: 'yes' }));
+  });
+  it("a parent cannot change a member's name", async () => {
+    await assertFails(updateDoc(doc(as('dad'), `families/${F}/members/kid`), { name: 'Someone' }));
+  });
+  it('a member sets their own photoUrl', async () => {
+    await assertSucceeds(updateDoc(doc(as('kid'), `families/${F}/members/kid`), { photoUrl: 'https://example.com/kid.png' }));
+    await assertSucceeds(updateDoc(doc(as('kid'), `families/${F}/members/kid`), { photoUrl: null }));
+    await assertSucceeds(updateDoc(doc(as('dad'), `families/${F}/members/dad`), { photoUrl: 'https://example.com/dad.png' }));
+  });
+  it("a member cannot set another member's photoUrl", async () => {
+    await assertFails(updateDoc(doc(as('kid'), `families/${F}/members/dad`), { photoUrl: 'https://example.com/x.png' }));
+    await assertFails(updateDoc(doc(as('dad'), `families/${F}/members/kid`), { photoUrl: 'https://example.com/x.png' }));
+  });
+  it('a photo update cannot carry other changes or a non-string', async () => {
+    await assertFails(updateDoc(doc(as('kid'), `families/${F}/members/kid`), { photoUrl: 'https://example.com/kid.png', role: 'parent' }));
+    await assertFails(updateDoc(doc(as('kid'), `families/${F}/members/kid`), { photoUrl: 42 }));
+  });
+  it('the creator of a new family starts with colour 0', async () => {
+    const db = as('newbie');
+    await setDoc(doc(db, 'families/fam2'), { name: 'New', joinCode: 'XYZ789', createdBy: 'newbie' });
+    await assertSucceeds(setDoc(doc(db, 'families/fam2/members/newbie'), { name: 'N', role: 'parent', color: 0 }));
+  });
+});
+
 describe('join codes', () => {
   it('signed-in users can look up a code but not list them', async () => {
     await assertSucceeds(getDoc(doc(as('mum'), 'joinCodes/ABC234')));

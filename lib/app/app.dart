@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/member_colors.dart';
+import '../core/models.dart';
 import '../data/write.dart';
 import '../features/auth/sign_in_screen.dart';
 import '../features/family/family_screen.dart';
@@ -50,7 +52,7 @@ class RootGate extends ConsumerWidget {
           error: (_, __) => const _Loading(),
           data: (user) => user?.familyId == null
               ? const OnboardingScreen()
-              : const _MembershipGuard(child: HomeShell()),
+              : const _MembershipGuard(child: ProfileSync(child: HomeShell())),
         );
   }
 }
@@ -74,6 +76,50 @@ class _MembershipGuard extends ConsumerWidget {
             return const _Loading();
           },
         );
+  }
+}
+
+/// Keeps member profiles tidy once the family has loaded:
+/// saves my Google photo on my member doc, and (parents only) gives a colour
+/// to every member who has none yet.
+class ProfileSync extends ConsumerWidget {
+  const ProfileSync({super.key, required this.child});
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final members = ref.watch(membersProvider).valueOrNull;
+    final uid = ref.watch(currentUidProvider);
+    final familyId = ref.watch(familyIdProvider);
+    final photoUrl = ref.watch(authPhotoUrlProvider);
+    final isParent = ref.watch(isParentProvider);
+    if (members != null && uid != null && familyId != null &&
+        _needsSync(members, uid, photoUrl, isParent)) {
+      // Writes happen after the frame, never during build.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!context.mounted) return;
+        final latest = ref.read(membersProvider).valueOrNull;
+        if (latest == null) return;
+        final repo = ref.read(familyRepositoryProvider);
+        final me = latest.where((m) => m.uid == uid).firstOrNull;
+        if (me != null && photoUrl != null && me.photoUrl != photoUrl) {
+          fireAndForget(repo.setPhotoUrl(familyId, uid, photoUrl));
+        }
+        if (isParent) {
+          for (final entry in missingColorAssignments(latest).entries) {
+            fireAndForget(repo.setColor(familyId, entry.key, entry.value));
+          }
+        }
+      });
+    }
+    return child;
+  }
+
+  static bool _needsSync(List<Member> members, String uid, String? photoUrl, bool isParent) {
+    final me = members.where((m) => m.uid == uid).firstOrNull;
+    final photoChanged = me != null && photoUrl != null && me.photoUrl != photoUrl;
+    final colorsMissing = isParent && members.any((m) => m.color == null);
+    return photoChanged || colorsMissing;
   }
 }
 

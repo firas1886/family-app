@@ -51,7 +51,7 @@ class FamilyRepository {
     final code = await _unusedCode();
     final now = DateTime.now();
     await familyRef.set({'name': familyName, 'joinCode': code, 'createdBy': uid, 'createdAt': now});
-    await _members(familyRef.id).doc(uid).set({'name': userName, 'role': 'parent', 'joinedAt': now});
+    await _members(familyRef.id).doc(uid).set({'name': userName, 'role': 'parent', 'joinedAt': now, 'color': 0});
     final batch = _db.batch()
       ..set(_joinCode(code), {'familyId': familyRef.id})
       ..set(familyRef.collection('categories').doc(), {
@@ -99,6 +99,18 @@ class FamilyRepository {
       .doc(uid)
       .snapshots()
       .map((s) => s.exists ? Member.fromMap(uid, s.data()!) : null);
+
+  /// Parents only (security rules): palette index 0–7.
+  Future<void> setColor(String familyId, String uid, int index) =>
+      _members(familyId).doc(uid).update({'color': index});
+
+  /// Parents only (security rules).
+  Future<void> setPictureTiles(String familyId, String uid, bool on) =>
+      _members(familyId).doc(uid).update({'pictureTiles': on});
+
+  /// Only the member themselves (security rules).
+  Future<void> setPhotoUrl(String familyId, String uid, String? url) =>
+      _members(familyId).doc(uid).update({'photoUrl': url});
 
   Future<void> setRole(String familyId, String memberUid, Role role) async {
     if (role == Role.child) await _ensureAnotherParent(familyId, memberUid);

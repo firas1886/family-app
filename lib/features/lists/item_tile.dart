@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../app/theme.dart';
 import '../../core/text.dart';
 
 class ItemTile extends StatelessWidget {
@@ -22,15 +23,23 @@ class ItemTile extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
 
+  /// Text on the coral To buy tile: the palette's coral 900 stop, at full
+  /// opacity (4.75:1 on the tile; white was only 3.04:1).
+  static const _onToBuy = Color(0xFF4A1B0C);
+
   @override
   Widget build(BuildContext context) {
     final radius = BorderRadius.circular(8);
+    final isToBuy = color == context.tokens.toBuy;
     // Text colour follows the tile colour, so light tiles (the catalog's
     // card colour in the light theme) get dark text.
-    final onColor = ThemeData.estimateBrightnessForColor(color) == Brightness.dark
-        ? Colors.white
-        : Colors.black87;
-    final onColorMuted = onColor.withValues(alpha: 0.72);
+    final onColor = isToBuy
+        ? _onToBuy
+        : ThemeData.estimateBrightnessForColor(color) == Brightness.dark
+            ? Colors.white
+            : Colors.black87;
+    // No faded caption on the To buy tile: it would drop below 4.5:1.
+    final onColorMuted = isToBuy ? onColor : onColor.withValues(alpha: 0.72);
     return Opacity(
       opacity: dimmed ? 0.45 : 1,
       child: AnimatedContainer(

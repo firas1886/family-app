@@ -106,6 +106,27 @@ class AppLocalizationsAr extends AppLocalizations {
   String get nothingToBuy => 'لا شيء للشراء';
 
   @override
+  String get color => 'اللون';
+
+  @override
+  String get pickColor => 'اختر لوناً';
+
+  @override
+  String get pictureTiles => 'بطاقات مصوّرة';
+
+  @override
+  String get theme => 'المظهر';
+
+  @override
+  String get themeSystem => 'تلقائي';
+
+  @override
+  String get themeLight => 'فاتح';
+
+  @override
+  String get themeDark => 'داكن';
+
+  @override
   String get toBuy => 'للشراء';
 
   @override

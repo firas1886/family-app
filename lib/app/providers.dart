@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' hide Family;
 import 'package:google_sign_in/google_sign_in.dart';
 
+import '../core/member_colors.dart';
 import '../core/models.dart';
 import '../core/placement.dart';
 import '../data/catalog_repository.dart';
@@ -24,6 +25,9 @@ final authUserProvider = StreamProvider<User?>(
 );
 final authReadyProvider = Provider<bool>((ref) => !ref.watch(authUserProvider).isLoading);
 final currentUidProvider = Provider<String?>((ref) => ref.watch(authUserProvider).valueOrNull?.uid);
+
+/// The signed-in user's Google profile photo (overridden with null in tests).
+final authPhotoUrlProvider = Provider<String?>((ref) => ref.watch(authUserProvider).valueOrNull?.photoURL);
 
 // User and family.
 final familyRepositoryProvider = Provider<FamilyRepository>(
@@ -84,6 +88,14 @@ final myMemberProvider = StreamProvider<Member?>((ref) {
 final isParentProvider = Provider<bool>(
   (ref) => ref.watch(myMemberProvider).valueOrNull?.role == Role.parent,
 );
+
+/// uid → palette index for every current member, including members whose
+/// colour has not been saved yet.
+final memberColorsProvider = Provider<Map<String, int>>((ref) {
+  final members = ref.watch(membersProvider).valueOrNull ?? const <Member>[];
+  final missing = missingColorAssignments(members);
+  return {for (final m in members) m.uid: m.color ?? missing[m.uid]!};
+});
 
 // Shopping data.
 final categoriesProvider = StreamProvider<List<ItemCategory>>(

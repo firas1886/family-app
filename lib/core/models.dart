@@ -59,15 +59,37 @@ class Family {
 }
 
 class Member {
-  const Member({required this.uid, required this.name, required this.role});
+  const Member({
+    required this.uid,
+    required this.name,
+    required this.role,
+    this.color,
+    this.photoUrl,
+    this.pictureTiles = false,
+    this.joinedAt,
+  });
   final String uid;
   final String name;
   final Role role;
+
+  /// Palette index 0–7, or null until one is assigned.
+  final int? color;
+
+  /// The member's Google profile photo, or null.
+  final String? photoUrl;
+
+  /// Show this member's chores as big emoji tiles.
+  final bool pictureTiles;
+  final DateTime? joinedAt;
 
   factory Member.fromMap(String uid, Map<String, dynamic> m) => Member(
         uid: uid,
         name: m['name'] as String? ?? '',
         role: m['role'] == 'parent' ? Role.parent : Role.child,
+        color: readInt(m['color']),
+        photoUrl: m['photoUrl'] as String?,
+        pictureTiles: m['pictureTiles'] == true,
+        joinedAt: readDate(m['joinedAt']),
       );
 }
 
