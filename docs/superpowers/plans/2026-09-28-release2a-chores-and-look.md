@@ -4231,7 +4231,7 @@ git commit -m "feat(core): chore repeat rules, day view, late chores and validat
     - `choreDone/{d}`: read members; no update; create: `d == choreId + '_' + date`, `dayNumber is int`, and either `isParent(f)`, or member with `doneBy == uid()`, the chore (`get` of `chores/{choreId}`) has `assignee == uid()` or `assignee == null`, and `dayNumber` within `[utcDay - 2, utcDay + 1]` where `utcDay = math.floor(request.time.toMillis() / 86400000)`; delete: `isParent(f)`, or `resource.data.doneBy == uid()` with the same window on `resource.data.dayNumber`.
   - Rules tests include Review Focus #2 ("child ticks today or yesterday only (timezone-safe window)"): ticks with `dayNumber` = today, yesterday, and today+1 succeed; today−3 fails; child cannot tick another member's chore or record `doneBy` as someone else; parent can tick for anyone on any day; mismatched document id fails; child creates own chore, cannot create one for someone else, cannot edit a parent's chore; blank title fails.
 
-- [ ] **Step 1: Write the failing rules tests**
+- [x] **Step 1: Write the failing rules tests**
 
 Append to the end of `rules-tests/test/rules.test.js` (after the last `describe('users', …)` block; the existing imports already include everything used here). It contains Review Focus #2 ("child ticks today or yesterday only (timezone-safe window)"). Each test computes `utcDay = Math.floor(Date.now() / 86400000)`, the same day number the rules compute from `request.time`, and `dateOf(n)` gives the matching `"YYYY-MM-DD"`.
 
@@ -4404,7 +4404,7 @@ describe('chore done records', () => {
 });
 ```
 
-- [ ] **Step 2: Run the rules tests to verify they fail**
+- [x] **Step 2: Run the rules tests to verify they fail**
 
 Run (Git Bash; the emulator needs Java):
 
@@ -4416,7 +4416,7 @@ cd rules-tests && npm run emulate
 
 Expected: FAIL, `41 passing`, `13 failing` (every new test that expects a write or read to succeed is refused, because there are no rules for `chores` or `choreDone` yet).
 
-- [ ] **Step 3: Write the rules**
+- [x] **Step 3: Write the rules**
 
 In `firestore.rules`, insert the two blocks below inside `match /families/{f} { … }`, directly after the closing `}` of `match /purchases/{p} { … }` and before the `}` that closes `match /families/{f}`. Nothing else in the file changes. The end of the file then reads:
 
@@ -4495,12 +4495,12 @@ The new text:
 
 How the tick window works: `utcDay` is the UTC day of the server time. A phone's local date is at most one day either side of it (ahead of UTC just after local midnight, behind UTC late in the evening), and a child may also tick yesterday, so the accepted `dayNumber` range is `utcDay - 2 … utcDay + 1`. An offline tick at 23:50 that syncs after midnight is accepted in any timezone; a tick for three days ago is refused. `dateIsDay` ties the `date` string (and so the document id) to `dayNumber`, so a child can't pair today's `dayNumber` with an old date.
 
-- [ ] **Step 4: Run the rules tests to verify they pass**
+- [x] **Step 4: Run the rules tests to verify they pass**
 
 Run: `cd rules-tests && npm run emulate` (with `JAVA_HOME` and `PATH` set as in Step 2)
 Expected: PASS, `54 passing`, no failures. (The emulator also prints `PERMISSION_DENIED … evaluation error` lines for the refused writes; the Release 1 tests print the same kind of lines. Only the mocha summary matters.)
 
-- [ ] **Step 5: Write the failing repository tests**
+- [x] **Step 5: Write the failing repository tests**
 
 In `test/support/seed.dart`, add these imports next to the existing ones:
 
@@ -4746,12 +4746,12 @@ void main() {
 }
 ```
 
-- [ ] **Step 6: Run the repository tests to verify they fail**
+- [x] **Step 6: Run the repository tests to verify they fail**
 
 Run: `flutter test test/data/chore_repository_test.dart`
 Expected: FAIL, `Error: Error when reading 'lib/data/chore_repository.dart': The system cannot find the file specified`.
 
-- [ ] **Step 7: Implement the repository and providers**
+- [x] **Step 7: Implement the repository and providers**
 
 Create `lib/data/chore_repository.dart`:
 
@@ -4881,12 +4881,12 @@ final choreDoneProvider = StreamProvider.family<List<ChoreDone>, ({String from, 
 
 `todayProvider` is a `Notifier` rather than a plain `Provider` so that a screen left open for days (the wall tablet) moves to the new day by itself: one `Timer` is always pending for 1 s after the next local midnight, the callback sets the new day (only if it changed) and schedules the next one, and `ref.onDispose` cancels it. Widget tests are unaffected: `ProviderScope` disposes the container when the tree is torn down, which cancels the timer before Flutter's pending-timer check.
 
-- [ ] **Step 8: Run the repository tests to verify they pass**
+- [x] **Step 8: Run the repository tests to verify they pass**
 
 Run: `flutter test test/data`
 Expected: PASS, `All tests passed!` (`chore_repository_test.dart` 12 tests, plus the existing data tests).
 
-- [ ] **Step 9: Full checks**
+- [x] **Step 9: Full checks**
 
 Run: `flutter analyze --no-fatal-infos`
 Expected: no errors and no warnings.
@@ -4897,7 +4897,7 @@ Expected: PASS, `All tests passed!`
 Run: `cd rules-tests && npm run emulate` (with `JAVA_HOME` and `PATH` set as in Step 2)
 Expected: PASS, `54 passing` (plus any rules tests added by Task 3, which must still pass).
 
-- [ ] **Step 10: Commit**
+- [x] **Step 10: Commit**
 
 ```bash
 git add firestore.rules rules-tests/test/rules.test.js lib/data/chore_repository.dart lib/app/providers.dart test/support/seed.dart test/data/chore_repository_test.dart
