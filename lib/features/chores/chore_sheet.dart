@@ -104,6 +104,8 @@ class _ChoreSheetState extends ConsumerState<ChoreSheet> {
               textCapitalization: TextCapitalization.sentences,
               decoration: InputDecoration(
                 labelText: l.choreTitle,
+                // The length Save checks (validateChore), where an emoji counts 2.
+                counterText: '${_title.text.trim().length}/$maxChoreTitleLength',
                 errorText: problems.contains(ChoreProblem.blankTitle)
                     ? l.problemBlankTitle
                     : problems.contains(ChoreProblem.titleTooLong)

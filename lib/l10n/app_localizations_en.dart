@@ -489,4 +489,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get wd7 => 'Sun';
+
+  @override
+  String get late => 'Late';
+
+  @override
+  String lateSince(String date) {
+    return 'Late since $date';
+  }
+
+  @override
+  String get whoDidIt => 'Who did it?';
+
+  @override
+  String get yourChores => 'Your chores';
+
+  @override
+  String get allDone => 'All done for today! 🎉';
 }

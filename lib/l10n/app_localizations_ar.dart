@@ -505,4 +505,21 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get wd7 => 'أحد';
+
+  @override
+  String get late => 'متأخرة';
+
+  @override
+  String lateSince(String date) {
+    return 'متأخرة منذ $date';
+  }
+
+  @override
+  String get whoDidIt => 'من قام بها؟';
+
+  @override
+  String get yourChores => 'مهامك';
+
+  @override
+  String get allDone => 'أنجزت كل مهام اليوم! 🎉';
 }

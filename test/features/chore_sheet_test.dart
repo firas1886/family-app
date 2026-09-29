@@ -251,4 +251,22 @@ void main() {
       }
     }
   });
+
+  // Extra E2 (Extra 2): an emoji is 2 of the 80, as Save counts it.
+  testWidgets('the title counter counts what Save checks', (tester) async {
+    final db = await seedFamily();
+    await openSheet(tester, db);
+
+    await typeInto(tester, const Key('choreTitle'), '  Tidy up ');
+    expect(find.text('7/80'), findsOneWidget); // the trimmed length
+
+    await typeInto(tester, const Key('choreTitle'), '😀' * 45);
+    expect(find.text('90/80'), findsOneWidget);
+    expect(find.text('45/80'), findsNothing);
+
+    await tapKey(tester, const Key('choreSave'));
+    expect(find.text('Keep the title to 80 characters or fewer.'), findsOneWidget);
+    expect(await storedChores(db), isEmpty);
+    expect(find.byKey(const Key('choreSave')), findsOneWidget); // the sheet stays open
+  });
 }

@@ -12,22 +12,30 @@ import '../../data/write.dart';
 import '../../l10n/app_localizations.dart';
 import '../common/empty_state.dart';
 import '../common/offline_chip.dart';
+import 'celebration.dart';
 import 'chore_card.dart';
 import 'chore_groups.dart';
 import 'chore_sheet.dart';
 import 'chores_board.dart';
+import 'late_strip.dart';
 import 'repeat_label.dart';
+import 'who_did_it.dart';
 
 /// From this available width the Chores tab shows the tablet board.
 const boardBreakpoint = 840.0;
 
 /// Ticks or unticks one chore for [day]. Every screen with chore cards ticks
 /// through here. Writes go through [fireAndForget] and are never awaited.
+///
+/// A parent ticking an "anyone" chore is asked who did it; a child is recorded
+/// as themselves. A tick celebrates, and the celebration is the big one when the
+/// tick completes all of [siblings] (that person's chores for the day).
 Future<void> toggleChore(
   BuildContext context,
   WidgetRef ref, {
   required ChoreStatus status,
   required DateTime day,
+  List<ChoreStatus> siblings = const [],
 }) async {
   final me = ref.read(currentUidProvider);
   if (me == null) return;
@@ -41,16 +49,29 @@ Future<void> toggleChore(
     fireAndForget(repo.untick(choreId: chore.id, date: date));
     return;
   }
-  final members = ref.read(membersProvider).valueOrNull ?? const <Member>[];
-  // A parent ticking someone's chore records that person; otherwise it's me.
-  final doneBy = isParent && chore.assignee != null ? chore.assignee! : me;
+  final members = [...(ref.read(membersProvider).valueOrNull ?? const <Member>[])]..sort(compareMembers);
+  final now = ref.read(clockProvider)();
+  final String doneBy;
+  if (chore.isAnyone && isParent) {
+    final who = await showWhoDidIt(context, members);
+    if (!context.mounted) return;
+    if (who == null) return;
+    doneBy = who.uid;
+  } else {
+    // A parent ticking someone's chore records that person; otherwise it's me.
+    doneBy = isParent && chore.assignee != null ? chore.assignee! : me;
+  }
   fireAndForget(repo.tick(
     chore: chore,
     date: date,
     doneBy: doneBy,
     doneByName: memberById(members, doneBy)?.name ?? '',
-    now: ref.read(clockProvider)(),
+    now: now,
   ));
+  final big = !chore.isAnyone &&
+      siblings.isNotEmpty &&
+      siblings.every((s) => s.isDone || s.chore.id == chore.id);
+  celebrate(context, big: big);
   _showTicked(context, repo, chore, date);
 }
 
@@ -64,6 +85,7 @@ void _showTicked(BuildContext context, ChoreRepository repo, Chore chore, String
     ..showSnackBar(SnackBar(
       // A SnackBar with an action stays until dismissed unless persist is false.
       persist: false,
+      duration: const Duration(seconds: 5),
       content: Text(l.choreTicked(chore.title)),
       action: SnackBarAction(
         label: l.undo,
@@ -144,8 +166,8 @@ class _ChoresScreenState extends ConsumerState<ChoresScreen> {
       content = LayoutBuilder(
         builder: (context, constraints) =>
             constraints.maxWidth >= boardBreakpoint && groups.any((g) => g.items.isNotEmpty)
-                ? _board(info, groups)
-                : _phoneList(l, info, groups),
+                ? _board(info, groups, onlyMe)
+                : _phoneList(l, info, groups, onlyMe),
       );
     } else if (membersAsync.hasError || choresAsync.hasError || doneAsync.hasError) {
       content = Center(child: Text(l.somethingWentWrong));
@@ -235,11 +257,12 @@ class _ChoresScreenState extends ConsumerState<ChoresScreen> {
     if (picked != null && mounted) setState(() => _day = dayOnly(picked));
   }
 
-  Widget _phoneList(AppLocalizations l, _DayInfo info, List<ChoreGroup> groups) {
+  Widget _phoneList(AppLocalizations l, _DayInfo info, List<ChoreGroup> groups, bool onlyMe) {
     final allEmpty = groups.every((g) => g.items.isEmpty);
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, addButtonClearance), // room for the add button
       children: [
+        if (info.isToday) LateStrip(onlyMine: onlyMe),
         if (allEmpty)
           EmptyState(emoji: '🎉', title: info.isToday ? l.noChoresToday : l.noChores)
         else
@@ -248,10 +271,28 @@ class _ChoresScreenState extends ConsumerState<ChoresScreen> {
     );
   }
 
-  Widget _board(_DayInfo info, List<ChoreGroup> groups) => Padding(
-        padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
-        child: ChoresBoard(groups: groups, cardBuilder: (group, status) => _card(info, group, status)),
-      );
+  Widget _board(_DayInfo info, List<ChoreGroup> groups, bool onlyMe) {
+    return Column(
+      children: [
+        if (info.isToday)
+          ConstrainedBox(
+            // The board keeps most of the height; a long late list scrolls.
+            constraints: const BoxConstraints(maxHeight: 200),
+            child: SingleChildScrollView(
+              primary: false,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: LateStrip(onlyMine: onlyMe),
+            ),
+          ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+            child: ChoresBoard(groups: groups, cardBuilder: (group, status) => _card(info, group, status)),
+          ),
+        ),
+      ],
+    );
+  }
 
   Widget _section(AppLocalizations l, _DayInfo info, ChoreGroup group) {
     final cards = [for (final s in group.items) _card(info, group, s)];
@@ -289,7 +330,15 @@ class _ChoresScreenState extends ConsumerState<ChoresScreen> {
       status: status,
       color: _colorFor(info, group, status),
       pictureTile: group.member?.pictureTiles ?? false,
-      onToggle: canTick ? () => toggleChore(context, ref, status: status, day: info.day) : null,
+      onToggle: canTick
+          ? () => toggleChore(
+                context,
+                ref,
+                status: status,
+                day: info.day,
+                siblings: group.member == null ? const [] : group.items,
+              )
+          : null,
       onLongPress: canEdit ? () => showChoreSheet(context, chore: chore, day: info.day) : null,
     );
   }

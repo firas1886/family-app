@@ -145,7 +145,7 @@ Future<void> expectLastTicksClearOfAddButton(
     final lastCard =
         find.descendant(of: find.byKey(ValueKey('boardList-$id')), matching: find.byType(ChoreCard)).last;
     final choreId = tester.widget<ChoreCard>(lastCard).status.chore.id;
-    final tick = find.byKey(ValueKey('tick-$choreId'));
+    final tick = find.descendant(of: find.byKey(ValueKey('boardList-$id')), matching: find.byKey(ValueKey('tick-$choreId')));
     final tickRect = tester.getRect(tick);
     final buttonRect = tester.getRect(addButton);
     if (id == columns.last) {

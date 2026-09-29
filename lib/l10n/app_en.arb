@@ -154,5 +154,11 @@
   "wd4": "Thu",
   "wd5": "Fri",
   "wd6": "Sat",
-  "wd7": "Sun"
+  "wd7": "Sun",
+  "late": "Late",
+  "lateSince": "Late since {date}",
+  "@lateSince": { "placeholders": { "date": { "type": "String" } } },
+  "whoDidIt": "Who did it?",
+  "yourChores": "Your chores",
+  "allDone": "All done for today! 🎉"
 }

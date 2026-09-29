@@ -925,6 +925,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sun'**
   String get wd7;
+
+  /// No description provided for @late.
+  ///
+  /// In en, this message translates to:
+  /// **'Late'**
+  String get late;
+
+  /// No description provided for @lateSince.
+  ///
+  /// In en, this message translates to:
+  /// **'Late since {date}'**
+  String lateSince(String date);
+
+  /// No description provided for @whoDidIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Who did it?'**
+  String get whoDidIt;
+
+  /// No description provided for @yourChores.
+  ///
+  /// In en, this message translates to:
+  /// **'Your chores'**
+  String get yourChores;
+
+  /// No description provided for @allDone.
+  ///
+  /// In en, this message translates to:
+  /// **'All done for today! 🎉'**
+  String get allDone;
 }
 
 class _AppLocalizationsDelegate
