@@ -5,6 +5,7 @@ import '../core/member_colors.dart';
 import '../core/models.dart';
 import '../data/write.dart';
 import '../features/auth/sign_in_screen.dart';
+import '../features/chores/chores_screen.dart';
 import '../features/family/family_screen.dart';
 import '../features/family/onboarding_screen.dart';
 import '../features/lists/lists_screen.dart';
@@ -139,13 +140,14 @@ class _HomeShellState extends State<HomeShell> {
     return Scaffold(
       body: IndexedStack(
         index: _index,
-        children: const [TodayScreen(), ListsScreen(), FamilyScreen()],
+        children: const [TodayScreen(), ChoresScreen(), ListsScreen(), FamilyScreen()],
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (i) => setState(() => _index = i),
         destinations: [
           NavigationDestination(icon: const Icon(Icons.home_outlined), label: l.tabToday),
+          NavigationDestination(icon: const Icon(Icons.task_alt), label: l.tabChores),
           NavigationDestination(icon: const Icon(Icons.checklist), label: l.tabLists),
           NavigationDestination(icon: const Icon(Icons.group), label: l.tabFamily),
         ],

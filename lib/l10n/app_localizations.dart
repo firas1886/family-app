@@ -643,6 +643,288 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'pack'**
   String get unitPack;
+
+  /// No description provided for @tabChores.
+  ///
+  /// In en, this message translates to:
+  /// **'Chores'**
+  String get tabChores;
+
+  /// No description provided for @today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get today;
+
+  /// No description provided for @everyone.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone'**
+  String get everyone;
+
+  /// No description provided for @me.
+  ///
+  /// In en, this message translates to:
+  /// **'Me'**
+  String get me;
+
+  /// No description provided for @anyone.
+  ///
+  /// In en, this message translates to:
+  /// **'Anyone'**
+  String get anyone;
+
+  /// No description provided for @formerMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Former member'**
+  String get formerMember;
+
+  /// No description provided for @noChoresToday.
+  ///
+  /// In en, this message translates to:
+  /// **'No chores today'**
+  String get noChoresToday;
+
+  /// No description provided for @noChores.
+  ///
+  /// In en, this message translates to:
+  /// **'No chores'**
+  String get noChores;
+
+  /// No description provided for @addChore.
+  ///
+  /// In en, this message translates to:
+  /// **'Add chore'**
+  String get addChore;
+
+  /// No description provided for @editChore.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit chore'**
+  String get editChore;
+
+  /// No description provided for @choreTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Chore'**
+  String get choreTitle;
+
+  /// No description provided for @choreEmoji.
+  ///
+  /// In en, this message translates to:
+  /// **'Emoji (optional)'**
+  String get choreEmoji;
+
+  /// No description provided for @who.
+  ///
+  /// In en, this message translates to:
+  /// **'Who'**
+  String get who;
+
+  /// No description provided for @time.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get time;
+
+  /// No description provided for @noTime.
+  ///
+  /// In en, this message translates to:
+  /// **'No time'**
+  String get noTime;
+
+  /// No description provided for @repeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat'**
+  String get repeat;
+
+  /// No description provided for @repeatOnce.
+  ///
+  /// In en, this message translates to:
+  /// **'Once'**
+  String get repeatOnce;
+
+  /// No description provided for @repeatDaily.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily'**
+  String get repeatDaily;
+
+  /// No description provided for @repeatWeekly.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly'**
+  String get repeatWeekly;
+
+  /// No description provided for @repeatMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get repeatMonthly;
+
+  /// No description provided for @every.
+  ///
+  /// In en, this message translates to:
+  /// **'Every'**
+  String get every;
+
+  /// No description provided for @everyNDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Daily} other{Every {count} days}}'**
+  String everyNDays(int count);
+
+  /// No description provided for @everyNWeeks.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Every week} other{Every {count} weeks}}'**
+  String everyNWeeks(int count);
+
+  /// No description provided for @everyNMonthsOnDay.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Monthly · day {day}} other{Every {count} months · day {day}}}'**
+  String everyNMonthsOnDay(int count, int day);
+
+  /// No description provided for @onDays.
+  ///
+  /// In en, this message translates to:
+  /// **'On these days'**
+  String get onDays;
+
+  /// No description provided for @dayOfMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Day of the month'**
+  String get dayOfMonth;
+
+  /// No description provided for @monthlyOnDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly · day {day}'**
+  String monthlyOnDay(int day);
+
+  /// No description provided for @startDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts'**
+  String get startDate;
+
+  /// No description provided for @endDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Ends on'**
+  String get endDate;
+
+  /// No description provided for @endsNever.
+  ///
+  /// In en, this message translates to:
+  /// **'Never ends'**
+  String get endsNever;
+
+  /// No description provided for @until.
+  ///
+  /// In en, this message translates to:
+  /// **'until {date}'**
+  String until(String date);
+
+  /// No description provided for @remind.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind me'**
+  String get remind;
+
+  /// No description provided for @confirmDeleteChore.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete the chore {name}? Days already done stay in the history.'**
+  String confirmDeleteChore(String name);
+
+  /// No description provided for @problemBlankTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a title.'**
+  String get problemBlankTitle;
+
+  /// No description provided for @problemTitleTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the title to 80 characters or fewer.'**
+  String get problemTitleTooLong;
+
+  /// No description provided for @problemWeeklyNoDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick at least one day.'**
+  String get problemWeeklyNoDays;
+
+  /// No description provided for @problemBadMonthDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a day between 1 and 31.'**
+  String get problemBadMonthDay;
+
+  /// No description provided for @problemEndBeforeStart.
+  ///
+  /// In en, this message translates to:
+  /// **'The end date can\'t be before the start date.'**
+  String get problemEndBeforeStart;
+
+  /// No description provided for @doneCount.
+  ///
+  /// In en, this message translates to:
+  /// **'✓ {done}/{total}'**
+  String doneCount(int done, int total);
+
+  /// No description provided for @choreTicked.
+  ///
+  /// In en, this message translates to:
+  /// **'{title} done'**
+  String choreTicked(String title);
+
+  /// No description provided for @wd1.
+  ///
+  /// In en, this message translates to:
+  /// **'Mon'**
+  String get wd1;
+
+  /// No description provided for @wd2.
+  ///
+  /// In en, this message translates to:
+  /// **'Tue'**
+  String get wd2;
+
+  /// No description provided for @wd3.
+  ///
+  /// In en, this message translates to:
+  /// **'Wed'**
+  String get wd3;
+
+  /// No description provided for @wd4.
+  ///
+  /// In en, this message translates to:
+  /// **'Thu'**
+  String get wd4;
+
+  /// No description provided for @wd5.
+  ///
+  /// In en, this message translates to:
+  /// **'Fri'**
+  String get wd5;
+
+  /// No description provided for @wd6.
+  ///
+  /// In en, this message translates to:
+  /// **'Sat'**
+  String get wd6;
+
+  /// No description provided for @wd7.
+  ///
+  /// In en, this message translates to:
+  /// **'Sun'**
+  String get wd7;
 }
 
 class _AppLocalizationsDelegate

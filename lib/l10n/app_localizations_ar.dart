@@ -320,4 +320,189 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get unitPack => 'عبوة';
+
+  @override
+  String get tabChores => 'المهام';
+
+  @override
+  String get today => 'اليوم';
+
+  @override
+  String get everyone => 'الجميع';
+
+  @override
+  String get me => 'أنا';
+
+  @override
+  String get anyone => 'أي شخص';
+
+  @override
+  String get formerMember => 'عضو سابق';
+
+  @override
+  String get noChoresToday => 'لا مهام اليوم';
+
+  @override
+  String get noChores => 'لا مهام';
+
+  @override
+  String get addChore => 'إضافة مهمة';
+
+  @override
+  String get editChore => 'تعديل المهمة';
+
+  @override
+  String get choreTitle => 'المهمة';
+
+  @override
+  String get choreEmoji => 'رمز تعبيري (اختياري)';
+
+  @override
+  String get who => 'لمن';
+
+  @override
+  String get time => 'الوقت';
+
+  @override
+  String get noTime => 'بلا وقت';
+
+  @override
+  String get repeat => 'التكرار';
+
+  @override
+  String get repeatOnce => 'مرة واحدة';
+
+  @override
+  String get repeatDaily => 'يوميًا';
+
+  @override
+  String get repeatWeekly => 'أسبوعيًا';
+
+  @override
+  String get repeatMonthly => 'شهريًا';
+
+  @override
+  String get every => 'كل';
+
+  @override
+  String everyNDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'كل $count يوم',
+      many: 'كل $count يومًا',
+      few: 'كل $count أيام',
+      two: 'كل يومين',
+      one: 'يوميًا',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String everyNWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'كل $count أسبوع',
+      many: 'كل $count أسبوعًا',
+      few: 'كل $count أسابيع',
+      two: 'كل أسبوعين',
+      one: 'كل أسبوع',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String everyNMonthsOnDay(int count, int day) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'كل $count شهر · يوم $day',
+      many: 'كل $count شهرًا · يوم $day',
+      few: 'كل $count أشهر · يوم $day',
+      two: 'كل شهرين · يوم $day',
+      one: 'شهريًا · يوم $day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get onDays => 'في هذه الأيام';
+
+  @override
+  String get dayOfMonth => 'يوم من الشهر';
+
+  @override
+  String monthlyOnDay(int day) {
+    return 'شهريًا · يوم $day';
+  }
+
+  @override
+  String get startDate => 'يبدأ';
+
+  @override
+  String get endDate => 'ينتهي في';
+
+  @override
+  String get endsNever => 'لا ينتهي';
+
+  @override
+  String until(String date) {
+    return 'حتى $date';
+  }
+
+  @override
+  String get remind => 'ذكّرني';
+
+  @override
+  String confirmDeleteChore(String name) {
+    return 'حذف المهمة $name؟ تبقى الأيام المنجزة في السجل.';
+  }
+
+  @override
+  String get problemBlankTitle => 'الرجاء إدخال عنوان.';
+
+  @override
+  String get problemTitleTooLong => 'اجعل العنوان 80 حرفًا أو أقل.';
+
+  @override
+  String get problemWeeklyNoDays => 'اختر يومًا واحدًا على الأقل.';
+
+  @override
+  String get problemBadMonthDay => 'اختر يومًا بين 1 و31.';
+
+  @override
+  String get problemEndBeforeStart =>
+      'لا يمكن أن يكون تاريخ الانتهاء قبل تاريخ البدء.';
+
+  @override
+  String doneCount(int done, int total) {
+    return '✓ $done/$total';
+  }
+
+  @override
+  String choreTicked(String title) {
+    return 'تم إنجاز $title';
+  }
+
+  @override
+  String get wd1 => 'إثنين';
+
+  @override
+  String get wd2 => 'ثلاثاء';
+
+  @override
+  String get wd3 => 'أربعاء';
+
+  @override
+  String get wd4 => 'خميس';
+
+  @override
+  String get wd5 => 'جمعة';
+
+  @override
+  String get wd6 => 'سبت';
+
+  @override
+  String get wd7 => 'أحد';
 }

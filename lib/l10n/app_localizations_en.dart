@@ -313,4 +313,180 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get unitPack => 'pack';
+
+  @override
+  String get tabChores => 'Chores';
+
+  @override
+  String get today => 'Today';
+
+  @override
+  String get everyone => 'Everyone';
+
+  @override
+  String get me => 'Me';
+
+  @override
+  String get anyone => 'Anyone';
+
+  @override
+  String get formerMember => 'Former member';
+
+  @override
+  String get noChoresToday => 'No chores today';
+
+  @override
+  String get noChores => 'No chores';
+
+  @override
+  String get addChore => 'Add chore';
+
+  @override
+  String get editChore => 'Edit chore';
+
+  @override
+  String get choreTitle => 'Chore';
+
+  @override
+  String get choreEmoji => 'Emoji (optional)';
+
+  @override
+  String get who => 'Who';
+
+  @override
+  String get time => 'Time';
+
+  @override
+  String get noTime => 'No time';
+
+  @override
+  String get repeat => 'Repeat';
+
+  @override
+  String get repeatOnce => 'Once';
+
+  @override
+  String get repeatDaily => 'Daily';
+
+  @override
+  String get repeatWeekly => 'Weekly';
+
+  @override
+  String get repeatMonthly => 'Monthly';
+
+  @override
+  String get every => 'Every';
+
+  @override
+  String everyNDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Every $count days',
+      one: 'Daily',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String everyNWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Every $count weeks',
+      one: 'Every week',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String everyNMonthsOnDay(int count, int day) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Every $count months · day $day',
+      one: 'Monthly · day $day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get onDays => 'On these days';
+
+  @override
+  String get dayOfMonth => 'Day of the month';
+
+  @override
+  String monthlyOnDay(int day) {
+    return 'Monthly · day $day';
+  }
+
+  @override
+  String get startDate => 'Starts';
+
+  @override
+  String get endDate => 'Ends on';
+
+  @override
+  String get endsNever => 'Never ends';
+
+  @override
+  String until(String date) {
+    return 'until $date';
+  }
+
+  @override
+  String get remind => 'Remind me';
+
+  @override
+  String confirmDeleteChore(String name) {
+    return 'Delete the chore $name? Days already done stay in the history.';
+  }
+
+  @override
+  String get problemBlankTitle => 'Please enter a title.';
+
+  @override
+  String get problemTitleTooLong => 'Keep the title to 80 characters or fewer.';
+
+  @override
+  String get problemWeeklyNoDays => 'Pick at least one day.';
+
+  @override
+  String get problemBadMonthDay => 'Pick a day between 1 and 31.';
+
+  @override
+  String get problemEndBeforeStart =>
+      'The end date can\'t be before the start date.';
+
+  @override
+  String doneCount(int done, int total) {
+    return '✓ $done/$total';
+  }
+
+  @override
+  String choreTicked(String title) {
+    return '$title done';
+  }
+
+  @override
+  String get wd1 => 'Mon';
+
+  @override
+  String get wd2 => 'Tue';
+
+  @override
+  String get wd3 => 'Wed';
+
+  @override
+  String get wd4 => 'Thu';
+
+  @override
+  String get wd5 => 'Fri';
+
+  @override
+  String get wd6 => 'Sat';
+
+  @override
+  String get wd7 => 'Sun';
 }

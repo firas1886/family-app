@@ -8,14 +8,14 @@ import '../support/pump.dart';
 import '../support/seed.dart';
 
 void main() {
-  testWidgets('the bottom bar is Today, Lists, Family and opens on Today', (tester) async {
+  testWidgets('the bottom bar is Today, Chores, Lists, Family and opens on Today', (tester) async {
     final db = await seedFamily();
     await pumpWithFamily(tester, db: db, child: const HomeShell());
     final labels = tester
         .widgetList<NavigationDestination>(find.byType(NavigationDestination))
         .map((d) => d.label)
         .toList();
-    expect(labels, ['Today', 'Lists', 'Family']);
+    expect(labels, ['Today', 'Chores', 'Lists', 'Family']);
     expect(find.byKey(const Key('todayHeader')), findsOneWidget);
   });
 
