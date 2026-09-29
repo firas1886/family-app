@@ -7,8 +7,8 @@ Spec: `docs/superpowers/specs/2026-09-28-release2a-chores-and-look-design.md` ·
 | Task | Title | Status | Attempts | Commit | Notes |
 |---|---|---|---|---|---|
 | 1 | Visual system — palette, tokens, fonts, light and dark themes | Done (2026-09-29) | 1 | 24fe370 | 127/127 tests (theme 19/19); 0 errors/0 warnings/6 pre-existing infos; byte-identical to plan incl. amendment 8; WCAG min 6.20:1 over all 32 palette pairs; real IBM Plex Sans Arabic v1.101 (400/500/600) + OFL. Accepted deviation: `curl --retry` for the downloads. |
-| 2 | Navigation, Today screen (shopping), shared widgets, restyle | In progress (2026-09-29) | 1 | | + 3 one-line `Colors.redAccent` → `colorScheme.error` fixes (sign_in_screen, onboarding_screen, item_sheet), auto-decided 2026-09-29. |
-| 3 | Member colours, photos, picture tiles, theme choice on Family screen | Not started | 0 | | Rules change (rules tests). |
+| 2 | Navigation, Today screen (shopping), shared widgets, restyle | Done (2026-09-29) | 1 | 01eb85b | 138/138 tests; 0 errors/0 warnings/5 pre-existing infos; byte-identical to plan; the 3 pre-approved `redAccent` → `colorScheme.error` fixes verified; no existing test edited. Exploratory (Arabic, 320×640, text ×1.3, light + dark): no overflow, Task 2 texts ≥ 4.5:1. 3 observations parked; To buy tile text contrast → Task 3. |
+| 3 | Member colours, photos, picture tiles, theme choice on Family screen | In progress (2026-09-29) | 1 | | Rules change (rules tests, 42 expected). + To buy tile text contrast fix (`item_tile.dart` colours + contrast test), auto-decided 2026-09-29. |
 | 4 | Dates and chore logic (pure Dart) | Not started | 0 | | Review Focus #1, #3. |
 | 5 | Chore data — rules, repository, providers | Not started | 0 | | Rules change. Review Focus #2. |
 | 6 | Chores tab (phone layout), chore cards and the chore sheet | Not started | 0 | | Review Focus #5. |
@@ -17,7 +17,7 @@ Spec: `docs/superpowers/specs/2026-09-28-release2a-chores-and-look-design.md` ·
 | 9 | Reminders on each phone | Not started | 0 | | Adds the 4 approved packages. |
 | 10 | Release 1.1.0 — build, setup notes, device checklist | Not started | 0 | | |
 
-**Next:** Task 2 with the developer.
+**Next:** Task 3 with the developer.
 
 ## Release 1 (done)
 
@@ -82,6 +82,9 @@ All 14 tasks Done (2026-09-27 → 2026-09-28): 108 tests, 34 rules tests.
 - 2026-09-29: Task 1 PASS (24fe370).
 - 2026-09-29: Auto-decided (Firas pre-authorised): three hard-coded `Colors.redAccent` texts (sign-in error `lib/features/auth/sign_in_screen.dart:71`, onboarding error `lib/features/family/onboarding_screen.dart:126`, "Delete from catalog" button `lib/features/lists/item_sheet.dart:164`) are hard to read on the new light background (2.93:1 on #F7F5F0) and break spec §5 "no hard-coded colours" — chose to add three one-line fixes (`Theme.of(context).colorScheme.error`) to Task 2 as in-scope restyle over parking, because spec §5 requires it, no Release 2a task touches these files, and Task 2 is the restyle task. No behaviour change.
 - 2026-09-29: Task 2 started.
+- 2026-09-29: Task 2 PASS (01eb85b). Three observations parked.
+- 2026-09-29: Auto-decided (Firas pre-authorised): To buy tile text contrast — white text on the coral To buy tile (`#EE6A6A`) is 3.04:1 and the faded quantity caption 2.26:1, below spec §5 "colour contrast checked for text" (WCAG AA 4.5:1) — chose to keep the coral tile (a spec colour) and draw the letter, name and quantity on To buy tiles in dark coral 900 `#4A1B0C` at full opacity (PM estimate ≈ 4.75:1; `Colors.black87` ≈ 6.1:1 as fallback if the test measures < 4.5:1), over parking it or changing the tile colour, because no spec fixes the text colour, it is a colour-only change in one file, and everyone reads these tiles. Scheduled into Task 3 (next UI task) with a contrast test. Replaces the parked "To buy tile contrast" line (a text-only change needs no Release 1 spec change).
+- 2026-09-29: Task 3 started.
 
 ## Device test checklist (Firas, after installing)
 - RootGate: if reading your own user record fails, the app shows a spinner forever (no error message). Check it never sticks on a normal start.
@@ -110,4 +113,6 @@ All 14 tasks Done (2026-09-27 → 2026-09-28): 108 tests, 34 rules tests.
 - Tiles (from Task 10 test): on small phones with large text, tiles shrink to ~0.6–0.8×; check readability on a real device.
 - SETUP.md wording (from Task 14 test): debug-key step implies nothing to install, but `keytool` isn't on PATH (it's in Android Studio's `jbr\bin`), and PowerShell needs `.\gradlew signingReport`.
 - Local Windows build (from Task 14 test): needs `GRADLE_OPTS=-Dorg.gradle.project.kotlin.incremental=false` (Kotlin cache issue across C:/D: drives); CI unaffected.
-- To buy tile contrast (from R2a Task 1 test): white text on `#EE6A6A` is 3.04:1 (as planned, unchanged from Release 1); a darker text or tile colour would change a Release 1 spec colour, so needs Firas.
+- Today (from R2a Task 2 test): while data loads, Today briefly shows "No lists yet" / "Nothing to buy" (`valueOrNull ?? []`); a loading state would avoid the flash.
+- History (from R2a Task 2 test): now a pushed page, so its list filter resets each time it opens (the old tab kept it).
+- Arabic digits (from R2a Task 2 test): Arabic mixes Arabic-Indic digits in dates with Western digits in counts; pick one style later.

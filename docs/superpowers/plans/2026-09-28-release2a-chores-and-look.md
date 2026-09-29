@@ -910,7 +910,7 @@ Notes for the developer:
 - The Today card's count uses the same rule as the list screen's To buy section (`isOnToBuy(item, entry, now)` from `lib/core/placement.dart`), so a bought item that is due again counts too. Counting only `EntryStatus.toBuy` would miss those (see INTERFACE ISSUES).
 - The ARB key `tabHistory` is replaced by `history`. The wording of `noListsParent` and `noListsChild` is shortened, because the empty state's title (`noListsTitle`) now says "No lists yet".
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `test/features/today_screen_test.dart`:
 
@@ -1062,12 +1062,12 @@ void main() {
 }
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `flutter test test/features/today_screen_test.dart test/app/home_shell_test.dart`
 Expected: FAIL, compilation error `Target of URI doesn't exist: 'package:family_app/features/today/today_screen.dart'`.
 
-- [ ] **Step 3: Add the strings**
+- [x] **Step 3: Add the strings**
 
 In `lib/l10n/app_en.arb`, replace `  "tabHistory": "History",` with:
 
@@ -1123,7 +1123,7 @@ with
 Run: `flutter gen-l10n`
 Expected: the three generated files in `lib/l10n/` update with no errors.
 
-- [ ] **Step 4: Create the shared card and empty state**
+- [x] **Step 4: Create the shared card and empty state**
 
 Create `lib/features/common/app_card.dart`:
 
@@ -1221,7 +1221,7 @@ class EmptyState extends StatelessWidget {
 }
 ```
 
-- [ ] **Step 5: Create the Today screen**
+- [x] **Step 5: Create the Today screen**
 
 Create `lib/features/today/today_screen.dart`:
 
@@ -1362,7 +1362,7 @@ class _ListSummaryCard extends ConsumerWidget {
 }
 ```
 
-- [ ] **Step 6: New navigation; History moves into Lists**
+- [x] **Step 6: New navigation; History moves into Lists**
 
 In `lib/app/app.dart`:
 
@@ -1544,7 +1544,7 @@ class ListsScreen extends ConsumerWidget {
 }
 ```
 
-- [ ] **Step 7: Restyle the Family and List screens (no behaviour change)**
+- [x] **Step 7: Restyle the Family and List screens (no behaviour change)**
 
 Replace the whole of `lib/features/family/family_screen.dart` with (same keys, texts and actions as before, now in `AppCard`s):
 
@@ -1870,17 +1870,17 @@ with
 
 Check: `grep -rn "tabHistory" lib test` → no output (after `flutter gen-l10n`).
 
-- [ ] **Step 8: Run the tests to verify they pass**
+- [x] **Step 8: Run the tests to verify they pass**
 
 Run: `flutter test test/features/today_screen_test.dart test/app/home_shell_test.dart`
 Expected: PASS, `All tests passed!` (11 tests).
 
-- [ ] **Step 9: Full check**
+- [x] **Step 9: Full check**
 
 Run: `flutter analyze --no-fatal-infos && flutter test`
 Expected: no errors or warnings; `All tests passed!` (138 tests). In particular the unchanged `test/features/family_screen_test.dart`, `lists_screen_test.dart`, `list_screen_test.dart`, `item_tile_test.dart`, `history_screen_test.dart` and `test/app/root_gate_test.dart` pass.
 
-- [ ] **Step 10: Commit**
+- [x] **Step 10: Commit**
 
 ```bash
 git add lib/app/app.dart lib/features/common/app_card.dart lib/features/common/empty_state.dart lib/features/today/today_screen.dart lib/features/lists/lists_screen.dart lib/features/lists/list_screen.dart lib/features/history/history_screen.dart lib/features/family/family_screen.dart lib/l10n test/features/today_screen_test.dart test/app/home_shell_test.dart
