@@ -8,6 +8,10 @@ import '../../core/chores.dart';
 import '../../l10n/app_localizations.dart';
 import 'chore_groups.dart';
 
+/// Space below the last card of every chores list (the phone list and each
+/// board column), so the last card can always scroll clear of the add button.
+const double addButtonClearance = 96;
+
 /// The landscape tablet board: one column per member plus Anyone, side by
 /// side. Each column scrolls on its own. The board scrolls sideways only when
 /// the columns can't all get [minColumnWidth].
@@ -85,7 +89,7 @@ class _BoardColumn extends ConsumerWidget {
                   // Each column keeps its own scroll position; none of them is
                   // the screen's primary scroll view.
                   primary: false,
-                  padding: const EdgeInsets.fromLTRB(10, 4, 10, 12),
+                  padding: const EdgeInsets.fromLTRB(10, 4, 10, addButtonClearance),
                   children: [
                     if (group.items.isEmpty)
                       Padding(

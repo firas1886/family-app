@@ -2,8 +2,10 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:family_app/app/palette.dart';
 import 'package:family_app/app/providers.dart';
 import 'package:family_app/core/chores.dart';
+import 'package:family_app/features/chores/chore_card.dart';
 import 'package:family_app/features/chores/chores_board.dart';
 import 'package:family_app/features/chores/chores_screen.dart';
+import 'package:family_app/features/common/empty_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -50,6 +52,119 @@ double listOffset(WidgetTester tester, String groupId) {
       )
       .first;
   return tester.state<ScrollableState>(scrollable).position.pixels;
+}
+
+/// A surface of [size] dp, set up as in [useTablet].
+void useSize(WidgetTester tester, Size size) {
+  tester.view.physicalSize = size;
+  tester.view.devicePixelRatio = 1;
+  addTearDown(tester.view.reset);
+}
+
+/// [count] daily chores for Anyone (no assignee).
+Future<void> addAnyoneChores(FakeFirebaseFirestore db, int count) async {
+  for (var i = 0; i < count; i++) {
+    final chore = Chore(
+      id: 'extra-anyone-$i',
+      title: 'Extra chore $i',
+      repeat: Repeat.daily,
+      startDate: '2026-09-01',
+      createdBy: 'u1',
+    );
+    await db.doc('families/f1/chores/${chore.id}').set(chore.toMap());
+  }
+}
+
+/// The ids of the board's columns, in board order.
+List<String> boardColumnIds(WidgetTester tester) => [
+      for (final e in find
+          .byWidgetPredicate(
+            (w) => w.key is ValueKey<String> && (w.key! as ValueKey<String>).value.startsWith('boardColumn-'),
+            skipOffstage: false,
+          )
+          .evaluate())
+        (e.widget.key! as ValueKey<String>).value.substring('boardColumn-'.length),
+    ];
+
+/// One column's own scroll position.
+ScrollPosition listPosition(WidgetTester tester, String groupId) => tester
+    .state<ScrollableState>(find
+        .descendant(
+          of: find.byKey(ValueKey('boardList-$groupId'), skipOffstage: false),
+          matching: find.byType(Scrollable, skipOffstage: false),
+          skipOffstage: false,
+        )
+        .first)
+    .position;
+
+/// The add button sits on the end side: the left in Arabic, the right in English.
+void expectAddButtonOnEndSide(WidgetTester tester, Size size, Locale locale) {
+  final x = tester.getCenter(find.byKey(const Key('addChore'))).dx;
+  if (locale.languageCode == 'ar') {
+    expect(x, lessThan(size.width / 2), reason: 'right to left: the add button is on the left');
+  } else {
+    expect(x, greaterThan(size.width / 2), reason: 'left to right: the add button is on the right');
+  }
+}
+
+/// For every column in [columns] (board order): scroll it to its end and check
+/// that its last card's tick is clear of the add button and ticks when tapped.
+/// A parent's tick on an Anyone chore gets the rect check only (Task 8 asks
+/// "Who did it?" there).
+Future<void> expectLastTicksClearOfAddButton(
+  WidgetTester tester, {
+  required FakeFirebaseFirestore db,
+  required String name,
+  required List<String> columns,
+  required bool isParent,
+}) async {
+  final addButton = find.byKey(const Key('addChore'));
+  for (final id in columns) {
+    // 1. No SnackBar, so the add button is in its normal place.
+    ScaffoldMessenger.of(tester.element(find.byType(ChoresScreen))).removeCurrentSnackBar();
+    await settle(tester);
+
+    // 2. The whole column in view. With sideways scrolling the last column
+    // then sits at the end, under the add button.
+    await tester.ensureVisible(column(id));
+    await settle(tester);
+
+    // 3. The column's own list scrolled to its very end.
+    for (var i = 0; i < 20; i++) {
+      final position = listPosition(tester, id);
+      position.jumpTo(position.maxScrollExtent);
+      await settle(tester);
+      final after = listPosition(tester, id);
+      if (after.pixels == after.maxScrollExtent) break;
+    }
+    final position = listPosition(tester, id);
+    expect(position.pixels, position.maxScrollExtent, reason: '$name: column $id did not reach its end');
+    expect(position.maxScrollExtent, greaterThan(0), reason: '$name: column $id does not scroll');
+
+    // 4. The last card's tick does not overlap the add button.
+    final lastCard =
+        find.descendant(of: find.byKey(ValueKey('boardList-$id')), matching: find.byType(ChoreCard)).last;
+    final choreId = tester.widget<ChoreCard>(lastCard).status.chore.id;
+    final tick = find.byKey(ValueKey('tick-$choreId'));
+    final tickRect = tester.getRect(tick);
+    final buttonRect = tester.getRect(addButton);
+    if (id == columns.last) {
+      debugPrint('$name: end column $id, last tick (tick-$choreId) $tickRect, add button $buttonRect');
+    }
+    expect(tickRect.overlaps(buttonRect), isFalse,
+        reason: '$name: column $id, last tick $tickRect overlaps the add button $buttonRect');
+
+    // 5. Tapping the tick's centre ticks the chore and doesn't open the sheet.
+    if (isParent && id == 'anyone') continue;
+    await tester.tapAt(tester.getCenter(tick));
+    await settle(tester);
+    expect(find.byKey(const Key('choreTitle')), findsNothing, reason: '$name: column $id opened the chore sheet');
+    final done = await db.doc('families/f1/choreDone/${choreId}_2026-10-01').get();
+    expect(done.exists, isTrue, reason: '$name: column $id, $choreId was not ticked');
+    if (!isParent) expect(done.data()!['doneBy'], 'u2');
+  }
+  // 6. Nothing went wrong on the way.
+  expect(tester.takeException(), isNull);
 }
 
 void main() {
@@ -148,5 +263,85 @@ void main() {
     await pumpWithFamily(tester, db: db, child: const ChoresScreen());
     expect(find.byKey(const ValueKey('choreSection-u1'), skipOffstage: false), findsOneWidget);
     expect(column('u1'), findsNothing);
+  });
+
+  group('the last card stays clear of the add button', () {
+    const sizes = [Size(1280, 800), Size(1024, 768)];
+    const locales = [Locale('en'), Locale('ar')];
+    String sizeName(Size size) => '${size.width.toInt()}×${size.height.toInt()}';
+
+    for (final size in sizes) {
+      for (final locale in locales) {
+        // A. The parent (u1), who opens on Everyone.
+        for (final members in const [3, 9]) {
+          final name = 'parent, $members members, ${sizeName(size)}, ${locale.languageCode}';
+          testWidgets(name, (tester) async {
+            useSize(tester, size);
+            final db = await seeded();
+            for (var i = 3; i <= members; i++) {
+              await db.doc('families/f1/members/m$i').set({'name': 'Kid $i', 'role': 'child'});
+            }
+            final uids = ['u1', 'u2', for (var i = 3; i <= members; i++) 'm$i'];
+            for (final uid in uids) {
+              await addDailyChores(db, uid, 12);
+            }
+            await addAnyoneChores(db, 12);
+            await pumpWithFamily(tester, db: db, child: const ChoresScreen(), locale: locale);
+
+            expectAddButtonOnEndSide(tester, size, locale);
+            final ids = boardColumnIds(tester);
+            expect(ids, unorderedEquals([...uids, 'anyone']));
+            expect(ids.last, 'anyone');
+            await expectLastTicksClearOfAddButton(tester, db: db, name: name, columns: ids, isParent: true);
+          });
+        }
+
+        // B1. A child (u2) on Me with no Anyone chores: one full-width column.
+        final oneColumn = 'child, one full-width column, ${sizeName(size)}, ${locale.languageCode}';
+        testWidgets(oneColumn, (tester) async {
+          useSize(tester, size);
+          final db = await seeded();
+          await addDailyChores(db, 'u2', 12);
+          await pumpWithFamily(tester, db: db, uid: 'u2', child: const ChoresScreen(), locale: locale);
+
+          expectAddButtonOnEndSide(tester, size, locale);
+          expect(boardColumnIds(tester), ['u2']);
+          expect(column('anyone'), findsNothing);
+          expect(tester.getSize(column('u2')).width, greaterThan(2 * ChoresBoard.minColumnWidth));
+          await expectLastTicksClearOfAddButton(tester, db: db, name: oneColumn, columns: ['u2'], isParent: false);
+        });
+
+        // B2. A child (u2) on Me with Anyone chores: Me, then Anyone at the end.
+        final meAndAnyone = 'child, Me and Anyone, ${sizeName(size)}, ${locale.languageCode}';
+        testWidgets(meAndAnyone, (tester) async {
+          useSize(tester, size);
+          final db = await seeded();
+          await addDailyChores(db, 'u2', 12);
+          await addAnyoneChores(db, 12);
+          await pumpWithFamily(tester, db: db, uid: 'u2', child: const ChoresScreen(), locale: locale);
+
+          expectAddButtonOnEndSide(tester, size, locale);
+          final ids = boardColumnIds(tester);
+          expect(ids, ['u2', 'anyone']);
+          await expectLastTicksClearOfAddButton(tester, db: db, name: meAndAnyone, columns: ids, isParent: false);
+        });
+      }
+    }
+  });
+
+  testWidgets('an empty day on the board shows the friendly empty state', (tester) async {
+    useTablet(tester);
+    final db = await seedFamily();
+    await pumpWithFamily(tester, db: db, child: const ChoresScreen());
+
+    expect(find.byType(EmptyState), findsOneWidget);
+    expect(find.text('No chores today'), findsOneWidget);
+    expect(find.byType(ChoresBoard), findsNothing);
+    expect(column('u1'), findsNothing);
+
+    await tester.tap(find.byKey(const Key('dayNext')));
+    await settle(tester);
+    expect(find.descendant(of: find.byType(EmptyState), matching: find.text('No chores')), findsOneWidget);
+    expect(find.byType(ChoresBoard), findsNothing);
   });
 }

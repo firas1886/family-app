@@ -142,9 +142,10 @@ class _ChoresScreenState extends ConsumerState<ChoresScreen> {
       );
       final groups = buildChoreGroups(view: view, members: members, me: me, isParent: isParent, onlyMe: onlyMe);
       content = LayoutBuilder(
-        builder: (context, constraints) => constraints.maxWidth >= boardBreakpoint
-            ? _board(info, groups)
-            : _phoneList(l, info, groups),
+        builder: (context, constraints) =>
+            constraints.maxWidth >= boardBreakpoint && groups.any((g) => g.items.isNotEmpty)
+                ? _board(info, groups)
+                : _phoneList(l, info, groups),
       );
     } else if (membersAsync.hasError || choresAsync.hasError || doneAsync.hasError) {
       content = Center(child: Text(l.somethingWentWrong));
@@ -237,7 +238,7 @@ class _ChoresScreenState extends ConsumerState<ChoresScreen> {
   Widget _phoneList(AppLocalizations l, _DayInfo info, List<ChoreGroup> groups) {
     final allEmpty = groups.every((g) => g.items.isEmpty);
     return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 96), // room for the add button
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, addButtonClearance), // room for the add button
       children: [
         if (allEmpty)
           EmptyState(emoji: '🎉', title: info.isToday ? l.noChoresToday : l.noChores)
