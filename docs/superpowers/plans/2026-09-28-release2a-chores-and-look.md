@@ -1918,7 +1918,7 @@ Notes for the developer:
 - `pumpWithFamily` gains an optional `String? photoUrl` (default null) that feeds the `authPhotoUrlProvider` override, so tests can check the photo sync. Without the override, `ProfileSync` inside `RootGate` would reach `FirebaseAuth.instance` and crash every `RootGate` test.
 - Family screen layout: language and theme are two rows (icon with a screen-reader label, then the buttons) in one settings card, and the picture-tiles switch is a small row under each child's member row. This keeps `Key('leaveFamily')` inside the default 800×600 test surface, so the existing Release 1 test "the last parent cannot leave" still taps it without scrolling. Both SegmentedButtons sit in a `FittedBox(scaleDown)`, so three theme segments don't overflow at 320 dp with text ×1.3.
 
-- [ ] **Step 1: Write the failing Dart tests**
+- [x] **Step 1: Write the failing Dart tests**
 
 Create `test/core/member_colors_test.dart`:
 
@@ -2171,12 +2171,12 @@ void main() {
 }
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `flutter test test/core/member_colors_test.dart test/features/family_screen_r2_test.dart`
 Expected: FAIL, compilation errors `Target of URI doesn't exist: 'package:family_app/core/member_colors.dart'` and `…/features/common/member_avatar.dart`, plus `No named parameter with the name 'color'` for `Member` and `photoUrl` for `pumpWithFamily`.
 
-- [ ] **Step 3: Write the failing rules tests**
+- [x] **Step 3: Write the failing rules tests**
 
 In `rules-tests/test/rules.test.js`, insert this block directly above `describe('join codes', () => {`:
 
@@ -2225,7 +2225,7 @@ describe('member colours, photos and picture tiles', () => {
 Run (set `JAVA_HOME` to the Android Studio `jbr` first): `cd rules-tests && npm run emulate`
 Expected: FAIL. `a parent sets colours and picture tiles`, `a member sets their own photoUrl` fail (the current rule allows only `role` changes); the other new tests already pass; all 34 existing tests pass.
 
-- [ ] **Step 4: Update the members rule**
+- [x] **Step 4: Update the members rule**
 
 In `firestore.rules`, replace
 
@@ -2289,7 +2289,7 @@ The full `members/{m}` block is now:
 Run: `cd rules-tests && npm run emulate`
 Expected: PASS, `42 passing`.
 
-- [ ] **Step 5: Extend `Member`, the repository and the providers**
+- [x] **Step 5: Extend `Member`, the repository and the providers**
 
 In `lib/core/models.dart`, replace the `Member` class:
 
@@ -2483,7 +2483,7 @@ and after `      clockProvider.overrideWithValue(() => testNow),` add:
       authPhotoUrlProvider.overrideWithValue(photoUrl),
 ```
 
-- [ ] **Step 6: Add `ProfileSync` around the home shell**
+- [x] **Step 6: Add `ProfileSync` around the home shell**
 
 In `lib/app/app.dart`:
 
@@ -2549,7 +2549,7 @@ class ProfileSync extends ConsumerWidget {
 }
 ```
 
-- [ ] **Step 7: Create the member avatar**
+- [x] **Step 7: Create the member avatar**
 
 Create `lib/features/common/member_avatar.dart`:
 
@@ -2624,7 +2624,7 @@ class MemberAvatar extends ConsumerWidget {
 }
 ```
 
-- [ ] **Step 8: Add the strings**
+- [x] **Step 8: Add the strings**
 
 In `lib/l10n/app_en.arb`, directly after `  "nothingToBuy": "Nothing to buy",` add:
 
@@ -2653,7 +2653,7 @@ In `lib/l10n/app_ar.arb`, directly after `  "nothingToBuy": "لا شيء للش�
 Run: `flutter gen-l10n`
 Expected: generated files update with no errors.
 
-- [ ] **Step 9: Family screen — avatars, colours, picture tiles, theme**
+- [x] **Step 9: Family screen — avatars, colours, picture tiles, theme**
 
 Replace the whole of `lib/features/family/family_screen.dart` with:
 
@@ -3025,17 +3025,17 @@ class _ColorDot extends ConsumerWidget {
 }
 ```
 
-- [ ] **Step 10: Run the tests to verify they pass**
+- [x] **Step 10: Run the tests to verify they pass**
 
 Run: `flutter test test/core/member_colors_test.dart test/features/family_screen_r2_test.dart test/features/family_screen_test.dart`
 Expected: PASS, `All tests passed!` (29 tests: 6 + 17 new, 6 existing unchanged).
 
-- [ ] **Step 11: Full check**
+- [x] **Step 11: Full check**
 
 Run: `flutter analyze --no-fatal-infos && flutter test`, then `cd rules-tests && npm run emulate`
 Expected: no errors or warnings; `All tests passed!` (161 tests); rules `42 passing`.
 
-- [ ] **Step 12: Commit**
+- [x] **Step 12: Commit**
 
 ```bash
 git add lib/core/member_colors.dart lib/core/models.dart lib/data/family_repository.dart lib/app/providers.dart lib/app/app.dart lib/features/common/member_avatar.dart lib/features/family/family_screen.dart lib/l10n test/support/pump.dart test/core/member_colors_test.dart test/features/family_screen_r2_test.dart firestore.rules rules-tests/test/rules.test.js
