@@ -6,8 +6,8 @@ Spec: `docs/superpowers/specs/2026-09-28-release2a-chores-and-look-design.md` ·
 
 | Task | Title | Status | Attempts | Commit | Notes |
 |---|---|---|---|---|---|
-| 1 | Visual system — palette, tokens, fonts, light and dark themes | In progress (2026-09-29) | 1 | | Font download approved. Amendment 8: also updates `item_tile.dart`. |
-| 2 | Navigation, Today screen (shopping), shared widgets, restyle | Not started | 0 | | |
+| 1 | Visual system — palette, tokens, fonts, light and dark themes | Done (2026-09-29) | 1 | 24fe370 | 127/127 tests (theme 19/19); 0 errors/0 warnings/6 pre-existing infos; byte-identical to plan incl. amendment 8; WCAG min 6.20:1 over all 32 palette pairs; real IBM Plex Sans Arabic v1.101 (400/500/600) + OFL. Accepted deviation: `curl --retry` for the downloads. |
+| 2 | Navigation, Today screen (shopping), shared widgets, restyle | In progress (2026-09-29) | 1 | | + 3 one-line `Colors.redAccent` → `colorScheme.error` fixes (sign_in_screen, onboarding_screen, item_sheet), auto-decided 2026-09-29. |
 | 3 | Member colours, photos, picture tiles, theme choice on Family screen | Not started | 0 | | Rules change (rules tests). |
 | 4 | Dates and chore logic (pure Dart) | Not started | 0 | | Review Focus #1, #3. |
 | 5 | Chore data — rules, repository, providers | Not started | 0 | | Rules change. Review Focus #2. |
@@ -17,7 +17,7 @@ Spec: `docs/superpowers/specs/2026-09-28-release2a-chores-and-look-design.md` ·
 | 9 | Reminders on each phone | Not started | 0 | | Adds the 4 approved packages. |
 | 10 | Release 1.1.0 — build, setup notes, device checklist | Not started | 0 | | |
 
-**Next:** Task 1 with the developer.
+**Next:** Task 2 with the developer.
 
 ## Release 1 (done)
 
@@ -79,6 +79,9 @@ All 14 tasks Done (2026-09-27 → 2026-09-28): 108 tests, 34 rules tests.
 - 2026-09-29: Firas approved downloading the IBM Plex Sans Arabic font (Regular, Medium, SemiBold + OFL.txt, from google/fonts; Task 1) and adding `flutter_local_notifications`, `timezone`, `flutter_timezone` and `shared_preferences` (Task 9).
 - 2026-09-29: Firas pre-authorised Release 2a: the PM may again auto-decide routine questions on its own recommendation, logged as "Auto-decided (Firas pre-authorised): <summary> — chose <option> because <reason>". Stop (Blocked + Decision needed) only for Firas's accounts or secrets (Firebase, GitHub secrets, keystore passwords), or after 3 failed attempts.
 - 2026-09-29: Release 2a Task 1 started.
+- 2026-09-29: Task 1 PASS (24fe370).
+- 2026-09-29: Auto-decided (Firas pre-authorised): three hard-coded `Colors.redAccent` texts (sign-in error `lib/features/auth/sign_in_screen.dart:71`, onboarding error `lib/features/family/onboarding_screen.dart:126`, "Delete from catalog" button `lib/features/lists/item_sheet.dart:164`) are hard to read on the new light background (2.93:1 on #F7F5F0) and break spec §5 "no hard-coded colours" — chose to add three one-line fixes (`Theme.of(context).colorScheme.error`) to Task 2 as in-scope restyle over parking, because spec §5 requires it, no Release 2a task touches these files, and Task 2 is the restyle task. No behaviour change.
+- 2026-09-29: Task 2 started.
 
 ## Device test checklist (Firas, after installing)
 - RootGate: if reading your own user record fails, the app shows a spinner forever (no error message). Check it never sticks on a normal start.
@@ -107,3 +110,4 @@ All 14 tasks Done (2026-09-27 → 2026-09-28): 108 tests, 34 rules tests.
 - Tiles (from Task 10 test): on small phones with large text, tiles shrink to ~0.6–0.8×; check readability on a real device.
 - SETUP.md wording (from Task 14 test): debug-key step implies nothing to install, but `keytool` isn't on PATH (it's in Android Studio's `jbr\bin`), and PowerShell needs `.\gradlew signingReport`.
 - Local Windows build (from Task 14 test): needs `GRADLE_OPTS=-Dorg.gradle.project.kotlin.incremental=false` (Kotlin cache issue across C:/D: drives); CI unaffected.
+- To buy tile contrast (from R2a Task 1 test): white text on `#EE6A6A` is 3.04:1 (as planned, unchanged from Release 1); a darker text or tile colour would change a Release 1 spec colour, so needs Firas.

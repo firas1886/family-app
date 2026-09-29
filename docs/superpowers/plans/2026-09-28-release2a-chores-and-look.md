@@ -110,7 +110,7 @@ Notes for the developer:
 - `context.tokens` falls back to `AppTokens.light` / `AppTokens.dark` when a theme has no `AppTokens` extension. `pumpWithFamily` builds a bare `MaterialApp` with no theme, so without the fallback every widget test of a restyled screen would crash.
 - In `flutter test`, bundled fonts are not loaded (text uses the test font), so the font only changes the look on a device. The theme test still checks that the three `.ttf` files are real font files, not an HTML error page saved by `curl`.
 
-- [ ] **Step 1: Download the font and its licence**
+- [x] **Step 1: Download the font and its licence**
 
 In Git Bash, from the repo root:
 
@@ -127,7 +127,7 @@ grep -c "SIL OPEN FONT LICENSE" assets/fonts/ibm_plex_sans_arabic/OFL.txt
 
 Expected: four files. Each `.ttf` starts with ` 00 01 00 00` (a TrueType font, not an HTML page); `OFL.txt` contains `SIL OPEN FONT LICENSE` (count ≥ 1). Report the four file sizes in the Developer report. If `curl` fails (`-f` makes a 404 fail loudly), stop and report Blocked; do not substitute another font.
 
-- [ ] **Step 2: Declare the font in `pubspec.yaml`**
+- [x] **Step 2: Declare the font in `pubspec.yaml`**
 
 In `pubspec.yaml`, under the top-level `flutter:` key, replace the whole commented example block that starts `  # To add custom fonts to your application, add a fonts section here,` and ends `  # see https://flutter.dev/to/font-from-package` with:
 
@@ -146,7 +146,7 @@ In `pubspec.yaml`, under the top-level `flutter:` key, replace the whole comment
 
 (`fonts:` is indented two spaces, at the same level as `generate: true` and `uses-material-design: true`.) Run `flutter pub get`. Expected: `Got dependencies!` with no asset errors.
 
-- [ ] **Step 3: Write the failing tests**
+- [x] **Step 3: Write the failing tests**
 
 Create `test/app/theme_test.dart`:
 
@@ -355,12 +355,12 @@ void main() {
 }
 ```
 
-- [ ] **Step 4: Run the tests to verify they fail**
+- [x] **Step 4: Run the tests to verify they fail**
 
 Run: `flutter test test/app/theme_test.dart`
 Expected: FAIL, compilation error `Target of URI doesn't exist: 'package:family_app/app/palette.dart'` (and errors for `AppTokens`, `buildTheme(Brightness…)`, `themeMode`, `setThemeMode`, `themeModeProvider`).
 
-- [ ] **Step 5: Create the palette**
+- [x] **Step 5: Create the palette**
 
 Create `lib/app/palette.dart`:
 
@@ -429,7 +429,7 @@ PersonColor personColor(int index, Brightness brightness) {
 }
 ```
 
-- [ ] **Step 6: Rewrite the theme**
+- [x] **Step 6: Rewrite the theme**
 
 Replace the whole of `lib/app/theme.dart` with:
 
@@ -592,7 +592,7 @@ ThemeData buildTheme(Brightness brightness) {
 }
 ```
 
-- [ ] **Step 7: Save the theme choice on the user**
+- [x] **Step 7: Save the theme choice on the user**
 
 In `lib/core/models.dart`, replace the `AppUser` class:
 
@@ -665,7 +665,7 @@ add:
 
 (`users/{uid}` is already writable by its owner; no rules change.)
 
-- [ ] **Step 8: Add `themeModeProvider` and use both themes**
+- [x] **Step 8: Add `themeModeProvider` and use both themes**
 
 In `lib/app/providers.dart`, replace the import line `import 'package:flutter/widgets.dart';` with:
 
@@ -696,7 +696,7 @@ In `lib/app/app.dart`, inside `FamilyApp.build`, replace `      theme: buildThem
       themeMode: ref.watch(themeModeProvider),
 ```
 
-- [ ] **Step 9: Switch the list screen and item tile to tokens**
+- [x] **Step 9: Switch the list screen and item tile to tokens**
 
 In `lib/features/lists/list_screen.dart` (it already imports `../../app/theme.dart`), make these replacements:
 
@@ -868,17 +868,17 @@ class ItemTile extends StatelessWidget {
 
 Check nothing else uses `AppColors`: `grep -rn "AppColors" lib test` → no output.
 
-- [ ] **Step 10: Run the tests to verify they pass**
+- [x] **Step 10: Run the tests to verify they pass**
 
 Run: `flutter test test/app/theme_test.dart`
 Expected: PASS, `All tests passed!` (19 tests).
 
-- [ ] **Step 11: Full check**
+- [x] **Step 11: Full check**
 
 Run: `flutter analyze --no-fatal-infos && flutter test`
 Expected: no errors or warnings (the 6 existing infos may remain); `All tests passed!` (127 tests: 108 before + 19 new). The list screen and item tile layout tests (`test/features/item_tile_test.dart`, `test/features/list_screen_test.dart`) must still pass unchanged.
 
-- [ ] **Step 12: Commit**
+- [x] **Step 12: Commit**
 
 ```bash
 git add assets/fonts/ibm_plex_sans_arabic pubspec.yaml lib/app/palette.dart lib/app/theme.dart lib/app/providers.dart lib/app/app.dart lib/core/models.dart lib/data/family_repository.dart lib/features/lists/list_screen.dart lib/features/lists/item_tile.dart test/app/theme_test.dart
