@@ -3089,7 +3089,7 @@ git commit -m "feat(family): member colours, Google photos, picture tiles and th
   - `Set<ChoreProblem> validateChore(Chore c)`
 - Tests include Review Focus #1 ("monthly on the 31st falls on the last day of short months") and #3 ("editing the rule keeps past done records": done records for days no longer matching still appear in history queries; `choresForDay` for today follows the new rule).
 
-- [ ] **Step 1: Write the failing date tests**
+- [x] **Step 1: Write the failing date tests**
 
 Create `test/core/dates_test.dart`:
 
@@ -3158,12 +3158,12 @@ void main() {
 }
 ```
 
-- [ ] **Step 2: Run the date tests to verify they fail**
+- [x] **Step 2: Run the date tests to verify they fail**
 
 Run: `flutter test test/core/dates_test.dart`
 Expected: FAIL, `Error: Error when reading 'lib/core/dates.dart': The system cannot find the file specified`.
 
-- [ ] **Step 3: Implement the date helpers**
+- [x] **Step 3: Implement the date helpers**
 
 Create `lib/core/dates.dart` (pure Dart, no imports):
 
@@ -3208,12 +3208,12 @@ DateTime startOfWeek(DateTime d) => addDays(d, -(d.weekday % DateTime.daysPerWee
 
 Notes: `addDays` builds the result from the date parts, so a daylight-saving change never skips or repeats a day; "days between two dates" is always computed as a difference of `dayNumberOf` values (UTC-based, so every day is exactly 86 400 000 ms).
 
-- [ ] **Step 4: Run the date tests to verify they pass**
+- [x] **Step 4: Run the date tests to verify they pass**
 
 Run: `flutter test test/core/dates_test.dart`
 Expected: PASS, `+8: All tests passed!`
 
-- [ ] **Step 5: Write the failing chore tests**
+- [x] **Step 5: Write the failing chore tests**
 
 Create `test/core/chores_test.dart`. It contains Review Focus #1 ("monthly on the 31st falls on the last day of short months") and Review Focus #3 ("editing the rule keeps past done records"). Calendar used throughout: 1 September 2026 is a Tuesday, the Sundays of September 2026 are the 6th, 13th, 20th and 27th, and 1 October 2026 (`testNow`) is a Thursday.
 
@@ -3776,12 +3776,12 @@ void main() {
 }
 ```
 
-- [ ] **Step 6: Run the chore tests to verify they fail**
+- [x] **Step 6: Run the chore tests to verify they fail**
 
 Run: `flutter test test/core/chores_test.dart`
 Expected: FAIL, `Error: Error when reading 'lib/core/chores.dart': The system cannot find the file specified`.
 
-- [ ] **Step 7: Implement the chore logic**
+- [x] **Step 7: Implement the chore logic**
 
 Create `lib/core/chores.dart` (pure Dart: imports only `dart:math` and other `lib/core` files):
 
@@ -4186,12 +4186,12 @@ Behaviour notes the later tasks rely on:
 - `Chore.toMap` trims the title (so the rules' 1–80 check matches `validateChore`) and clears fields that don't apply to the repeat (`weekdays` empty unless weekly, `monthDay` null unless monthly, `every` 1 for once), as in the spec's data model.
 - `validateChore` counts the title in UTF-16 code units (`String.length`); the Firestore rules' `size()` accepted 80 Arabic letters and 40 emoji in the emulator, so a title that passes `validateChore` always passes the rules.
 
-- [ ] **Step 8: Run the core tests to verify they pass**
+- [x] **Step 8: Run the core tests to verify they pass**
 
 Run: `flutter test test/core`
 Expected: PASS, `All tests passed!` (`dates_test.dart` 8 tests, `chores_test.dart` 54 tests, plus the existing core tests).
 
-- [ ] **Step 9: Full checks**
+- [x] **Step 9: Full checks**
 
 Run: `flutter analyze --no-fatal-infos`
 Expected: no errors and no warnings (only the infos that were there before this task).
@@ -4199,7 +4199,7 @@ Expected: no errors and no warnings (only the infos that were there before this 
 Run: `flutter test`
 Expected: PASS, `All tests passed!`
 
-- [ ] **Step 10: Commit**
+- [x] **Step 10: Commit**
 
 ```bash
 git add lib/core/dates.dart lib/core/chores.dart test/core/dates_test.dart test/core/chores_test.dart
