@@ -25,6 +25,12 @@ class ItemTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final radius = BorderRadius.circular(8);
+    // Text colour follows the tile colour, so light tiles (the catalog's
+    // card colour in the light theme) get dark text.
+    final onColor = ThemeData.estimateBrightnessForColor(color) == Brightness.dark
+        ? Colors.white
+        : Colors.black87;
+    final onColorMuted = onColor.withValues(alpha: 0.72);
     return Opacity(
       opacity: dimmed ? 0.45 : 1,
       child: AnimatedContainer(
@@ -32,7 +38,10 @@ class ItemTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: color,
           borderRadius: radius,
-          border: Border.all(color: highlighted ? Colors.white : Colors.transparent, width: 3),
+          border: Border.all(
+            color: highlighted ? Theme.of(context).colorScheme.onSurface : Colors.transparent,
+            width: 3,
+          ),
         ),
         child: Material(
           type: MaterialType.transparency,
@@ -61,16 +70,16 @@ class ItemTile extends StatelessWidget {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               border: Border.all(
-                                color: Colors.white70,
+                                color: onColorMuted,
                                 width: 2,
                               ),
                             ),
                             child: Text(
                               tileLetter(name),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.w800,
-                                color: Colors.white,
+                                color: onColor,
                                 height: 1,
                               ),
                             ),
@@ -81,8 +90,8 @@ class ItemTile extends StatelessWidget {
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: onColor,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -91,8 +100,8 @@ class ItemTile extends StatelessWidget {
                               caption,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: Colors.white70,
+                              style: TextStyle(
+                                color: onColorMuted,
                                 fontSize: 12,
                               ),
                             ),

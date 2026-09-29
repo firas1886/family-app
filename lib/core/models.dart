@@ -18,12 +18,22 @@ double? readDouble(Object? value) => value == null ? null : (value as num).toDou
 int? readInt(Object? value) => value == null ? null : (value as num).toInt();
 
 class AppUser {
-  const AppUser({required this.uid, required this.name, required this.email, this.familyId, this.language});
+  const AppUser({
+    required this.uid,
+    required this.name,
+    required this.email,
+    this.familyId,
+    this.language,
+    this.themeMode,
+  });
   final String uid;
   final String name;
   final String email;
   final String? familyId;
   final String? language;
+
+  /// 'light', 'dark', or null to follow the phone.
+  final String? themeMode;
 
   factory AppUser.fromMap(String uid, Map<String, dynamic> m) => AppUser(
         uid: uid,
@@ -31,6 +41,7 @@ class AppUser {
         email: m['email'] as String? ?? '',
         familyId: m['familyId'] as String?,
         language: m['language'] as String?,
+        themeMode: m['themeMode'] as String?,
       );
 }
 

@@ -40,6 +40,7 @@ class _ListScreenState extends ConsumerState<ListScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
+    final tokens = context.tokens;
     final lists = ref.watch(listsProvider).valueOrNull ?? const <ShoppingList>[];
     final list = lists.where((x) => x.id == widget.listId).firstOrNull;
     final entriesAsync = ref.watch(entriesProvider(widget.listId));
@@ -99,20 +100,20 @@ class _ListScreenState extends ConsumerState<ListScreen> {
                 if (sections.toBuy.isEmpty)
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: Text(l.emptyToBuy, style: const TextStyle(color: Colors.white60)),
+                    child: Text(l.emptyToBuy, style: TextStyle(color: tokens.mutedText)),
                   ),
                 for (final group in sections.toBuy) ...[
                   if (group.category != null)
                     Padding(
                       padding: const EdgeInsets.only(top: 6),
                       child: Text(categoryLabel(l, group.category),
-                          style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.w600)),
+                          style: TextStyle(color: tokens.mutedText, fontWeight: FontWeight.w600)),
                     ),
                   _grid([
                     for (final t in group.members)
                       ItemTile(
                         name: t.item.name,
-                        color: AppColors.toBuy,
+                        color: tokens.toBuy,
                         caption: quantityLabel(l, t.item.quantity, t.item.unit),
                         highlighted: _flashId == t.item.id,
                         onTap: list == null ? null : () => _buy(t, list, categoryMap, l),
@@ -127,7 +128,7 @@ class _ListScreenState extends ConsumerState<ListScreen> {
                     for (final t in sections.recentlyUsed)
                       ItemTile(
                         name: t.item.name,
-                        color: AppColors.recent,
+                        color: tokens.recent,
                         caption: t.daysLeft != null
                             ? l.daysLeft(t.daysLeft!)
                             : quantityLabel(l, t.item.quantity, t.item.unit),
@@ -153,7 +154,7 @@ class _ListScreenState extends ConsumerState<ListScreen> {
                         for (final item in group.members)
                           ItemTile(
                             name: item.name,
-                            color: AppColors.surface,
+                            color: tokens.card,
                             caption: quantityLabel(l, item.quantity, item.unit),
                             dimmed: sections.isOnToBuy(item.id),
                             highlighted: _flashId == item.id,
@@ -228,15 +229,18 @@ class _ListScreenState extends ConsumerState<ListScreen> {
                     controller: controller,
                     focusNode: focusNode,
                     textInputAction: TextInputAction.done,
-                    style: const TextStyle(color: Colors.black87),
                     decoration: InputDecoration(
                       hintText: l.iNeed,
-                      hintStyle: const TextStyle(color: Colors.black45),
+                      hintStyle: TextStyle(color: context.tokens.mutedText),
                       filled: true,
-                      fillColor: Colors.white,
+                      fillColor: context.tokens.card,
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.circular(context.tokens.cardRadius),
+                        borderSide: BorderSide(color: context.tokens.cardBorder),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(context.tokens.cardRadius),
+                        borderSide: BorderSide(color: context.tokens.cardBorder),
                       ),
                     ),
                     onSubmitted: (_) => _submitTyped(items, categories, sections),

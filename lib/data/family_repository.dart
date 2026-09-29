@@ -35,6 +35,10 @@ class FamilyRepository {
   Future<void> setLanguage(String uid, String language) =>
       _user(uid).set({'language': language}, SetOptions(merge: true));
 
+  /// 'light', 'dark', or null to follow the phone.
+  Future<void> setThemeMode(String uid, String? mode) =>
+      _user(uid).set({'themeMode': mode}, SetOptions(merge: true));
+
   /// Three sequential writes so each one passes the security rules
   /// (the member doc needs the family doc; the code and category need the member doc).
   Future<String> createFamily({

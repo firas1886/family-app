@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' hide Family;
 import 'package:google_sign_in/google_sign_in.dart';
@@ -41,6 +42,15 @@ final familyIdProvider = Provider<String?>((ref) => ref.watch(appUserProvider).v
 final localeProvider = Provider<Locale?>((ref) {
   final language = ref.watch(appUserProvider).valueOrNull?.language;
   return language == null ? null : Locale(language);
+});
+
+/// The user's saved theme choice; anything else follows the phone.
+final themeModeProvider = Provider<ThemeMode>((ref) {
+  return switch (ref.watch(appUserProvider).valueOrNull?.themeMode) {
+    'light' => ThemeMode.light,
+    'dark' => ThemeMode.dark,
+    _ => ThemeMode.system,
+  };
 });
 
 String _requireFamily(Ref ref) {
