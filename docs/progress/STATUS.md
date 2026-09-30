@@ -49,6 +49,7 @@ All 14 tasks Done (2026-09-27 → 2026-09-28): 108 tests, 34 rules tests.
 **Still open for Release 1:** Firas's steps — (1) follow `docs/SETUP.md` (signing key, Firebase setup incl. SHA fingerprints, GitHub secrets, first release, install); (2) run the Task 14 Step 6 manual checklist on two phones; (3) run the Device test checklist below. All 14 plan tasks are otherwise Done.
 
 ## Decisions
+- 2026-09-30: Release 2a.1 (approved by Firas in chat): tablet Day | Week view (week = one column per day; tap chip to tick, tap day title to open the day) and first names. Commits 331093f + b9851eb (1.2.0+3). Tester PASS: 385/385. Open for Firas: compound first names ("Abdul Rahman" → "Abdul"); week chips can overflow at 840 dp with text 2.0× (above spec).
 - 2026-09-28: Release 2 split into 2a (chores + look and feel), 2b (family calendar, wall mode, Google Calendar), 2c (star rewards). 2a spec drafted: docs/superpowers/specs/2026-09-28-release2a-chores-and-look-design.md, awaiting Firas's review.
 - 2026-09-27: Spec and plan approved by Firas. Execution: subagent-driven with PM / developer / tester agents.
 - 2026-09-27: Flutter SDK not installed; Firas: ignore Flutter for now. Task 4 run ahead of Task 1 (no Flutter dependency). Task 1 must merge into the existing ci.yml and .gitignore.
