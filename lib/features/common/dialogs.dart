@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../data/reminder_scheduler.dart';
 import '../../l10n/app_localizations.dart';
@@ -98,10 +101,32 @@ Future<bool> confirm(
   return result ?? false;
 }
 
-/// Asks the phone for permission to show reminders. If the answer is no,
-/// explains how to turn notifications on in the phone's settings.
-Future<void> askReminderPermission(BuildContext context, ReminderScheduler scheduler) async {
-  final granted = await scheduler.requestPermission();
+/// Saved on this phone once Android has been asked to allow notifications.
+const notificationsAskedKey = 'notificationsAsked';
+
+/// The app's one way to ask for permission to show chore reminders.
+///
+/// Android is asked only the first time on each phone (remembered under
+/// [notificationsAskedKey]), so a phone never gets the prompt twice. After
+/// that, this only checks. If notifications are off, it explains how to turn
+/// them on in the phone's settings. With [firstTimeOnly] (used by
+/// ReminderSync), it does nothing once this phone has been asked.
+Future<void> askReminderPermission(
+  BuildContext context,
+  ReminderScheduler scheduler,
+  SharedPreferences prefs, {
+  bool firstTimeOnly = false,
+}) async {
+  final asked = prefs.getBool(notificationsAskedKey) == true;
+  if (asked && firstTimeOnly) return;
+  final bool granted;
+  if (asked) {
+    granted = await scheduler.notificationsEnabled();
+  } else {
+    // Saved before asking, so a second caller in the meantime doesn't ask again.
+    unawaited(prefs.setBool(notificationsAskedKey, true));
+    granted = await scheduler.requestPermission();
+  }
   if (granted || !context.mounted) return;
   final l = AppLocalizations.of(context)!;
   await showDialog<void>(

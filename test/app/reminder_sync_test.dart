@@ -158,6 +158,27 @@ void main() {
       expect(container.read(todayProvider), DateTime(2026, 10, 2));
       expect(keys(scheduler.scheduled), [for (var day = 2; day <= 8; day++) 'dishes 2026-10-0$day']);
     });
+
+    testWidgets('a phone that says no when ReminderSync asks gets the explanation once', (tester) async {
+      final db = await seedWithChores();
+      final scheduler = FakeReminderScheduler()..permission = false;
+      await pumpWithFamily(tester, db: db, uid: 'u2', scheduler: scheduler, child: const ReminderSync(child: SizedBox()));
+      await settle(tester);
+      expect(scheduler.permissionRequests, 1);
+      expect(find.byKey(const Key('notificationsDenied')), findsOneWidget);
+      expect(find.textContaining('Notifications are off for Family'), findsOneWidget);
+      await tester.tap(find.text('OK'));
+      await settle(tester);
+      expect(find.byKey(const Key('notificationsDenied')), findsNothing);
+
+      // Tomorrow's chore is ticked: the reminders are planned again, but nothing asks or explains again.
+      await ChoreRepository(db, 'f1').tick(chore: teeth, date: '2026-10-02', doneBy: 'u2', doneByName: 'Sara');
+      await settle(tester);
+      expect(scheduler.scheduled.length, 5);
+      expect(scheduler.permissionRequests, 1);
+      expect(scheduler.checks, 0);
+      expect(find.byKey(const Key('notificationsDenied')), findsNothing);
+    });
   });
 
   group('asking for the notification permission', () {
@@ -240,6 +261,89 @@ void main() {
       await pumpWithFamily(tester, db: db, uid: 'u2', child: const FamilyScreen());
       expect(find.byKey(const Key('leaveFamily')), findsOneWidget);
       expect(find.byKey(const Key('remindEveryone')), findsNothing);
+    });
+
+    testWidgets('after the chore sheet asked, saving a reminder does not ask again', (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      final db = await seedFamily();
+      final scheduler = FakeReminderScheduler()..permission = false;
+      await pumpWithFamily(
+        tester,
+        db: db,
+        scheduler: scheduler,
+        child: ReminderSync(
+          child: Builder(
+            builder: (context) => Scaffold(
+              body: Center(
+                child: TextButton(
+                  onPressed: () => showChoreSheet(context, day: DateTime(2026, 10, 1)),
+                  child: const Text('open'),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      expect(scheduler.permissionRequests, 0, reason: 'nothing to remind about yet');
+      await tester.tap(find.text('open'));
+      await settle(tester);
+      // Remind stays off until the chore has a time (Task 6): pick 8:00 AM first.
+      await tester.ensureVisible(find.byKey(const Key('choreTime'), skipOffstage: false));
+      await settle(tester);
+      await tester.tap(find.byKey(const Key('choreTime')));
+      await settle(tester);
+      await tester.tap(find.text('OK'));
+      await settle(tester);
+      await tester.ensureVisible(find.byKey(const Key('choreRemind')));
+      await settle(tester);
+      await tester.tap(find.byKey(const Key('choreRemind')));
+      await settle(tester);
+      expect(scheduler.permissionRequests, 1);
+      expect(find.byKey(const Key('notificationsDenied')), findsOneWidget);
+      await tester.tap(find.text('OK'));
+      await settle(tester);
+
+      // The chore is saved (written here the way Save writes it): this phone now has a reminder to show.
+      await db.doc('families/f1/chores/dishes').set(dishes.toMap());
+      await settle(tester);
+      expect(keys(scheduler.scheduled), [for (var day = 1; day <= 7; day++) 'dishes 2026-10-0$day']);
+      expect(scheduler.permissionRequests, 1, reason: 'Android was already asked on this phone');
+      expect(find.byKey(const Key('notificationsDenied')), findsNothing, reason: 'the explanation was already shown');
+    });
+
+    testWidgets('Android asks only once; later, turning Remind on checks and explains while notifications are off', (tester) async {
+      final scheduler = FakeReminderScheduler()..permission = false;
+      await openSheet(tester, scheduler);
+      await tester.tap(find.byKey(const Key('choreRemind')));
+      await settle(tester);
+      expect(scheduler.permissionRequests, 1);
+      expect(find.byKey(const Key('notificationsDenied')), findsOneWidget);
+      await tester.tap(find.text('OK'));
+      await settle(tester);
+
+      // Off and on again while notifications are still off: no second prompt, the same explanation.
+      await tester.tap(find.byKey(const Key('choreRemind')));
+      await settle(tester);
+      await tester.tap(find.byKey(const Key('choreRemind')));
+      await settle(tester);
+      expect(scheduler.permissionRequests, 1, reason: 'Android is asked at most once per phone');
+      expect(scheduler.checks, 1);
+      expect(find.byKey(const Key('notificationsDenied')), findsOneWidget);
+      await tester.tap(find.text('OK'));
+      await settle(tester);
+
+      // Notifications turned on in the phone's settings: no prompt and no explanation.
+      scheduler.permission = true;
+      await tester.tap(find.byKey(const Key('choreRemind')));
+      await settle(tester);
+      await tester.tap(find.byKey(const Key('choreRemind')));
+      await settle(tester);
+      expect(scheduler.permissionRequests, 1);
+      expect(scheduler.checks, 2);
+      expect(find.byKey(const Key('notificationsDenied')), findsNothing);
+      expect((await SharedPreferences.getInstance()).getBool('notificationsAsked'), isTrue);
     });
   });
 }

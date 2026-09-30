@@ -10,6 +10,7 @@ import '../core/reminders.dart';
 import '../data/write.dart';
 import '../features/auth/sign_in_screen.dart';
 import '../features/chores/chores_screen.dart';
+import '../features/common/dialogs.dart';
 import '../features/family/family_screen.dart';
 import '../features/family/onboarding_screen.dart';
 import '../features/lists/lists_screen.dart';
@@ -168,7 +169,7 @@ class ReminderSync extends ConsumerStatefulWidget {
   final Widget child;
 
   /// Set once this phone has been asked for the notification permission.
-  static const askedKey = 'notificationsAsked';
+  static const askedKey = notificationsAskedKey;
 
   @override
   ConsumerState<ReminderSync> createState() => _ReminderSyncState();
@@ -210,10 +211,10 @@ class _ReminderSyncState extends ConsumerState<ReminderSync> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         fireAndForget(scheduler.replaceAll(plan));
         // Ask once, the first time this phone has something to remind about
-        // (for example a child whose parent switched a reminder on).
-        if (plan.isNotEmpty && prefs.getBool(ReminderSync.askedKey) != true) {
-          unawaited(prefs.setBool(ReminderSync.askedKey, true));
-          unawaited(scheduler.requestPermission());
+        // (for example a child whose parent switched a reminder on). Same
+        // flow as the chore sheet: a "no" gets the explanation.
+        if (plan.isNotEmpty && mounted) {
+          unawaited(askReminderPermission(context, scheduler, prefs, firstTimeOnly: true));
         }
       });
     }

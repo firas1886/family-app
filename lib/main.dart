@@ -14,7 +14,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(); // reads android/app/google-services.json
   FirebaseFirestore.instance.settings = const Settings(persistenceEnabled: true);
-  await _initTimeZone();
+  await initTimeZone();
   final prefs = await SharedPreferences.getInstance();
   runApp(ProviderScope(
     overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
@@ -22,15 +22,22 @@ Future<void> main() async {
   ));
 }
 
-/// Reminders are scheduled in the phone's own time zone.
-Future<void> _initTimeZone() async {
+/// Reminders are scheduled in the phone's own time zone. If the phone doesn't
+/// answer within [timeout], or names a zone the database doesn't know,
+/// tz.local stays UTC, so start-up never waits on it.
+Future<void> initTimeZone({
+  Future<String> Function() lookup = _phoneTimeZone,
+  Duration timeout = const Duration(seconds: 3),
+}) async {
   tzdata.initializeTimeZones();
   try {
-    final zone = await FlutterTimezone.getLocalTimezone();
-    tz.setLocalLocation(tz.getLocation(zone.identifier));
+    final zone = await lookup().timeout(timeout);
+    tz.setLocalLocation(tz.getLocation(zone));
   } catch (error) {
-    // Unknown zone name: tz.local stays UTC. Reminders still fire at the right
-    // moment, because TZDateTime.from keeps the same instant.
+    // No answer in time, or an unknown zone name: tz.local stays UTC. Reminders
+    // still fire at the right moment, because TZDateTime.from keeps the same instant.
     debugPrint('Could not set the local time zone: $error');
   }
 }
+
+Future<String> _phoneTimeZone() async => (await FlutterTimezone.getLocalTimezone()).identifier;

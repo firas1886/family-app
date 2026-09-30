@@ -188,7 +188,7 @@ class FamilyScreen extends ConsumerWidget {
                     value: ref.watch(remindEveryoneProvider),
                     onChanged: (on) {
                       ref.read(remindEveryoneProvider.notifier).setOn(on);
-                      if (on) askReminderPermission(context, ref.read(reminderSchedulerProvider));
+                      if (on) askReminderPermission(context, ref.read(reminderSchedulerProvider), ref.read(sharedPreferencesProvider));
                     },
                   ),
               ],

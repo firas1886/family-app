@@ -10,6 +10,10 @@ abstract class ReminderScheduler {
   /// prompt; older versions answer at once). True when notifications are allowed.
   Future<bool> requestPermission();
 
+  /// Whether this phone lets the app show notifications right now. Never shows
+  /// a prompt.
+  Future<bool> notificationsEnabled();
+
   /// Replaces every pending chore reminder on this phone with [reminders].
   /// Notifications already showing are left alone.
   Future<void> replaceAll(List<PlannedReminder> reminders);
@@ -45,7 +49,12 @@ class LocalReminderScheduler implements ReminderScheduler {
           android: AndroidInitializationSettings('@mipmap/ic_launcher'),
         ),
       )
-      .then((_) {});
+      .then<void>((_) {}, onError: (Object error, StackTrace stack) {
+        // Start again on the next call, instead of keeping the failure until
+        // the app restarts.
+        _ready = null;
+        Error.throwWithStackTrace(error, stack);
+      });
 
   @override
   Future<bool> requestPermission() async {
@@ -56,6 +65,19 @@ class LocalReminderScheduler implements ReminderScheduler {
       return await android?.requestNotificationsPermission() ?? false;
     } catch (error) {
       debugPrint('Notification permission request failed: $error');
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> notificationsEnabled() async {
+    try {
+      await _init();
+      final android = _plugin.resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>();
+      return await android?.areNotificationsEnabled() ?? false;
+    } catch (error) {
+      debugPrint('Checking notifications failed: $error');
       return false;
     }
   }

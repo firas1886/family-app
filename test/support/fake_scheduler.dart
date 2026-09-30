@@ -6,14 +6,23 @@ class FakeReminderScheduler implements ReminderScheduler {
   /// The reminders from the latest [replaceAll].
   List<PlannedReminder> scheduled = [];
 
-  /// What [requestPermission] answers.
+  /// What [requestPermission] answers, and what [notificationsEnabled] reports.
   bool permission = true;
 
   int permissionRequests = 0;
 
+  /// How many times the app checked without asking.
+  int checks = 0;
+
   @override
   Future<bool> requestPermission() async {
     permissionRequests++;
+    return permission;
+  }
+
+  @override
+  Future<bool> notificationsEnabled() async {
+    checks++;
     return permission;
   }
 
