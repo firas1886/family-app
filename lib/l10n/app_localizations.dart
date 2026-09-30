@@ -668,6 +668,24 @@ abstract class AppLocalizations {
   /// **'Me'**
   String get me;
 
+  /// No description provided for @viewDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get viewDay;
+
+  /// No description provided for @viewWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Week'**
+  String get viewWeek;
+
+  /// No description provided for @weekRange.
+  ///
+  /// In en, this message translates to:
+  /// **'{start} – {end}'**
+  String weekRange(String start, String end);
+
   /// No description provided for @anyone.
   ///
   /// In en, this message translates to:

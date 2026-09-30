@@ -37,6 +37,30 @@ void main() {
     });
   });
 
+  group('firstName', () {
+    test('takes the first word of a full name', () {
+      expect(firstName('Firas Alhalabi'), 'Firas');
+    });
+    test('ignores spaces around the name', () {
+      expect(firstName('  Sara '), 'Sara');
+    });
+    test('works for Arabic names', () {
+      expect(firstName('محمد علي'), 'محمد');
+    });
+    test('splits on a no-break space', () {
+      expect(firstName('Firas\u00A0Alhalabi'), 'Firas');
+      expect(firstName('\u00A0Sara\u00A0\u00A0Alhalabi'), 'Sara');
+    });
+    test('returns an empty string for a blank name', () {
+      expect(firstName(''), '');
+      expect(firstName('   '), '');
+      expect(firstName(' \u00A0\t '), '');
+    });
+    test('keeps a single word as it is', () {
+      expect(firstName('Sara'), 'Sara');
+    });
+  });
+
   group('join codes', () {
     test('are 6 unambiguous characters', () {
       final code = generateJoinCode(Random(1));

@@ -327,6 +327,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get me => 'Me';
 
   @override
+  String get viewDay => 'Day';
+
+  @override
+  String get viewWeek => 'Week';
+
+  @override
+  String weekRange(String start, String end) {
+    return '$start – $end';
+  }
+
+  @override
   String get anyone => 'Anyone';
 
   @override

@@ -131,7 +131,7 @@ class _ChoreSheetState extends ConsumerState<ChoreSheet> {
                 for (final m in whoOptions)
                   ChoiceChip(
                     key: ValueKey('choreWho-${m.uid}'),
-                    label: Text(m.name),
+                    label: Text(firstName(m.name).isEmpty ? m.name : firstName(m.name)),
                     selected: assignee == m.uid,
                     onSelected: (_) => setState(() {
                       _whoChosen = true;

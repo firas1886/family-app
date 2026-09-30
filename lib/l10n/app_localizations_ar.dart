@@ -334,6 +334,17 @@ class AppLocalizationsAr extends AppLocalizations {
   String get me => 'أنا';
 
   @override
+  String get viewDay => 'يوم';
+
+  @override
+  String get viewWeek => 'أسبوع';
+
+  @override
+  String weekRange(String start, String end) {
+    return '$start – $end';
+  }
+
+  @override
   String get anyone => 'أي شخص';
 
   @override

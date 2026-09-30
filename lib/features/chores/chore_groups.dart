@@ -66,7 +66,8 @@ List<ChoreGroup> buildChoreGroups({
   ];
 }
 
-/// Avatar, name and "✓ done/total": the head of a phone section or a board column.
+/// Avatar, first name and "✓ done/total": the head of a phone section or a
+/// board column.
 class ChoreGroupHeader extends StatelessWidget {
   const ChoreGroupHeader({super.key, required this.group});
 
@@ -95,7 +96,7 @@ class ChoreGroupHeader extends StatelessWidget {
         const SizedBox(width: 10),
         Expanded(
           child: Text(
-            member?.name ?? (group.isAnyone ? l.anyone : l.formerMember),
+            member != null ? firstName(member.name) : (group.isAnyone ? l.anyone : l.formerMember),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),

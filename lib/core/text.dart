@@ -20,6 +20,18 @@ String nameKey(String input) {
       .replaceAll('ى', 'ي'); // ى → ي
 }
 
+/// Any run of whitespace, the no-break space (U+00A0) included.
+final _nameSeparators = RegExp(r'[\s\u00A0]+');
+
+/// A person's first name: the first word of the stored name ("Firas Alhalabi"
+/// → "Firas", "محمد علي" → "محمد"). An empty string for a blank name.
+String firstName(String name) {
+  for (final word in name.trim().split(_nameSeparators)) {
+    if (word.isNotEmpty) return word;
+  }
+  return '';
+}
+
 /// The single character shown large on an item tile.
 String tileLetter(String name) {
   final trimmed = name.replaceAll(_invisible, '').trim();
