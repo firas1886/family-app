@@ -31,7 +31,7 @@ Google sign-in only works if the fingerprints of the key that signed the APK are
 1. **Release key:** add both the SHA1 and the SHA256 values from `fingerprints.txt` (section 1).
 2. **Debug key (test APK):** only needed if you install test APKs built on your PC (the APK from a GitHub release doesn't need it). The test APK is signed with that PC's debug key, so its SHA-1 and SHA-256 must be added too. To see them, open **PowerShell** and either:
    - run these four lines (the first goes to the project folder; the quotes are needed because of the space in "Family App"; the second tells Gradle where Android Studio's Java is):
-     `cd "D:\ClaudeProjects\Family Appamily-app-starter"`
+     `cd "D:\ClaudeProjects\Family App\family-app-starter"`
      `$env:JAVA_HOME = "C:\Program Files\Android\Android Studio\jbr"`
      `cd android`
      `.\gradlew signingReport`
