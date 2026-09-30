@@ -3,10 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/palette.dart';
 import '../../app/providers.dart';
+import '../../core/member_names.dart';
 import '../../core/models.dart';
 import '../../core/text.dart';
 
-/// A member's Google photo, or their first letter on their colour.
+/// A member's Google photo, or the first letter of the name they are shown by
+/// on chores ([memberLabel]) on their colour.
 /// With [progress] (0–1) a ring in their colour shows how much is done.
 class MemberAvatar extends ConsumerWidget {
   const MemberAvatar({super.key, required this.member, this.size = 40, this.progress});
@@ -30,7 +32,7 @@ class MemberAvatar extends ConsumerWidget {
       foregroundImage: hasPhoto ? NetworkImage(url) : null,
       onForegroundImageError: hasPhoto ? (_, _) {} : null,
       child: Text(
-        tileLetter(member.name),
+        tileLetter(memberLabel(member)),
         style: TextStyle(
           color: color.onFill,
           fontSize: size * 0.42,

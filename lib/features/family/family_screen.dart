@@ -5,6 +5,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../app/palette.dart';
 import '../../app/providers.dart';
 import '../../app/theme.dart';
+import '../../core/member_names.dart';
 import '../../core/models.dart';
 import '../../data/family_repository.dart';
 import '../../data/write.dart';
@@ -88,10 +89,21 @@ class FamilyScreen extends ConsumerWidget {
                   ListTile(
                     leading: MemberAvatar(member: m),
                     title: Text(m.name, maxLines: 1, overflow: TextOverflow.ellipsis),
-                    subtitle: Text(m.role == Role.parent ? l.parent : l.child),
+                    subtitle: Text(
+                      _subtitle(m, m.role == Role.parent ? l.parent : l.child),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        if (isParent && family != null)
+                          IconButton(
+                            key: ValueKey('editName-${m.uid}'),
+                            tooltip: l.editName,
+                            icon: const Icon(Icons.edit_outlined),
+                            onPressed: () => _editName(context, ref, family.id, m),
+                          ),
                         _ColorDot(
                           member: m,
                           index: colors[m.uid] ?? m.color ?? 0,
@@ -220,6 +232,32 @@ class FamilyScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  /// The role, plus the name shown on chores when a parent chose one that
+  /// differs from the full name.
+  static String _subtitle(Member m, String role) {
+    final chosen = m.displayName?.trim();
+    if (chosen == null || chosen.isEmpty || chosen == m.name.trim()) return role;
+    return '$role · $chosen';
+  }
+
+  /// Parents only: the name [m] is shown by on chores. Empty clears it back
+  /// to the first name.
+  Future<void> _editName(BuildContext context, WidgetRef ref, String familyId, Member m) async {
+    final l = AppLocalizations.of(context)!;
+    final repo = ref.read(familyRepositoryProvider);
+    final value = await promptText(
+      context,
+      title: l.displayNameTitle,
+      helper: l.displayNameHint,
+      initial: memberLabel(m),
+      confirmLabel: l.save,
+      maxLength: 40, // the security rules' limit
+    );
+    if (value == null) return;
+    final name = value.trim();
+    fireAndForget(repo.setDisplayName(familyId, m.uid, name.isEmpty ? null : name));
   }
 
   Future<void> _onMemberAction(

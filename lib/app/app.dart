@@ -86,30 +86,53 @@ class _MembershipGuard extends ConsumerWidget {
 }
 
 /// Keeps member profiles tidy once the family has loaded:
-/// saves my Google photo on my member doc, and (parents only) gives a colour
-/// to every member who has none yet.
-class ProfileSync extends ConsumerWidget {
+/// saves my Google photo on my member doc, fills in my name from my Google
+/// account when it is blank (on my member doc and my user doc), and (parents
+/// only) gives a colour to every member who has none yet.
+class ProfileSync extends ConsumerStatefulWidget {
   const ProfileSync({super.key, required this.child});
   final Widget child;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ProfileSync> createState() => _ProfileSyncState();
+}
+
+class _ProfileSyncState extends ConsumerState<ProfileSync> {
+  /// Blank-name repairs already sent from this screen. Each is sent at most
+  /// once, so a write the server refuses (for example before the new rules
+  /// are deployed) is not retried in a loop.
+  final _nameRepairsSent = <String>{};
+
+  @override
+  Widget build(BuildContext context) {
     final members = ref.watch(membersProvider).valueOrNull;
     final uid = ref.watch(currentUidProvider);
     final familyId = ref.watch(familyIdProvider);
     final photoUrl = ref.watch(authPhotoUrlProvider);
+    final authName = ref.watch(authDisplayNameProvider);
+    final user = ref.watch(appUserProvider).valueOrNull;
     final isParent = ref.watch(isParentProvider);
     if (members != null && uid != null && familyId != null &&
-        _needsSync(members, uid, photoUrl, isParent)) {
+        (_needsSync(members, uid, photoUrl, isParent) ||
+            _memberNameToRepair(members, familyId, uid, authName) ||
+            _userNameToRepair(user, uid, authName))) {
       // Writes happen after the frame, never during build.
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!context.mounted) return;
+        if (!mounted) return;
         final latest = ref.read(membersProvider).valueOrNull;
         if (latest == null) return;
         final repo = ref.read(familyRepositoryProvider);
         final me = latest.where((m) => m.uid == uid).firstOrNull;
         if (me != null && photoUrl != null && me.photoUrl != photoUrl) {
           fireAndForget(repo.setPhotoUrl(familyId, uid, photoUrl));
+        }
+        if (authName != null && _memberNameToRepair(latest, familyId, uid, authName)) {
+          _nameRepairsSent.add(_memberKey(familyId, uid));
+          fireAndForget(repo.setMemberName(familyId, uid, authName));
+        }
+        if (authName != null && _userNameToRepair(ref.read(appUserProvider).valueOrNull, uid, authName)) {
+          _nameRepairsSent.add(_userKey(uid));
+          fireAndForget(repo.setUserName(uid, authName));
         }
         if (isParent) {
           for (final entry in missingColorAssignments(latest).entries) {
@@ -118,8 +141,29 @@ class ProfileSync extends ConsumerWidget {
         }
       });
     }
-    return child;
+    return widget.child;
   }
+
+  static String _memberKey(String familyId, String uid) => 'member:$familyId/$uid';
+  static String _userKey(String uid) => 'user:$uid';
+
+  /// My member doc's name is blank, the account has a name, and no repair
+  /// has been sent yet. A name that isn't blank is never overwritten.
+  bool _memberNameToRepair(List<Member> members, String familyId, String uid, String? authName) {
+    final me = members.where((m) => m.uid == uid).firstOrNull;
+    return authName != null &&
+        me != null &&
+        me.name.trim().isEmpty &&
+        !_nameRepairsSent.contains(_memberKey(familyId, uid));
+  }
+
+  /// The same for my user doc.
+  bool _userNameToRepair(AppUser? user, String uid, String? authName) =>
+      authName != null &&
+      user != null &&
+      user.uid == uid &&
+      user.name.trim().isEmpty &&
+      !_nameRepairsSent.contains(_userKey(uid));
 
   static bool _needsSync(List<Member> members, String uid, String? photoUrl, bool isParent) {
     final me = members.where((m) => m.uid == uid).firstOrNull;

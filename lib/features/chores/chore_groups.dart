@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
 import '../../core/chores.dart';
+import '../../core/member_names.dart';
 import '../../core/models.dart';
 import '../../core/text.dart';
 import '../../l10n/app_localizations.dart';
@@ -66,8 +67,8 @@ List<ChoreGroup> buildChoreGroups({
   ];
 }
 
-/// Avatar, first name and "✓ done/total": the head of a phone section or a
-/// board column.
+/// Avatar, name shown on chores ([memberLabel]) and "✓ done/total": the head
+/// of a phone section or a board column.
 class ChoreGroupHeader extends StatelessWidget {
   const ChoreGroupHeader({super.key, required this.group});
 
@@ -96,7 +97,7 @@ class ChoreGroupHeader extends StatelessWidget {
         const SizedBox(width: 10),
         Expanded(
           child: Text(
-            member != null ? firstName(member.name) : (group.isAnyone ? l.anyone : l.formerMember),
+            member != null ? memberLabel(member) : (group.isAnyone ? l.anyone : l.formerMember),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),

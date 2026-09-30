@@ -111,6 +111,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pictureTiles => 'Picture tiles';
 
   @override
+  String get editName => 'Edit name';
+
+  @override
+  String get displayNameTitle => 'Name shown on chores';
+
+  @override
+  String get displayNameHint => 'Leave empty to use the first name';
+
+  @override
   String get theme => 'Theme';
 
   @override

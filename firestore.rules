@@ -47,20 +47,34 @@ service cloud.firestore {
             && get(familyPath(f)).data.createdBy == uid()
             && !exists(joinCodePath(get(familyPath(f)).data.joinCode)))
         );
-        // Parents change role, colour and picture tiles; a member changes only their own photo.
+        function changes(key) {
+          return key in request.resource.data.diff(resource.data).affectedKeys();
+        }
+        // Parents change role, colour, picture tiles and the name shown on
+        // chores (deleting it goes back to the first name); a member changes
+        // only their own photo and name.
         allow update: if (isParent(f)
-            && onlyChanges(['role', 'color', 'pictureTiles'])
+            && onlyChanges(['role', 'color', 'pictureTiles', 'displayName'])
             && request.resource.data.role in ['parent', 'child']
             && (!('color' in request.resource.data)
               || (request.resource.data.color is int
                 && request.resource.data.color >= 0
                 && request.resource.data.color <= 7))
             && (!('pictureTiles' in request.resource.data)
-              || request.resource.data.pictureTiles is bool))
+              || request.resource.data.pictureTiles is bool)
+            && (!('displayName' in request.resource.data)
+              || (request.resource.data.displayName is string
+                && request.resource.data.displayName.size() >= 1
+                && request.resource.data.displayName.size() <= 40)))
           || (signedIn() && uid() == m
-            && onlyChanges(['photoUrl'])
-            && (request.resource.data.photoUrl == null
-              || request.resource.data.photoUrl is string));
+            && onlyChanges(['photoUrl', 'name'])
+            && (!('photoUrl' in request.resource.data)
+              || request.resource.data.photoUrl == null
+              || request.resource.data.photoUrl is string)
+            && (!changes('name')
+              || (request.resource.data.name is string
+                && request.resource.data.name.size() >= 1
+                && request.resource.data.name.size() <= 80)));
         allow delete: if isParent(f) || (signedIn() && uid() == m);
       }
 

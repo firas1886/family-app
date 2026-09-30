@@ -109,4 +109,27 @@ void main() {
     await repo.setLanguage('u1', 'ar');
     expect((await repo.watchUser('u1').first)!.language, 'ar');
   });
+
+  test('setDisplayName sets and clears the name shown on chores', () async {
+    final f = await createAsDad();
+    await repo.setDisplayName(f, 'u1', 'Abu Sara');
+    expect((await db.doc('families/$f/members/u1').get()).data()!['displayName'], 'Abu Sara');
+    expect((await repo.watchMember(f, 'u1').first)!.displayName, 'Abu Sara');
+    await repo.setDisplayName(f, 'u1', null);
+    final data = (await db.doc('families/$f/members/u1').get()).data()!;
+    expect(data.containsKey('displayName'), isFalse);
+    expect(data['name'], 'Dad');
+  });
+
+  test('setMemberName and setUserName repair a blank name', () async {
+    await repo.ensureUser(uid: 'u1', name: '', email: 'd@x', language: 'en');
+    final f = await repo.createFamily(uid: 'u1', userName: '', familyName: 'Home', otherCategoryName: 'Other');
+    await repo.setMemberName(f, 'u1', 'Firas Alhalabi');
+    await repo.setUserName('u1', 'Firas Alhalabi');
+    expect((await repo.watchMember(f, 'u1').first)!.name, 'Firas Alhalabi');
+    final user = (await repo.watchUser('u1').first)!;
+    expect(user.name, 'Firas Alhalabi');
+    expect(user.familyId, f); // merged, not replaced
+    expect(user.language, 'en');
+  });
 }

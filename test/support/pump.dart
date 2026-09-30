@@ -24,6 +24,7 @@ Future<void> pumpWithFamily(
   required Widget child,
   String uid = 'u1',
   String? photoUrl,
+  String? authName,
   Locale locale = const Locale('en'),
   ReminderScheduler? scheduler,
 }) async {
@@ -39,6 +40,8 @@ Future<void> pumpWithFamily(
       reminderSchedulerProvider.overrideWithValue(scheduler ?? FakeReminderScheduler()),
       // Tests have no FirebaseAuth; the Google photo comes from here instead.
       authPhotoUrlProvider.overrideWithValue(photoUrl),
+      // The Google account's name, for ProfileSync's blank-name repair.
+      authDisplayNameProvider.overrideWithValue(authName),
     ],
     child: MaterialApp(
       locale: locale,

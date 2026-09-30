@@ -67,6 +67,7 @@ class Member {
     this.photoUrl,
     this.pictureTiles = false,
     this.joinedAt,
+    this.displayName,
   });
   final String uid;
   final String name;
@@ -82,6 +83,9 @@ class Member {
   final bool pictureTiles;
   final DateTime? joinedAt;
 
+  /// The name a parent chose to show on chores, or null for the first name.
+  final String? displayName;
+
   /// Any joiner can write any fields on their own member doc, so a value of
   /// the wrong type falls back to "not set" instead of breaking the members
   /// stream for the whole family.
@@ -89,6 +93,7 @@ class Member {
     final name = m['name'];
     final color = m['color'];
     final photoUrl = m['photoUrl'];
+    final displayName = m['displayName'];
     return Member(
       uid: uid,
       name: name is String ? name : '',
@@ -97,6 +102,7 @@ class Member {
       photoUrl: photoUrl is String ? photoUrl : null,
       pictureTiles: m['pictureTiles'] == true,
       joinedAt: _readMemberDate(m['joinedAt']),
+      displayName: displayName is String && displayName.trim().isNotEmpty ? displayName : null,
     );
   }
 }

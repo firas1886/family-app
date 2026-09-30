@@ -115,6 +115,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get pictureTiles => 'بطاقات مصوّرة';
 
   @override
+  String get editName => 'تعديل الاسم';
+
+  @override
+  String get displayNameTitle => 'الاسم الظاهر في المهام';
+
+  @override
+  String get displayNameHint => 'اتركه فارغاً لاستخدام الاسم الأول';
+
+  @override
   String get theme => 'المظهر';
 
   @override

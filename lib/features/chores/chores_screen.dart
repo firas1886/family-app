@@ -6,6 +6,7 @@ import '../../app/providers.dart';
 import '../../app/theme.dart';
 import '../../core/chores.dart';
 import '../../core/dates.dart';
+import '../../core/member_names.dart';
 import '../../core/models.dart';
 import '../../core/text.dart';
 import '../../data/chore_repository.dart';
@@ -480,7 +481,7 @@ class _ChoresScreenState extends ConsumerState<ChoresScreen> {
       key: ValueKey('weekChip-${chore.id}-${dateKey(info.day)}'),
       status: status,
       color: _colorFor(info, group, status),
-      initial: owner == null ? null : tileLetter(firstName(owner.name)),
+      initial: owner == null ? null : tileLetter(memberLabel(owner)),
       onTap: _onToggle(info, group, status),
       onLongPress: _onEdit(info, status),
     );

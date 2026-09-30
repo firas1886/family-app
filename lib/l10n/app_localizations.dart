@@ -284,6 +284,24 @@ abstract class AppLocalizations {
   /// **'Picture tiles'**
   String get pictureTiles;
 
+  /// No description provided for @editName.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit name'**
+  String get editName;
+
+  /// No description provided for @displayNameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Name shown on chores'**
+  String get displayNameTitle;
+
+  /// No description provided for @displayNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave empty to use the first name'**
+  String get displayNameHint;
+
   /// No description provided for @theme.
   ///
   /// In en, this message translates to:

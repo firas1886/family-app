@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/providers.dart';
 import '../../core/chores.dart';
 import '../../core/dates.dart';
+import '../../core/member_names.dart';
 import '../../core/models.dart';
 import '../../core/text.dart';
 import '../../data/write.dart';
@@ -131,7 +132,7 @@ class _ChoreSheetState extends ConsumerState<ChoreSheet> {
                 for (final m in whoOptions)
                   ChoiceChip(
                     key: ValueKey('choreWho-${m.uid}'),
-                    label: Text(firstName(m.name).isEmpty ? m.name : firstName(m.name)),
+                    label: Text(memberLabel(m)),
                     selected: assignee == m.uid,
                     onSelected: (_) => setState(() {
                       _whoChosen = true;

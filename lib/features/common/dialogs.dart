@@ -10,18 +10,22 @@ Future<String?> promptText(
   BuildContext context, {
   required String title,
   String? label,
+  String? helper,
   String initial = '',
   required String confirmLabel,
   TextInputType? keyboardType,
+  int? maxLength,
 }) {
   return showDialog<String>(
     context: context,
     builder: (_) => _PromptDialog(
       title: title,
       label: label,
+      helper: helper,
       initial: initial,
       confirmLabel: confirmLabel,
       keyboardType: keyboardType,
+      maxLength: maxLength,
     ),
   );
 }
@@ -30,15 +34,19 @@ class _PromptDialog extends StatefulWidget {
   const _PromptDialog({
     required this.title,
     required this.label,
+    required this.helper,
     required this.initial,
     required this.confirmLabel,
     required this.keyboardType,
+    required this.maxLength,
   });
   final String title;
   final String? label;
+  final String? helper;
   final String initial;
   final String confirmLabel;
   final TextInputType? keyboardType;
+  final int? maxLength;
 
   @override
   State<_PromptDialog> createState() => _PromptDialogState();
@@ -63,7 +71,8 @@ class _PromptDialogState extends State<_PromptDialog> {
         controller: _controller,
         autofocus: true,
         keyboardType: widget.keyboardType,
-        decoration: InputDecoration(labelText: widget.label),
+        maxLength: widget.maxLength,
+        decoration: InputDecoration(labelText: widget.label, helperText: widget.helper, helperMaxLines: 3),
         onSubmitted: (value) => Navigator.of(context).pop(value),
       ),
       actions: [

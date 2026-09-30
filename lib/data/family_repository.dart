@@ -112,6 +112,19 @@ class FamilyRepository {
   Future<void> setPhotoUrl(String familyId, String uid, String? url) =>
       _members(familyId).doc(uid).update({'photoUrl': url});
 
+  /// Parents only (security rules): the name shown on chores, 1–40 characters.
+  /// Null removes it, so chores show the first name again.
+  Future<void> setDisplayName(String familyId, String uid, String? value) =>
+      _members(familyId).doc(uid).update({'displayName': value ?? FieldValue.delete()});
+
+  /// Only the member themselves (security rules): repairs a blank name.
+  Future<void> setMemberName(String familyId, String uid, String name) =>
+      _members(familyId).doc(uid).update({'name': name});
+
+  /// Repairs a blank name on the user doc, keeping its other fields.
+  Future<void> setUserName(String uid, String name) =>
+      _user(uid).set({'name': name}, SetOptions(merge: true));
+
   Future<void> setRole(String familyId, String memberUid, Role role) async {
     if (role == Role.child) await _ensureAnotherParent(familyId, memberUid);
     await _members(familyId).doc(memberUid).update({'role': role.name});

@@ -167,7 +167,8 @@ class WeekChip extends StatelessWidget {
   final ChoreStatus status;
   final PersonColor color;
 
-  /// The first letter of the owner's first name, or null for nobody.
+  /// The first letter of the name the owner is shown by ([memberLabel]), or
+  /// null for nobody.
   final String? initial;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;

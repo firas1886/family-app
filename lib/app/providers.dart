@@ -11,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../core/chores.dart';
 import '../core/dates.dart';
 import '../core/member_colors.dart';
+import '../core/member_names.dart';
 import '../core/models.dart';
 import '../core/placement.dart';
 import '../data/catalog_repository.dart';
@@ -36,6 +37,13 @@ final currentUidProvider = Provider<String?>((ref) => ref.watch(authUserProvider
 
 /// The signed-in user's Google profile photo (overridden with null in tests).
 final authPhotoUrlProvider = Provider<String?>((ref) => ref.watch(authUserProvider).valueOrNull?.photoURL);
+
+/// The name the signed-in Google account gives a member whose name is blank
+/// (overridden in tests).
+final authDisplayNameProvider = Provider<String?>((ref) {
+  final user = ref.watch(authUserProvider).valueOrNull;
+  return accountDisplayName(user?.displayName, user?.email);
+});
 
 // User and family.
 final familyRepositoryProvider = Provider<FamilyRepository>(

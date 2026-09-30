@@ -3,7 +3,7 @@ import {
   initializeTestEnvironment, assertSucceeds, assertFails,
 } from '@firebase/rules-unit-testing';
 import {
-  doc, getDoc, getDocs, collection, setDoc, updateDoc, deleteDoc, Timestamp,
+  doc, getDoc, getDocs, collection, setDoc, updateDoc, deleteDoc, deleteField, Timestamp,
 } from 'firebase/firestore';
 
 const F = 'fam1';
@@ -272,6 +272,49 @@ describe('member colours, photos and picture tiles', () => {
     await assertSucceeds(setDoc(doc(as('gran'), `families/${F}/members/gran`), {
       name: 'Gran', role: 'child', joinCode: 'ABC234', color: 7, photoUrl: null, pictureTiles: false,
     }));
+  });
+});
+
+describe('member names (Release 2a.2)', () => {
+  const member = (who, uid) => doc(as(who), `families/${F}/members/${uid}`);
+  it('a member sets their own blank name', async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await updateDoc(doc(ctx.firestore(), `families/${F}/members/dad`), { name: '' });
+    });
+    await assertSucceeds(updateDoc(member('dad', 'dad'), { name: 'Firas' }));
+    await assertSucceeds(updateDoc(member('kid', 'kid'), { name: 'Sara' }));
+  });
+  it('a member cannot set their own name to an empty string, a non-string or more than 80 characters', async () => {
+    await assertFails(updateDoc(member('kid', 'kid'), { name: '' }));
+    await assertFails(updateDoc(member('kid', 'kid'), { name: 42 }));
+    await assertFails(updateDoc(member('kid', 'kid'), { name: 'x'.repeat(81) }));
+    await assertSucceeds(updateDoc(member('kid', 'kid'), { name: 'x'.repeat(80) }));
+  });
+  it("a member cannot set another member's name", async () => {
+    await assertFails(updateDoc(member('kid', 'dad'), { name: 'Someone' }));
+  });
+  it("a parent cannot change a member's name", async () => {
+    await assertFails(updateDoc(member('dad', 'kid'), { name: 'Someone' }));
+    await assertFails(updateDoc(member('dad', 'kid'), { name: 'Someone', displayName: 'Someone' }));
+  });
+  it("a child cannot set anyone's displayName", async () => {
+    await assertFails(updateDoc(member('kid', 'kid'), { displayName: 'Soso' }));
+    await assertFails(updateDoc(member('kid', 'dad'), { displayName: 'Baba' }));
+  });
+  it("a parent sets and then deletes a child's displayName", async () => {
+    await assertSucceeds(updateDoc(member('dad', 'kid'), { displayName: 'Abdul Rahman' }));
+    await assertSucceeds(updateDoc(member('dad', 'kid'), { displayName: deleteField() }));
+    await assertSucceeds(updateDoc(member('dad', 'dad'), { displayName: 'Baba' }));
+  });
+  it('a parent cannot set a displayName of 41 characters, an empty one or a non-string', async () => {
+    await assertFails(updateDoc(member('dad', 'kid'), { displayName: 'x'.repeat(41) }));
+    await assertFails(updateDoc(member('dad', 'kid'), { displayName: '' }));
+    await assertFails(updateDoc(member('dad', 'kid'), { displayName: 42 }));
+    await assertSucceeds(updateDoc(member('dad', 'kid'), { displayName: 'x'.repeat(40) }));
+  });
+  it('a member cannot bundle a role change with their name', async () => {
+    await assertFails(updateDoc(member('kid', 'kid'), { name: 'Sara', role: 'parent' }));
+    await assertFails(updateDoc(member('kid', 'kid'), { name: 'Sara', displayName: 'Soso' }));
   });
 });
 
