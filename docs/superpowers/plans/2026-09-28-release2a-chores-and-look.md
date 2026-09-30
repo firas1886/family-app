@@ -9909,7 +9909,7 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 - Consumes: everything above.
 - Produces: `build/app/outputs/flutter-apk/app-release.apk` (debug-key fallback when no `key.properties`), and a manual device checklist in this task for Firas (reminders firing at the chore time; permission prompt; tablet landscape board with independent column scrolling; light/dark switching; Arabic layout; child vs parent permissions on two phones; late chores; celebration).
 
-- [ ] **Step 1: Bump the version**
+- [x] **Step 1: Bump the version**
 
 In `pubspec.yaml`:
 
@@ -9924,7 +9924,7 @@ version: 1.1.0+2
 
 (The GitHub release workflow still takes the version name from the tag and the build number from the run number; this line sets the version of APKs built on this PC.)
 
-- [ ] **Step 2: Update the setup guide**
+- [x] **Step 2: Update the setup guide**
 
 In `docs/SETUP.md`, make four edits.
 
@@ -9976,7 +9976,7 @@ If `firestore.rules` changes in a later version, paste it into the Firestore **R
 **Version 1.1.0 (chores) changes `firestore.rules`.** Publish the new rules first, then install 1.1.0 on every phone. Until the new rules are published, chores can't be saved.
 ```
 
-- [ ] **Step 3: Run every check**
+- [x] **Step 3: Run every check**
 
 Run: `flutter analyze --no-fatal-infos && flutter test`
 Expected: no errors or warnings; all tests pass. Report the test count.
@@ -9984,12 +9984,12 @@ Expected: no errors or warnings; all tests pass. Report the test count.
 Run (Git Bash): `export JAVA_HOME="C:\Program Files\Android\Android Studio\jbr" && cd rules-tests && npm run emulate`
 Expected: all rules tests passing, 0 failing (Release 1 tests plus the Task 3 and Task 5 additions).
 
-- [ ] **Step 4: Build the release APK**
+- [x] **Step 4: Build the release APK**
 
 Run (Git Bash, from the repository root): `GRADLE_OPTS=-Dorg.gradle.project.kotlin.incremental=false flutter build apk --release`
 Expected: `√ Built build\app\outputs\flutter-apk\app-release.apk (NN.NMB)`, after about 4–5 minutes. With no `android/key.properties` on this PC it is signed with the debug key (the fallback from Release 1). Report the size. For comparison, 1.0.0 was 53.2 MB, and 1.0.0 plus only the Task 9 packages was 55.6 MB, so expect about 56–58 MB with the bundled font.
 
-- [ ] **Step 5: Check what's inside the APK**
+- [x] **Step 5: Check what's inside the APK**
 
 Run (Git Bash):
 ```bash
@@ -10007,7 +10007,7 @@ application-label:'Family'
 ```
 and `2` from the second command (both notification receivers are in the manifest). If `36.1.0` is missing, use any folder under `$LOCALAPPDATA/Android/Sdk/build-tools/` that has `aapt.exe`.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add pubspec.yaml docs/SETUP.md
