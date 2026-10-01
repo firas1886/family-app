@@ -7,6 +7,7 @@ import '../../app/providers.dart';
 import '../../app/theme.dart';
 import '../../core/member_names.dart';
 import '../../core/models.dart';
+import '../../core/text.dart';
 import '../../data/family_repository.dart';
 import '../../data/write.dart';
 import '../../l10n/app_localizations.dart';
@@ -91,13 +92,16 @@ class FamilyScreen extends ConsumerWidget {
                     title: Text(m.name, maxLines: 1, overflow: TextOverflow.ellipsis),
                     subtitle: Text(
                       _subtitle(m, m.role == Role.parent ? l.parent : l.child),
-                      maxLines: 1,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
+                    // At most two 48 dp controls, so the name keeps ~80 dp at
+                    // 320 dp wide: a parent edits their own name here, and
+                    // everyone else's from the top of the ⋮ menu.
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        if (isParent && family != null)
+                        if (isParent && m.uid == uid && family != null)
                           IconButton(
                             key: ValueKey('editName-${m.uid}'),
                             tooltip: l.editName,
@@ -114,6 +118,11 @@ class FamilyScreen extends ConsumerWidget {
                             key: ValueKey('memberMenu-${m.uid}'),
                             onSelected: (action) => _onMemberAction(context, ref, family.id, m, action),
                             itemBuilder: (_) => [
+                              PopupMenuItem(
+                                key: ValueKey('editName-${m.uid}'),
+                                value: 'name',
+                                child: Text(l.editName),
+                              ),
                               PopupMenuItem(
                                 value: 'role',
                                 child: Text(m.role == Role.parent ? l.makeChild : l.makeParent),
@@ -243,7 +252,8 @@ class FamilyScreen extends ConsumerWidget {
   }
 
   /// Parents only: the name [m] is shown by on chores. Empty clears it back
-  /// to the first name.
+  /// to the first name. Saving the first name a member is already shown by,
+  /// when no name was chosen for them, writes nothing.
   Future<void> _editName(BuildContext context, WidgetRef ref, String familyId, Member m) async {
     final l = AppLocalizations.of(context)!;
     final repo = ref.read(familyRepositoryProvider);
@@ -253,11 +263,16 @@ class FamilyScreen extends ConsumerWidget {
       helper: l.displayNameHint,
       initial: memberLabel(m),
       confirmLabel: l.save,
-      maxLength: 40, // the security rules' limit
+      maxLength: 40, // the security rules' limit, checked by String.length
     );
     if (value == null) return;
     final name = value.trim();
-    fireAndForget(repo.setDisplayName(familyId, m.uid, name.isEmpty ? null : name));
+    if (name.isEmpty) {
+      fireAndForget(repo.setDisplayName(familyId, m.uid, null));
+      return;
+    }
+    if (m.displayName == null && name == firstName(m.name)) return; // no real choice
+    fireAndForget(repo.setDisplayName(familyId, m.uid, name));
   }
 
   Future<void> _onMemberAction(
@@ -270,6 +285,7 @@ class FamilyScreen extends ConsumerWidget {
     final l = AppLocalizations.of(context)!;
     final messenger = ScaffoldMessenger.of(context);
     final repo = ref.read(familyRepositoryProvider);
+    if (action == 'name') return _editName(context, ref, familyId, m);
     try {
       if (action == 'role') {
         await repo.setRole(familyId, m.uid, m.role == Role.parent ? Role.child : Role.parent);

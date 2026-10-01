@@ -35,6 +35,7 @@
   "editName": "Edit name",
   "displayNameTitle": "Name shown on chores",
   "displayNameHint": "Leave empty to use the first name",
+  "textTooLong": "Too long. Please shorten it.",
   "theme": "Theme",
   "themeSystem": "System",
   "themeLight": "Light",

@@ -302,6 +302,12 @@ abstract class AppLocalizations {
   /// **'Leave empty to use the first name'**
   String get displayNameHint;
 
+  /// No description provided for @textTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Too long. Please shorten it.'**
+  String get textTooLong;
+
   /// No description provided for @theme.
   ///
   /// In en, this message translates to:

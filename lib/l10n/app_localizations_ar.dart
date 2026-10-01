@@ -124,6 +124,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get displayNameHint => 'اتركه فارغاً لاستخدام الاسم الأول';
 
   @override
+  String get textTooLong => 'طويل جداً. يُرجى تقصيره.';
+
+  @override
   String get theme => 'المظهر';
 
   @override

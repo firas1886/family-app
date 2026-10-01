@@ -34,6 +34,7 @@
   "editName": "تعديل الاسم",
   "displayNameTitle": "الاسم الظاهر في المهام",
   "displayNameHint": "اتركه فارغاً لاستخدام الاسم الأول",
+  "textTooLong": "طويل جداً. يُرجى تقصيره.",
   "theme": "المظهر",
   "themeSystem": "تلقائي",
   "themeLight": "فاتح",

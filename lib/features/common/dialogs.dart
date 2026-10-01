@@ -6,6 +6,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../data/reminder_scheduler.dart';
 import '../../l10n/app_localizations.dart';
 
+/// Asks for one line of text. Null when cancelled.
+///
+/// With [maxLength], the trimmed value may be at most that many UTF-16 code
+/// units (`String.length`). That is never fewer than the characters Firestore
+/// rules count, so a value allowed here is never refused by a rules size
+/// check. The counter shows that length; a longer value is refused with an
+/// inline error, and the dialog stays open.
 Future<String?> promptText(
   BuildContext context, {
   required String title,
@@ -61,9 +68,25 @@ class _PromptDialogState extends State<_PromptDialog> {
     super.dispose();
   }
 
+  /// The trimmed value's `String.length` (UTF-16 code units).
+  int get _length => _controller.text.trim().length;
+
+  bool get _tooLong {
+    final max = widget.maxLength;
+    return max != null && _length > max;
+  }
+
+  /// Closes with the value, unless it is too long (the error already shows).
+  void _submit() {
+    if (_tooLong) return;
+    Navigator.of(context).pop(_controller.text);
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
+    final max = widget.maxLength;
+    final tooLong = _tooLong;
     return AlertDialog(
       title: Text(widget.title),
       content: TextField(
@@ -71,15 +94,25 @@ class _PromptDialogState extends State<_PromptDialog> {
         controller: _controller,
         autofocus: true,
         keyboardType: widget.keyboardType,
-        maxLength: widget.maxLength,
-        decoration: InputDecoration(labelText: widget.label, helperText: widget.helper, helperMaxLines: 3),
-        onSubmitted: (value) => Navigator.of(context).pop(value),
+        maxLength: max,
+        decoration: InputDecoration(
+          labelText: widget.label,
+          helperText: widget.helper,
+          helperMaxLines: 3,
+          // Counts what [_submit] checks, not what the field counts.
+          counterText: max == null ? null : '$_length/$max',
+          counterStyle: tooLong ? TextStyle(color: Theme.of(context).colorScheme.error) : null,
+          errorText: tooLong ? l.textTooLong : null,
+          errorMaxLines: 3,
+        ),
+        onChanged: max == null ? null : (_) => setState(() {}),
+        onSubmitted: (_) => _submit(),
       ),
       actions: [
         TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(l.cancel)),
         FilledButton(
           key: const Key('promptConfirm'),
-          onPressed: () => Navigator.of(context).pop(_controller.text),
+          onPressed: _submit,
           child: Text(widget.confirmLabel),
         ),
       ],

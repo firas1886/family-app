@@ -120,6 +120,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get displayNameHint => 'Leave empty to use the first name';
 
   @override
+  String get textTooLong => 'Too long. Please shorten it.';
+
+  @override
   String get theme => 'Theme';
 
   @override
