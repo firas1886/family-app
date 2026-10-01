@@ -1,6 +1,6 @@
 # Family App — Release 2a.3: members without a login, and a download link
 
-Date: 2026-10-01. Status: draft for Firas's review.
+Date: 2026-10-01. Status: approved by Firas on 2026-10-01.
 
 Builds on: Release 2a (`2026-09-28-release2a-chores-and-look-design.md`) and the 2a.1/2a.2 changes (week view, first names, name repair). Everything there still applies unless this spec changes it.
 
