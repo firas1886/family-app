@@ -409,7 +409,7 @@ git commit -m "feat(family): members without a login — data and rules"
   - l10n keys: `addNoLoginMember`, `noLoginTag`.
   - `Future<String> seedNoLoginMember(FakeFirebaseFirestore db, {String id = 'nl_YUSUFabcdefghijklmno', String name = 'Yusuf', int color = 5})` in `test/support/seed.dart`.
 
-- [ ] **Step 1: Add the test seed helper**
+- [x] **Step 1: Add the test seed helper**
 
 Append to `test/support/seed.dart`:
 
@@ -429,7 +429,7 @@ Future<String> seedNoLoginMember(
 }
 ```
 
-- [ ] **Step 2: Write the failing widget tests**
+- [x] **Step 2: Write the failing widget tests**
 
 Create `test/features/no_login_member_test.dart`. Each test seeds with `seedFamily()` (+ `seedChores(db)` where chores are needed) and pumps with `pumpWithFamily`, as the existing family and chores tests do; copy their imports and their `useSize`/`settle` usage.
 1. **"a parent adds a member without a login"** (u1): tap `addNoLoginMember`, enter "Yusuf", tap the confirm button. Exactly one new `families/f1/members/nl_…` doc exists, with `noLogin: true`, `role: 'child'`, `createdBy: 'u1'`, and `color` equal to `nextFreeColor` of the members before. A blank name writes nothing.
@@ -449,12 +449,12 @@ Create `test/features/no_login_member_test.dart`. Each test seeds with `seedFami
 10. **"Arabic no-login member on a small phone"**: Arabic name "يوسف علي" at 320×640 and 360×740, text 1.3, `Locale('ar')`, on the Family screen and the Chores tab. No exception; the row title is at least 80 dp wide; the avatar letter is "ي". This is Review Focus #4.
 11. **"ProfileSync never writes to a no-login member"**: with a no-login member that has a blank name and no colour, pump `RootGate` as u1 for 50 frames. Only the expected colour write happens (parents fill missing colours, as today); no name or photo write ever targets the `nl_` doc.
 
-- [ ] **Step 3: Run them and see them fail**
+- [x] **Step 3: Run them and see them fail**
 
 Run: `flutter test test/features/no_login_member_test.dart`
 Expected: 1, 3, 4 and 5 fail (no button, tag or menu change). 6–9 and 11 may already pass: chores, board, week and rules treat members generically. They stay as regression guards.
 
-- [ ] **Step 4: Implement on the Family screen**
+- [x] **Step 4: Implement on the Family screen**
 
 In `lib/features/family/family_screen.dart` (as 1.2.2 left it):
 
@@ -497,12 +497,12 @@ In `lib/features/family/family_screen.dart` (as 1.2.2 left it):
 
 6. **Strings.** In `lib/l10n/app_en.arb` add `"addNoLoginMember": "Add member without login"` and `"noLoginTag": "No login"`. In `lib/l10n/app_ar.arb` add `"addNoLoginMember": "إضافة فرد بدون حساب"` and `"noLoginTag": "بدون حساب"`. Then run `flutter gen-l10n`.
 
-- [ ] **Step 5: Run the tests and see them pass**
+- [x] **Step 5: Run the tests and see them pass**
 
 Run: `flutter test test/features/no_login_member_test.dart`, then the full `flutter test`, then `flutter analyze --no-fatal-infos`.
 Expected: all pass; analyze reports no errors or warnings.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add lib/features/family/family_screen.dart lib/l10n test/support/seed.dart test/features/no_login_member_test.dart
@@ -672,28 +672,28 @@ This task is done with Firas, because it needs his accounts and secrets. The mai
 
 **Files:** `docs/SETUP.md` (add a short "Share the app" section with the permanent-link pattern and the one-time reinstall note).
 
-- [ ] **Step 1 (Claude): Secret scan before anything is public.** Each of these must print nothing:
+- [x] **Step 1 (Claude): Secret scan before anything is public.** Each of these must print nothing:
   - `git ls-files | grep -Ei 'key\.properties|\.jks$|\.keystore$|google-services\.json'`
   - `git grep -nE 'AIza[0-9A-Za-z_-]{35}|-----BEGIN (RSA |EC )?PRIVATE KEY|storePassword=|keyPassword='`
   
   Also review `git log --all --stat` for any of those paths ever having been committed. If any appear, STOP and tell Firas: the history would need cleaning before going public.
-- [ ] **Step 2 (Firas):** create a free GitHub account if needed, then a new **public**, **empty** repository named `family-app`: no README, no licence, no .gitignore.
-- [ ] **Step 3 (Claude, Firas signs in when the window opens):**
+- [x] **Step 2 (Firas):** create a free GitHub account if needed, then a new **public**, **empty** repository named `family-app`: no README, no licence, no .gitignore.
+- [x] **Step 3 (Claude, Firas signs in when the window opens):**
   - `git remote add origin https://github.com/<owner>/family-app.git`
   - `git push -u origin main`
   
   Git Credential Manager opens a browser sign-in for Firas. Claude never types his password.
-- [ ] **Step 4 (Firas), following `docs/SETUP.md` section 1:**
+- [x] **Step 4 (Firas), following `docs/SETUP.md` section 1:**
   - run **Actions → Generate signing key** and download the result;
   - store the key file and passwords safely;
   - add the 4 signing secrets, plus `GOOGLE_SERVICES_JSON`.
-- [ ] **Step 5 (Firas), following `docs/SETUP.md` section 2:**
+- [x] **Step 5 (Firas), following `docs/SETUP.md` section 2:**
   - in Firebase, add the release key's SHA-1 and SHA-256;
   - re-download `google-services.json` and update the `GOOGLE_SERVICES_JSON` secret.
-- [ ] **Step 6 (Firas):** **Releases → Draft a new release**, tag `v1.3.0`, then **Publish**. Wait for the Release APK action to finish (about 10 minutes).
-- [ ] **Step 7 (Claude):** run `curl -sIL https://github.com/<owner>/family-app/releases/latest/download/family-app.apk`.
+- [x] **Step 6 (Firas):** **Releases → Draft a new release**, tag `v1.3.0`, then **Publish**. Wait for the Release APK action to finish (about 10 minutes).
+- [x] **Step 7 (Claude):** run `curl -sIL https://github.com/<owner>/family-app/releases/latest/download/family-app.apk`.
   - Expect a final `200`, with a `content-length` of about 60 MB.
   - Download it and check with `apksigner verify --print-certs` that the signer is NOT "Android Debug".
   - Check with `aapt dump badging` that the package is `com.firas.familia` and versionName is `1.3.0`.
 - [ ] **Step 8 (Firas, each phone, once):** uninstall the test app, open the link, install, sign in. From now on, new releases install over the top.
-- [ ] **Step 9 (Claude):** add the "Share the app" section to `docs/SETUP.md` and commit it: `docs(setup): share the app with the permanent link`.
+- [x] **Step 9 (Claude):** add the "Share the app" section to `docs/SETUP.md` and commit it: `docs(setup): share the app with the permanent link`.

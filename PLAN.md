@@ -1,13 +1,13 @@
 # PLAN.md — Family App: state of the project and how to continue
 
-Last updated: 2026-10-02. Owner: Firas (product/banking-tech manager, not a Flutter developer). Talk to him in plain language: what changed, what he must do, what's next.
+Last updated: 2026-10-02 (after Release 2a.3 Tasks 1–2). Owner: Firas (product/banking-tech manager, not a Flutter developer). Talk to him in plain language: what changed, what he must do, what's next.
 
 ## 1. What this is
 
 A Flutter Android app (Arabic/English) for one family:
 - shared shopping lists (Release 1);
 - chores with a new look (Release 2a);
-- a tablet Day/Week board, name fixes and an invite/download link (2a.1–2a.3).
+- a tablet Day/Week board, name fixes, an invite/download link and members without a login (2a.1–2a.3).
 
 Backend: Firebase (Auth with Google sign-in, Firestore). No server code.
 
@@ -16,6 +16,7 @@ Backend: Firebase (Auth with Google sign-in, Firestore). No server code.
 | Repo (local) | `D:\ClaudeProjects\Family App\family-app-starter` (branch `main`) |
 | Repo (GitHub, **public**) | https://github.com/firas1886/family-app (remote `origin`) |
 | Permanent download link | https://github.com/firas1886/family-app/releases/latest/download/family-app.apk |
+| Code on `main` | **1.4.0+7** (Release 2a.3 complete; waiting for Firas to publish rules + release `v1.4.0`) |
 | Latest published release | **v1.3.0** (GitHub release workflow run 36976898297, signed with the release key `CN=Family App`, SHA-1 `F7:E3:30:D6:FA:00:59:C3:3C:6B:A1:58:F7:CD:E4:16:75:5D:14:93`) |
 | Latest local test APK | `D:\ClaudeProjects\Family App\Family-test.apk` (1.2.2, debug-key signed) |
 | Firebase project | `familia-a1b9f`; Android app id `com.firas.familia`; namespace `com.family.family_app`; minSdk 24 |
@@ -33,8 +34,8 @@ Backend: Firebase (Auth with Google sign-in, Firestore). No server code.
   - PowerShell: `$env:JAVA_HOME='C:\Program Files\Android\Android Studio\jbr'; $env:Path="D:\flutter\bin;$env:JAVA_HOME\bin;$env:Path"`
 - Checks:
   - `flutter analyze --no-fatal-infos` (5 known infos are OK)
-  - `flutter test` (last: 421 passing)
-  - Rules: `cd rules-tests && npm run emulate` (needs JAVA_HOME AND jbr `bin` on PATH; last: 73 passing)
+  - `flutter test` (last: 463 passing)
+  - Rules: `cd rules-tests && npm run emulate` (needs JAVA_HOME AND jbr `bin` on PATH; last: 83 passing)
 - Local release build: `GRADLE_OPTS=-Dorg.gradle.project.kotlin.incremental=false flutter build apk --release`, then `cd android && ./gradlew --stop`.
 - Shared agent notes (scratchpad): `C:\Users\firas\AppData\Local\Temp\claude\D--ClaudeProjects\9b921dc5-9620-475c-9b35-4f1ccc7e6e5e\scratchpad\env.md`.
 
@@ -64,7 +65,7 @@ Backend: Firebase (Auth with Google sign-in, Firestore). No server code.
 | 2a — chores + look | `docs/superpowers/specs/2026-09-28-release2a-chores-and-look-design.md` | `docs/superpowers/plans/2026-09-28-release2a-chores-and-look.md` (10 tasks; "Plan-level amendments" at the end override) | Done (1.1.0) |
 | 2a.1 — tablet Day/Week + first names | brief `docs/progress/briefs/r2a1-week-view.md` | — (bounded) | Done (1.2.0) |
 | 2a.2 — name repair + editable display names | briefs `r2a2-names.md`, `r2a2-names-rework.md` | — (bounded) | Done (1.2.2) |
-| 2a.3 — no-login members + download link | `docs/superpowers/specs/2026-10-01-release2a3-nologin-members-and-download-link-design.md` | `docs/superpowers/plans/2026-10-01-release2a3-nologin-members-and-download-link.md` (4 tasks) | Tasks 3 and 4 done (v1.3.0 published); **Tasks 1–2 NOT started** |
+| 2a.3 — no-login members + download link | `docs/superpowers/specs/2026-10-01-release2a3-nologin-members-and-download-link-design.md` | `docs/superpowers/plans/2026-10-01-release2a3-nologin-members-and-download-link.md` (4 tasks) | All 4 tasks done (Tasks 1–2 on 2026-10-02: 5724031, c28f8f3; 1.4.0+7). Release v1.4.0 not yet published |
 
 Other docs:
 - `docs/SETUP.md`: release key, Firebase, publishing, "Share the app".
@@ -80,7 +81,7 @@ Other docs:
   - `lib/app`: theme, palette, providers, app shell;
   - `lib/features/*`: screens.
 - **Data model** (Firestore, under `families/{f}`):
-  - `members/{uid}`: name, role, color, photoUrl, pictureTiles, joinedAt, displayName, joinCode (joiners);
+  - `members/{uid}`: name, role, color, photoUrl, pictureTiles, joinedAt, displayName, joinCode (joiners); no-login members use id `nl_` + 20 letters/digits with `noLogin: true`, `role: child`, `createdBy` (`lib/core/no_login.dart`);
   - `categories`, `items`, `lists/{l}/entries`, `purchases`;
   - `chores/{id}`: rule-based repeats;
   - `choreDone/{choreId}_{YYYY-MM-DD}`: with dayNumber and copied title/assignee/doneBy/doneByName.
@@ -92,7 +93,7 @@ Other docs:
   - `lib/app/{app,providers,theme,palette,links}.dart`: `ProfileSync` (colour/photo/name repair, attempt-once set) and `ReminderSync` (the only `AppLifecycleListener`, refreshes `todayProvider`);
   - `lib/features/chores/{chores_screen,chores_board,week_board,chore_card,chore_sheet,chore_groups,late_strip,who_did_it,celebration,repeat_label}.dart`;
   - `lib/features/family/{family_screen,invite,onboarding_screen}.dart`, `lib/features/today/today_screen.dart`, `lib/features/lists/*`, `lib/features/history/history_screen.dart`.
-- **Security:** `firestore.rules` and tests in `rules-tests/test/rules.test.js` (73 tests).
+- **Security:** `firestore.rules` and tests in `rules-tests/test/rules.test.js` (83 tests). Members: create has a parent-only `validNoLoginMember` branch; update branch (a) skips `noLogin` docs; branch (c) lets parents change only name/displayName/color/pictureTiles on them.
 - **CI:**
   - `.github/workflows/ci.yml` (flutter analyze/test + rules on push);
   - `keystore.yml` (run once; already done; artifact deleted);
@@ -128,9 +129,10 @@ Other docs:
 
 ## 7. Known bugs / open issues
 
-- **Open:** none blocking. Release 2a.3 Tasks 1–2 aren't built yet.
+- **Open:** none blocking. Release 2a.3 is complete in code (1.4.0+7, pushed); not yet published.
 - **Firas's own pending checks:**
-  - Has he published the latest `firestore.rules`? Needed since 1.2.1.
+  - Publish the latest `firestore.rules` (needed since 1.2.1, and again for 1.4.0: without it, adding a member without a login is silently refused).
+  - Publish GitHub release `v1.4.0` (FULL release, not pre-release), then try adding a member without a login on a phone.
   - Each phone must uninstall the debug-signed test app once, then install from the permanent link.
   - If Google sign-in fails on v1.3.0: the release SHA-1/SHA-256 is missing in Firebase.
 - **Parked:** about 40 items in `docs/progress/STATUS.md` "Parking lot". Notable ones:
@@ -146,29 +148,22 @@ Other docs:
 
 ## 8. Queue (in order)
 
-1. **Release 2a.3 Tasks 1–2: members without a login.** Plan file above, approved design.
-   - Task 1:
-     - `lib/core/no_login.dart`: `newNoLoginId`, `isNoLoginId`; id `^nl_[A-Za-z0-9]{20}$`;
-     - `Member.noLogin`;
-     - `nextFreeColor`;
-     - `FamilyRepository.addNoLoginMember`;
-     - `firestore.rules`: a create branch `validNoLoginMember`, parent branch (a) gets `resource.data.get('noLogin', false) != true`, and a new update branch (c) for no-login members;
-     - 9 emulator tests.
-   - Task 2:
-     - Family screen: an "Add member without login" button (`Key('addNoLoginMember')`), a "No login" tag (`noLoginTag-<id>`), no "Make parent" in their menu, Edit name writes `name` (not displayName), Remove;
-     - `seedNoLoginMember` test helper;
-     - 11 widget tests, including Review Focus #1–4.
-   - Then a release: bump `pubspec.yaml`, test, push, and Firas publishes `v1.4.0` (FULL release, not pre-release). He must publish the new `firestore.rules` too.
-2. **Firas's PRD for the product:** he asked for it "when limits reset". Use the PRD/docs skill: `anthropic-skills:docs`, or `product-management:write-spec`, or an Artifact document via `quickstart`.
+1. **Firas: publish Release 2a.3.**
+   - Paste `firestore.rules` into Firebase console → Firestore → Rules → Publish. Copy it to his clipboard with `clip.exe < firestore.rules`.
+   - On GitHub: Releases → Draft a new release, tag `v1.4.0`, Publish. It must be a full release, not a pre-release.
+   - Then check that the permanent link serves 1.4.0: `curl -sIL <link>`, then aapt on the download.
+2. **Firas's PRD for the product:** he asked for it "when limits reset". Use one of:
+   - the PRD/docs skill `anthropic-skills:docs`;
+   - `product-management:write-spec`;
+   - an Artifact document via `quickstart`.
 3. **Later releases** (from the Skylight inventory):
    - 2b: family calendar + wall mode + Google Calendar;
    - 2c: star rewards;
-   - also "link a login" for no-login members.
+   - also "link a login" for no-login members. It should look for both the `nl_` id and the `noLogin` flag, because a joiner can set the flag on their own doc (parked in STATUS).
 
 ## 9. ABSOLUTE NEXT STEP
 
-Ask Firas to confirm starting **Release 2a.3 Task 1** (he was just asked "Shall I start on members without a login now?"). On yes:
-1. The PM (or Claude directly) writes `docs/progress/briefs/r2a3-task1-nologin-data.md` from plan Task 1.
-2. Run developer → tester (rules emulator required).
-3. Then Task 2 the same way.
-4. Bump the version and push. Firas publishes the rules and release `v1.4.0`.
+Release 2a.3 is built, tested and pushed (1.4.0+7).
+1. Ask Firas whether he has published the new `firestore.rules` and release `v1.4.0`.
+2. Once he has, verify that the permanent link serves 1.4.0.
+3. Then start the PRD (queue item 2).

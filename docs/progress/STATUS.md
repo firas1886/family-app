@@ -49,6 +49,18 @@ All 14 tasks Done (2026-09-27 → 2026-09-28): 108 tests, 34 rules tests.
 **Still open for Release 1:** Firas's steps — (1) follow `docs/SETUP.md` (signing key, Firebase setup incl. SHA fingerprints, GitHub secrets, first release, install); (2) run the Task 14 Step 6 manual checklist on two phones; (3) run the Device test checklist below. All 14 plan tasks are otherwise Done.
 
 ## Decisions
+- 2026-10-02: Release 2a.3 Task 2 PASS (c28f8f3): 463/463 tests (430 + 33 new `testWidgets`, covering all 11 plan tests); analyze clean (5 known infos); rules, `lib/core` and `lib/data` untouched. Review Focus #1–#4 pass. The tester's probes all passed:
+  - an 80-character Latin name at 320 dp with text 1.3 (title exactly 80 dp);
+  - offline add and edit;
+  - a double-tapped Create;
+  - 8 adds in a row (distinct colours);
+  - tag contrast 9.3:1 light, 7.9:1 dark.
+
+  No findings. Observations parked: no UI to set a no-login member's displayName (spec doesn't ask); a colour race between two parents adding at once (cosmetic). **Release 2a.3 is complete in code.** Version bumped to 1.4.0+7; on the final tree, analyze clean, 463/463 tests and 83/83 rules tests.
+- 2026-10-02: Next (Firas):
+  1. Publish the new `firestore.rules` in the Firebase console. Without it, adding a member without a login is refused, and the app quietly drops the write.
+  2. Publish GitHub release `v1.4.0` as a full release, not a pre-release.
+  3. On a phone, add a member without a login and give them a chore.
 - 2026-10-02: Release 2a.3 Task 1 (no-login members, data and rules) started at Firas's go-ahead. Base 80e5530. Brief: `r2a3-task1-nologin-data.md`. Pre-flight rulings:
   - Ruling: the plan's 10th rules test asserts `{role:'child', name:'Z'}` is refused, but the role doesn't change, so spec §3 allows that write. It is replaced by role writes mixed with parent-branch fields (refused), plus the same fields without the role (accepted). Cost if wrong: one rules test reworded.
   - Ruling: the plan lists 10 rules tests, not 9, so expect 83 (Flutter 430). Cost if wrong: none (counts only).
@@ -57,6 +69,9 @@ All 14 tasks Done (2026-09-27 → 2026-09-28): 108 tests, 34 rules tests.
   - Ruling (tester observation 1): a joiner can self-create their own member doc carrying `noLogin: true`, because the existing self-create branches allow extra keys, which spec §3 keeps unchanged. That joiner then shows "No login" and can't be promoted. There's no privilege gain, and it's self-inflicted by someone who already holds the join code. Chose to park it, and to have Task 2's UI follow `m.noLogin` exactly as the rules do (UI and rules agree), over keying the UI on `isNoLoginId(uid)` too, or tightening the self-create rules now. Cost if wrong: a parent removes and re-invites that person; a one-line rules hardening later.
   - Ruling (tester observation 2): `addNoLoginMember` doesn't check the name length itself. Task 2's prompt guards it (blank → no write; `maxLength: 80` counts `String.length`, never fewer than the rules' `size()`). Edit name for a no-login member also uses `maxLength: 80`. Cost if wrong: none, because the rules refuse a bad name anyway.
   - Firas: the new `firestore.rules` must be published in the Firebase console before v1.4.0 reaches phones.
+- 2026-10-02: Release 2a.3 Task 2 (Family screen and chores) started. Base d81a3be. Brief: `r2a3-task2-nologin-ui.md`.
+  - Ruling (T2-R5, from the developer's concern): plan test 8 says a parent's tick writes `doneBy: 'u1'` "as for any child's chore ticked by a parent". But a parent's tick on a child's chore records the child (existing test "a parent ticking a child's chore records the child": `doneBy: 'u2'`), and spec §3 says ticking is unchanged. Chose the spec: test 8 asserts `doneBy` = the no-login member's id and `doneByName: 'Yusuf'`. Cost if wrong: none for users; one test assertion.
+  - Ruling (T2-R1): Edit name on a no-login member uses the name dialog (`l.editName`, label `l.name`, prefilled `m.name`, `maxLength: 80`) and writes `name`, over reusing the 1.2.2 displayName dialog (40 characters, displayName helper), because the plan says it edits the name itself and the rules limit `name` to 80. Cost if wrong: a dialog title or limit changes.
 - 2026-10-02: v1.3.0 published on GitHub (release workflow run 36976898297, success). Permanent link verified: 200 OK, 62.4 MB, com.firas.familia 1.3.0, signed with the release key (CN=Family App, SHA-1 F7:E3:30:...:14:93), link embedded in the app. Signing-key artifact deleted. Remaining: Tasks 1–2 (no-login members), then Firas's PRD.
 - 2026-10-02: Release 2a.3 Task 3 (Invite to family + permanent download link) done first at Firas's request: commit 5746fe5, tester PASS (421/421). Code pushed to public repo github.com/firas1886/family-app (secret scan clean). Waiting on Firas: signing key + 5 secrets, then publish v1.3.0 as a FULL release (not pre-release). Tasks 1–2 (no-login members) next.
 - 2026-10-01: Release 2a.2 names (approved by Firas in chat): blank-name self-repair, parent-editable display names, readable names on small phones, name dialog matches the rules. Commits 7707f3c + 0f32fd8 (1.2.1, tester FAIL: names squeezed at 320 dp) then dbe3dd6 + 5fce18b (1.2.2, tester PASS, 417/417, rules 73/73). Firas must publish the new firestore.rules. Next: Release 2a.3 (no-login members + download link), spec and plan written, plan awaiting Firas's review.
@@ -144,6 +159,7 @@ All 14 tasks Done (2026-09-27 → 2026-09-28): 108 tests, 34 rules tests.
 
 ## Parking lot
 - Rules hardening (from R2a.3 Task 1 test, observation 1): the self-create (join and family-creator) branches accept extra keys, so a joiner could write `noLogin: true` or `createdBy` on their own doc. Could limit those branches to known keys (and refuse `noLogin`). "Link a login" (later) should look for both the `nl_` id and the flag.
+- Family (from R2a.3 Task 2 test): no UI sets or clears a no-login member's displayName (Edit name edits the real name; the rules allow displayName). Two parents adding members at the same moment could get the same colour (cosmetic; the colour picker fixes it).
 - Rules (from R2a.3 Task 1 test, observation 2): as for members with a login, the rules accept a whitespace-only name and a missing or non-timestamp `joinedAt`, and a parent may delete `color` or `pictureTiles` on a no-login doc (the app then fills the colour).
 - Skylight-style family hub (inventory in docs/ideas/2026-09-28-skylight-feature-inventory.md) → Release 2a/2b/2c: chores → 2a; calendar, wall mode, Google Calendar → 2b; star rewards → 2c. Still parked: recipe bank, photo screensaver; meal planner and AI import (out of scope for all of Release 2).
 - Release 2a items parked by the plan: see its "Plan-level amendments" item 9 and writer D's drafting note 9. (Item 9's member create rule validation is now a Task 5 extra, 2026-09-29.)
