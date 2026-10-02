@@ -52,3 +52,13 @@ Map<String, int> missingColorAssignments(List<Member> all) {
   }
   return result;
 }
+
+/// The colour for a new member: the lowest palette index nobody uses (counting
+/// colours not saved yet), or `all.length % 8` once all eight are taken.
+int nextFreeColor(List<Member> all) {
+  final used = {for (final m in all) effectiveColorIndex(m, all)};
+  for (var i = 0; i < 8; i++) {
+    if (!used.contains(i)) return i;
+  }
+  return all.length % 8;
+}

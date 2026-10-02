@@ -87,4 +87,27 @@ void main() {
     // A member missing from the list is placed as if they were in it.
     expect(effectiveColorIndex(member('c'), all), 1);
   });
+
+  group('nextFreeColor', () {
+    test('the lowest colour nobody uses', () {
+      const all = [
+        Member(uid: 'a', name: 'A', role: Role.parent, color: 0),
+        Member(uid: 'b', name: 'B', role: Role.child, color: 1),
+        Member(uid: 'c', name: 'C', role: Role.child, color: 3),
+      ];
+      expect(nextFreeColor(all), 2);
+    });
+    test('counts members whose colour is not saved yet', () {
+      const all = [
+        Member(uid: 'a', name: 'A', role: Role.parent, color: 0),
+        Member(uid: 'b', name: 'B', role: Role.child),
+      ];
+      expect(nextFreeColor(all), 2);
+    });
+    test('wraps when all 8 are taken', () {
+      final all = [for (var i = 0; i < 9; i++) Member(uid: 'm$i', name: 'M$i', role: Role.child, color: i % 8)];
+      expect(nextFreeColor(all), 9 % 8);
+    });
+    test('an empty family starts at 0', () => expect(nextFreeColor(const []), 0));
+  });
 }

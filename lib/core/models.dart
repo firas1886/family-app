@@ -68,6 +68,7 @@ class Member {
     this.pictureTiles = false,
     this.joinedAt,
     this.displayName,
+    this.noLogin = false,
   });
   final String uid;
   final String name;
@@ -86,6 +87,9 @@ class Member {
   /// The name a parent chose to show on chores, or null for the first name.
   final String? displayName;
 
+  /// A member a parent added who has no login (always a child).
+  final bool noLogin;
+
   /// Any joiner can write any fields on their own member doc, so a value of
   /// the wrong type falls back to "not set" instead of breaking the members
   /// stream for the whole family.
@@ -103,6 +107,7 @@ class Member {
       pictureTiles: m['pictureTiles'] == true,
       joinedAt: _readMemberDate(m['joinedAt']),
       displayName: displayName is String && displayName.trim().isNotEmpty ? displayName : null,
+      noLogin: m['noLogin'] == true,
     );
   }
 }

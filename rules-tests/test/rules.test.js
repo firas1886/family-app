@@ -531,3 +531,93 @@ describe('chore done records', () => {
     await assertFails(setDoc(doneRef(as('stranger'), 'plants', utcDay), tick('plants', utcDay, 'stranger')));
   });
 });
+
+describe('members without a login (Release 2a.3)', () => {
+  const NL = 'nl_ABCDEFGHIJKLMNOPQRST';
+  const nl = (who, id = NL) => doc(as(who), `families/${F}/members/${id}`);
+  const good = (over = {}) => ({
+    name: 'Yusuf', role: 'child', noLogin: true, color: 3, pictureTiles: false,
+    joinedAt: Timestamp.now(), createdBy: 'dad', ...over,
+  });
+  const seedNl = () => env.withSecurityRulesDisabled(async (ctx) => {
+    await setDoc(doc(ctx.firestore(), `families/${F}/members/${NL}`), good());
+  });
+
+  it('a parent creates a member without a login', async () => {
+    await assertSucceeds(setDoc(nl('dad'), good()));
+  });
+  it('a child cannot create one', async () => {
+    await assertFails(setDoc(nl('kid'), good({ createdBy: 'kid' })));
+  });
+  it('the id, role, flag, creator and name are checked on create', async () => {
+    await assertFails(setDoc(nl('dad', 'nl_short'), good()));
+    await assertFails(setDoc(nl('dad', 'yusuf_ABCDEFGHIJKLMNOPQ'), good()));
+    await assertFails(setDoc(nl('dad', 'ABCDEFGHIJKLMNOPQRSTUVWXYZab'), good()));
+    await assertFails(setDoc(nl('dad'), good({ role: 'parent' })));
+    await assertFails(setDoc(nl('dad'), good({ noLogin: false })));
+    const { noLogin, ...withoutFlag } = good();
+    await assertFails(setDoc(nl('dad'), withoutFlag));
+    await assertFails(setDoc(nl('dad'), good({ createdBy: 'kid' })));
+    await assertFails(setDoc(nl('dad'), good({ name: '' })));
+    await assertFails(setDoc(nl('dad'), good({ name: 'x'.repeat(81) })));
+    await assertFails(setDoc(nl('dad'), good({ color: 9 })));
+    await assertFails(setDoc(nl('dad'), good({ joinCode: 'ABC234' })));
+  });
+  it('a parent renames, recolours and sets picture tiles and a display name', async () => {
+    await seedNl();
+    await assertSucceeds(updateDoc(nl('dad'), { name: 'Yusuf Ali' }));
+    await assertSucceeds(updateDoc(nl('dad'), { color: 5, pictureTiles: true }));
+    await assertSucceeds(updateDoc(nl('dad'), { displayName: 'Yoyo' }));
+    await assertSucceeds(updateDoc(nl('dad'), { displayName: deleteField() }));
+  });
+  it('role, noLogin and createdBy never change', async () => {
+    await seedNl();
+    await assertFails(updateDoc(nl('dad'), { role: 'parent' }));
+    await assertFails(updateDoc(nl('dad'), { noLogin: false }));
+    await assertFails(updateDoc(nl('dad'), { createdBy: 'kid' }));
+    await assertFails(updateDoc(nl('dad'), { name: 'Yusuf', role: 'parent' }));
+  });
+  it('a blank or too-long name is refused on edit', async () => {
+    await seedNl();
+    await assertFails(updateDoc(nl('dad'), { name: '' }));
+    await assertFails(updateDoc(nl('dad'), { name: 'x'.repeat(81) }));
+  });
+  it('a child cannot edit or remove one', async () => {
+    await seedNl();
+    await assertFails(updateDoc(nl('kid'), { name: 'Joe' }));
+    await assertFails(updateDoc(nl('kid'), { color: 1 }));
+    await assertFails(deleteDoc(nl('kid')));
+  });
+  it('a parent removes one', async () => {
+    await seedNl();
+    await assertSucceeds(deleteDoc(nl('dad')));
+  });
+  it('only a parent ticks their chores', async () => {
+    await seedNl();
+    const utcDay = Math.floor(Date.now() / 86400000);
+    const date = new Date(utcDay * 86400000).toISOString().slice(0, 10);
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), `families/${F}/chores/yteeth`), {
+        title: 'Teeth', assignee: NL, repeat: 'daily', every: 1, weekdays: [],
+        startDate: '2026-01-01', createdBy: 'dad', remind: false,
+      });
+    });
+    const done = (doneBy) => ({
+      choreId: 'yteeth', date, choreTitle: 'Teeth', assignee: NL,
+      doneBy, doneByName: 'Yusuf', doneAt: Timestamp.now(), dayNumber: utcDay,
+    });
+    await assertFails(setDoc(doc(as('kid'), `families/${F}/choreDone/yteeth_${date}`), done('kid')));
+    await assertFails(setDoc(doc(as('kid'), `families/${F}/choreDone/yteeth_${date}`), done(NL)));
+    await assertSucceeds(setDoc(doc(as('dad'), `families/${F}/choreDone/yteeth_${date}`), done(NL)));
+  });
+  it("a parent's role menu cannot touch a no-login member through the normal parent branch", async () => {
+    await seedNl();
+    // The role menu's own write, and a role change mixed with fields the
+    // normal parent branch allows, are refused...
+    await assertFails(updateDoc(nl('dad'), { role: 'parent' }));
+    await assertFails(updateDoc(nl('dad'), { role: 'parent', color: 1 }));
+    await assertFails(updateDoc(nl('dad'), { role: 'parent', pictureTiles: true, displayName: 'Boss' }));
+    // ...because of the role alone: the same fields without it are accepted.
+    await assertSucceeds(updateDoc(nl('dad'), { color: 1, pictureTiles: true, displayName: 'Boss' }));
+  });
+});

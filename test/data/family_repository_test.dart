@@ -1,7 +1,11 @@
+import 'dart:math';
+
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:family_app/core/models.dart';
 import 'package:family_app/data/family_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../support/seed.dart';
 
 void main() {
   late FakeFirebaseFirestore db;
@@ -131,5 +135,23 @@ void main() {
     expect(user.name, 'Firas Alhalabi');
     expect(user.familyId, f); // merged, not replaced
     expect(user.language, 'en');
+  });
+
+  test('addNoLoginMember writes a child with no login', () async {
+    final db = await seedFamily();
+    final repo = FamilyRepository(db);
+    final id = await repo.addNoLoginMember(
+      familyId: 'f1', name: '  Yusuf  ', createdBy: 'u1', color: 4,
+      now: DateTime(2026, 10, 1, 9), random: Random(3),
+    );
+    expect(id, matches(RegExp(r'^nl_[A-Za-z0-9]{20}$')));
+    final data = (await db.doc('families/f1/members/$id').get()).data()!;
+    expect(data['name'], 'Yusuf');
+    expect(data['role'], 'child');
+    expect(data['noLogin'], isTrue);
+    expect(data['color'], 4);
+    expect(data['pictureTiles'], isFalse);
+    expect(data['createdBy'], 'u1');
+    expect(data.containsKey('joinedAt'), isTrue);
   });
 }

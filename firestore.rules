@@ -37,7 +37,20 @@ service cloud.firestore {
             && (!('photoUrl' in d) || d.photoUrl == null || d.photoUrl is string)
             && (!('pictureTiles' in d) || d.pictureTiles is bool);
         }
-        allow create: if signedIn() && uid() == m && validNewMember(request.resource.data) && (
+        // A member a parent added who has no login (Release 2a.3).
+        function validNoLoginMember(id, d) {
+          return id.matches('^nl_[A-Za-z0-9]{20}$')
+            && d.keys().hasOnly(['name', 'role', 'noLogin', 'color', 'pictureTiles',
+                                 'displayName', 'joinedAt', 'createdBy'])
+            && d.noLogin == true
+            && d.role == 'child'
+            && d.name is string && d.name.size() >= 1 && d.name.size() <= 80
+            && d.createdBy == uid()
+            && validNewMember(d)
+            && (!('displayName' in d)
+              || (d.displayName is string && d.displayName.size() >= 1 && d.displayName.size() <= 40));
+        }
+        allow create: if (signedIn() && uid() == m && validNewMember(request.resource.data) && (
           (request.resource.data.role == 'child'
             && request.resource.data.joinCode is string
             && request.resource.data.joinCode == get(familyPath(f)).data.joinCode
@@ -46,14 +59,14 @@ service cloud.firestore {
           || (request.resource.data.role == 'parent'
             && get(familyPath(f)).data.createdBy == uid()
             && !exists(joinCodePath(get(familyPath(f)).data.joinCode)))
-        );
+        )) || (isParent(f) && validNoLoginMember(m, request.resource.data));
         function changes(key) {
           return key in request.resource.data.diff(resource.data).affectedKeys();
         }
         // Parents change role, colour, picture tiles and the name shown on
         // chores (deleting it goes back to the first name); a member changes
         // only their own photo and name.
-        allow update: if (isParent(f)
+        allow update: if (isParent(f) && resource.data.get('noLogin', false) != true
             && onlyChanges(['role', 'color', 'pictureTiles', 'displayName'])
             && request.resource.data.role in ['parent', 'child']
             && (!('color' in request.resource.data)
@@ -74,7 +87,23 @@ service cloud.firestore {
             && (!changes('name')
               || (request.resource.data.name is string
                 && request.resource.data.name.size() >= 1
-                && request.resource.data.name.size() <= 80)));
+                && request.resource.data.name.size() <= 80)))
+          || (isParent(f) && resource.data.get('noLogin', false) == true
+            && onlyChanges(['name', 'displayName', 'color', 'pictureTiles'])
+            && (!changes('name')
+              || (request.resource.data.name is string
+                && request.resource.data.name.size() >= 1
+                && request.resource.data.name.size() <= 80))
+            && (!('color' in request.resource.data)
+              || (request.resource.data.color is int
+                && request.resource.data.color >= 0
+                && request.resource.data.color <= 7))
+            && (!('pictureTiles' in request.resource.data)
+              || request.resource.data.pictureTiles is bool)
+            && (!('displayName' in request.resource.data)
+              || (request.resource.data.displayName is string
+                && request.resource.data.displayName.size() >= 1
+                && request.resource.data.displayName.size() <= 40)));
         allow delete: if isParent(f) || (signedIn() && uid() == m);
       }
 

@@ -1,6 +1,9 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../core/models.dart';
+import '../core/no_login.dart';
 import '../core/text.dart';
 
 class JoinCodeNotFound implements Exception {}
@@ -120,6 +123,28 @@ class FamilyRepository {
   /// Only the member themselves (security rules): repairs a blank name.
   Future<void> setMemberName(String familyId, String uid, String name) =>
       _members(familyId).doc(uid).update({'name': name});
+
+  /// Adds a family member who has no login (a parent action). Returns the new id.
+  Future<String> addNoLoginMember({
+    required String familyId,
+    required String name,
+    required String createdBy,
+    required int color,
+    DateTime? now,
+    Random? random,
+  }) async {
+    final id = newNoLoginId(random);
+    await _members(familyId).doc(id).set({
+      'name': name.trim(),
+      'role': 'child',
+      'noLogin': true,
+      'color': color,
+      'pictureTiles': false,
+      'joinedAt': now ?? DateTime.now(),
+      'createdBy': createdBy,
+    });
+    return id;
+  }
 
   /// Repairs a blank name on the user doc, keeping its other fields.
   Future<void> setUserName(String uid, String name) =>
