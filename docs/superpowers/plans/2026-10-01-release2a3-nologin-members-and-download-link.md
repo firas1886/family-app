@@ -59,7 +59,7 @@
   - `int nextFreeColor(List<Member> all)`: the lowest palette index 0–7 not used by any member's effective colour; when all 8 are used, `all.length % 8`.
   - `Future<String> FamilyRepository.addNoLoginMember({required String familyId, required String name, required String createdBy, required int color, DateTime? now, Random? random})`: returns the new id.
 
-- [ ] **Step 1: Write the failing unit tests**
+- [x] **Step 1: Write the failing unit tests**
 
 Create `test/core/no_login_test.dart`:
 
@@ -148,12 +148,12 @@ Append to `test/data/family_repository_test.dart` (inside `main`; it already imp
 
 (Add `import 'dart:math';` at the top of that file if it isn't there.)
 
-- [ ] **Step 2: Run them and see them fail**
+- [x] **Step 2: Run them and see them fail**
 
 Run: `flutter test test/core/no_login_test.dart test/core/member_colors_test.dart test/data/family_repository_test.dart`
 Expected: compile errors: `lib/core/no_login.dart` is missing, and `nextFreeColor`, `addNoLoginMember` and `noLogin` are undefined.
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 Create `lib/core/no_login.dart`:
 
@@ -227,11 +227,11 @@ In `lib/data/family_repository.dart`, add `import 'dart:math';` and `import '../
   }
 ```
 
-- [ ] **Step 4: Run the unit tests and see them pass**
+- [x] **Step 4: Run the unit tests and see them pass**
 
 Run: the Step 2 command. Expected: all pass.
 
-- [ ] **Step 5: Write the failing rules tests**
+- [x] **Step 5: Write the failing rules tests**
 
 Append to `rules-tests/test/rules.test.js`:
 
@@ -321,12 +321,12 @@ describe('members without a login (Release 2a.3)', () => {
 });
 ```
 
-- [ ] **Step 6: Run the rules tests and see the new ones fail**
+- [x] **Step 6: Run the rules tests and see the new ones fail**
 
 Run: `cd rules-tests && npm run emulate`
 Expected: the creates and parent edits that should succeed FAIL with PERMISSION_DENIED (no create or update branch yet). The refusals may already pass. All existing tests pass.
 
-- [ ] **Step 7: Change `firestore.rules`**
+- [x] **Step 7: Change `firestore.rules`**
 
 Inside `match /members/{m}`, after `function validNewMember(d) {…}`, add:
 
@@ -379,12 +379,12 @@ In the update rule:
 
 The delete rule is unchanged.
 
-- [ ] **Step 8: Run all checks**
+- [x] **Step 8: Run all checks**
 
 Run: `cd rules-tests && npm run emulate`. Expected: everything passes (the previous count + 9).
 Run: `flutter analyze --no-fatal-infos` and `flutter test`. Expected: no errors or warnings; all pass.
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add lib/core/no_login.dart lib/core/models.dart lib/core/member_colors.dart lib/data/family_repository.dart firestore.rules rules-tests/test/rules.test.js test/core/no_login_test.dart test/core/member_colors_test.dart test/data/family_repository_test.dart
@@ -534,7 +534,7 @@ git commit -m "feat(family): add, edit and remove members without a login"
   - Family key `Key('inviteFamily')` on the share button (it replaces the old share icon's role; tooltip `l.inviteFamily`)
   - l10n keys `inviteFamily`, `inviteMessage` ({link}, {code}), `inviteMessageNoLink` ({code})
 
-- [ ] **Step 1: Write the failing tests** (`test/features/invite_test.dart`)
+- [x] **Step 1: Write the failing tests** (`test/features/invite_test.dart`)
 
 ```dart
 import 'package:family_app/features/family/invite.dart';
@@ -570,9 +570,9 @@ void main() {
 
 Also add a widget test in the same file: pump `FamilyScreen` as u1 with `shareTextProvider` overridden to record the text (via the new `pump.dart` `shared` list). Tapping `inviteFamily` records exactly one text containing 'ABC234'. In a test build `appDownloadUrl` is empty, so the text is the no-link form.
 
-- [ ] **Step 2: Run them and see them fail** (`invite.dart` is missing; the key and provider are undefined).
+- [x] **Step 2: Run them and see them fail** (`invite.dart` is missing; the key and provider are undefined).
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 `lib/app/links.dart`:
 
@@ -650,14 +650,14 @@ and change the upload step's `files:` to `files: family-app*.apk`.
 
 **Version.** In `pubspec.yaml`, set `version: 1.3.0+6`.
 
-- [ ] **Step 4: Run all checks**
+- [x] **Step 4: Run all checks**
 
 - `flutter test` passes.
 - `flutter analyze --no-fatal-infos` reports no errors or warnings.
 - `python -c "import yaml,sys; [yaml.safe_load(open(p)) for p in sys.argv[1:]]; print('ok')" .github/workflows/*.yml` prints `ok`.
 - Local proof that the link reaches the app: build with `flutter build apk --release --dart-define=APP_DOWNLOAD_URL=https://example.com/x.apk` (GRADLE_OPTS as usual), and confirm `strings` or `grep -a` finds `https://example.com/x.apk` inside `lib/arm64-v8a/libapp.so` in the APK. Then delete that APK; it is a check only. Stop the Gradle daemon.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add lib/app/links.dart lib/features/family/invite.dart lib/app/providers.dart lib/features/family/family_screen.dart lib/l10n .github/workflows/release.yml pubspec.yaml test/features/invite_test.dart test/support/pump.dart
