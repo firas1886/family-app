@@ -286,6 +286,12 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get addNoLoginMember => 'إضافة فرد بدون حساب';
+
+  @override
+  String get noLoginTag => 'بدون حساب';
+
+  @override
   String get share => 'مشاركة';
 
   @override

@@ -88,6 +88,8 @@
   "removeMember": "Remove from family",
   "confirmRemoveMember": "Remove {name} from the family?",
   "@confirmRemoveMember": { "placeholders": { "name": { "type": "String" } } },
+  "addNoLoginMember": "Add member without login",
+  "noLoginTag": "No login",
   "share": "Share",
   "regenerateCode": "New code",
   "confirmRegenerateCode": "Make a new join code? The old one will stop working.",

@@ -578,6 +578,18 @@ abstract class AppLocalizations {
   /// **'Remove {name} from the family?'**
   String confirmRemoveMember(String name);
 
+  /// No description provided for @addNoLoginMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Add member without login'**
+  String get addNoLoginMember;
+
+  /// No description provided for @noLoginTag.
+  ///
+  /// In en, this message translates to:
+  /// **'No login'**
+  String get noLoginTag;
+
   /// No description provided for @share.
   ///
   /// In en, this message translates to:

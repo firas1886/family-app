@@ -279,6 +279,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get addNoLoginMember => 'Add member without login';
+
+  @override
+  String get noLoginTag => 'No login';
+
+  @override
   String get share => 'Share';
 
   @override

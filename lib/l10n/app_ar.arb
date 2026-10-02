@@ -80,6 +80,8 @@
   "makeChild": "اجعله طفلاً",
   "removeMember": "إزالة من العائلة",
   "confirmRemoveMember": "إزالة {name} من العائلة؟",
+  "addNoLoginMember": "إضافة فرد بدون حساب",
+  "noLoginTag": "بدون حساب",
   "share": "مشاركة",
   "regenerateCode": "رمز جديد",
   "confirmRegenerateCode": "إنشاء رمز انضمام جديد؟ سيتوقف الرمز القديم عن العمل.",

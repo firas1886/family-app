@@ -54,3 +54,17 @@ Future<void> seedChores(FakeFirebaseFirestore db) async {
   );
   await db.doc('families/f1/choreDone/${done.id}').set(done.toMap());
 }
+
+/// A member without a login in family f1, created by u1.
+Future<String> seedNoLoginMember(
+  FakeFirebaseFirestore db, {
+  String id = 'nl_YUSUFabcdefghijklmno',
+  String name = 'Yusuf',
+  int color = 5,
+}) async {
+  await db.doc('families/f1/members/$id').set({
+    'name': name, 'role': 'child', 'noLogin': true, 'color': color,
+    'pictureTiles': false, 'joinedAt': DateTime(2026, 9, 1), 'createdBy': 'u1',
+  });
+  return id;
+}

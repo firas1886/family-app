@@ -5,6 +5,7 @@ import '../../app/links.dart';
 import '../../app/palette.dart';
 import '../../app/providers.dart';
 import '../../app/theme.dart';
+import '../../core/member_colors.dart';
 import '../../core/member_names.dart';
 import '../../core/models.dart';
 import '../../core/text.dart';
@@ -95,7 +96,10 @@ class FamilyScreen extends ConsumerWidget {
                     leading: MemberAvatar(member: m),
                     title: Text(m.name, maxLines: 1, overflow: TextOverflow.ellipsis),
                     subtitle: Text(
-                      _subtitle(m, m.role == Role.parent ? l.parent : l.child),
+                      // A member without a login is told apart from the rest
+                      // by the flag the security rules use.
+                      _subtitle(m, m.noLogin ? l.noLoginTag : (m.role == Role.parent ? l.parent : l.child)),
+                      key: m.noLogin ? ValueKey('noLoginTag-${m.uid}') : null,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -127,10 +131,12 @@ class FamilyScreen extends ConsumerWidget {
                                 value: 'name',
                                 child: Text(l.editName),
                               ),
-                              PopupMenuItem(
-                                value: 'role',
-                                child: Text(m.role == Role.parent ? l.makeChild : l.makeParent),
-                              ),
+                              // A member without a login is always a child.
+                              if (!m.noLogin)
+                                PopupMenuItem(
+                                  value: 'role',
+                                  child: Text(m.role == Role.parent ? l.makeChild : l.makeParent),
+                                ),
                               PopupMenuItem(value: 'remove', child: Text(l.removeMember)),
                             ],
                           ),
@@ -159,6 +165,35 @@ class FamilyScreen extends ConsumerWidget {
                       ),
                     ),
                 ],
+                if (isParent && family != null && uid != null)
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: TextButton.icon(
+                      key: const Key('addNoLoginMember'),
+                      icon: const Icon(Icons.person_add_alt_1),
+                      label: Text(l.addNoLoginMember),
+                      onPressed: () async {
+                        final repo = ref.read(familyRepositoryProvider);
+                        final name = await promptText(
+                          context,
+                          title: l.addNoLoginMember,
+                          label: l.name,
+                          confirmLabel: l.create,
+                          maxLength: 80, // the security rules' limit, checked by String.length
+                        );
+                        final trimmed = name?.trim() ?? '';
+                        if (trimmed.isEmpty) return;
+                        fireAndForget(repo
+                            .addNoLoginMember(
+                              familyId: family.id,
+                              name: trimmed,
+                              createdBy: uid,
+                              color: nextFreeColor(members),
+                            )
+                            .then((_) {}));
+                      },
+                    ),
+                  ),
               ],
             ),
           ),
@@ -247,8 +282,8 @@ class FamilyScreen extends ConsumerWidget {
     );
   }
 
-  /// The role, plus the name shown on chores when a parent chose one that
-  /// differs from the full name.
+  /// The role (or "No login"), plus the name shown on chores when a parent
+  /// chose one that differs from the full name.
   static String _subtitle(Member m, String role) {
     final chosen = m.displayName?.trim();
     if (chosen == null || chosen.isEmpty || chosen == m.name.trim()) return role;
@@ -261,6 +296,22 @@ class FamilyScreen extends ConsumerWidget {
   Future<void> _editName(BuildContext context, WidgetRef ref, String familyId, Member m) async {
     final l = AppLocalizations.of(context)!;
     final repo = ref.read(familyRepositoryProvider);
+    if (m.noLogin) {
+      // Nobody else can fix this name, so a parent edits the real name (the
+      // rules allow up to 80 characters). Blank or cancelled writes nothing.
+      final value = await promptText(
+        context,
+        title: l.editName,
+        label: l.name,
+        initial: m.name,
+        confirmLabel: l.save,
+        maxLength: 80, // the security rules' limit, checked by String.length
+      );
+      final name = value?.trim() ?? '';
+      if (name.isEmpty) return;
+      fireAndForget(repo.setMemberName(familyId, m.uid, name));
+      return;
+    }
     final value = await promptText(
       context,
       title: l.displayNameTitle,
