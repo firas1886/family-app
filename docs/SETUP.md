@@ -62,3 +62,12 @@ Publish a new release with a higher tag, then install the new APK over the old o
 If `firestore.rules` changes in a later version, paste it into the Firestore **Rules** tab again and click Publish.
 
 **Version 1.1.0 (chores) changes `firestore.rules`.** Publish the new rules first, then install 1.1.0 on every phone. Until the new rules are published, chores can't be saved.
+
+## Share the app
+
+- The permanent download link always gives the newest published release:
+  **https://github.com/firas1886/family-app/releases/latest/download/family-app.apk**
+- In the app, **Family → Invite to family** sends one message with this link and your join code.
+- To publish an update: **Releases → Draft a new release**, use a new tag with a higher number (e.g. `v1.4.0`), leave "pre-release" unticked, and click **Publish release**. About 10 minutes later the link serves the new version, and phones install it over the old one.
+- One time only, on phones that had a test version built on the PC (signed with the PC's debug key): uninstall it first, then install from the link. Family data lives in Firebase, so nothing is lost.
+- The release key's fingerprints (needed in Firebase for Google sign-in): SHA-1 `F7:E3:30:D6:FA:00:59:C3:3C:6B:A1:58:F7:CD:E4:16:75:5D:14:93`.
