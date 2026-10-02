@@ -316,6 +316,19 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get inviteFamily => 'دعوة إلى العائلة';
+
+  @override
+  String inviteMessage(String link, String code) {
+    return 'انضم إلى عائلتنا في تطبيق Family:\n1) ثبّت التطبيق: $link\n2) سجّل الدخول بحساب Google\n3) أدخل الرمز $code';
+  }
+
+  @override
+  String inviteMessageNoLink(String code) {
+    return 'انضم إلى عائلتنا في تطبيق Family: سجّل الدخول بحساب Google وأدخل الرمز $code';
+  }
+
+  @override
   String get unitPcs => 'قطعة';
 
   @override

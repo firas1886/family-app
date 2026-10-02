@@ -309,6 +309,19 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get inviteFamily => 'Invite to family';
+
+  @override
+  String inviteMessage(String link, String code) {
+    return 'Join our family on the Family app:\n1) Install it: $link\n2) Sign in with Google\n3) Enter the code $code';
+  }
+
+  @override
+  String inviteMessageNoLink(String code) {
+    return 'Join our family on the Family app: sign in with Google and enter the code $code';
+  }
+
+  @override
   String get unitPcs => 'pcs';
 
   @override

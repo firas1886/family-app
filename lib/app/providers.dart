@@ -6,6 +6,7 @@ import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' hide Family;
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/chores.dart';
@@ -27,6 +28,9 @@ final firebaseAuthProvider = Provider<FirebaseAuth>((ref) => FirebaseAuth.instan
 final googleSignInProvider = Provider<GoogleSignIn>((ref) => GoogleSignIn());
 final firestoreProvider = Provider<FirebaseFirestore>((ref) => FirebaseFirestore.instance);
 final clockProvider = Provider<DateTime Function()>((ref) => DateTime.now);
+
+/// Opens the phone's share sheet. Tests override it to capture the text.
+final shareTextProvider = Provider<void Function(String text)>((ref) => (text) => Share.share(text));
 
 // Auth.
 final authUserProvider = StreamProvider<User?>(

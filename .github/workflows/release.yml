@@ -40,9 +40,14 @@ jobs:
           printf '%s' "$GOOGLE_SERVICES_JSON" > android/app/google-services.json
       - run: flutter pub get
       - run: flutter test
-      - run: flutter build apk --release --build-name "${TAG#v}" --build-number "${{ github.run_number }}"
-      - run: cp build/app/outputs/flutter-apk/app-release.apk "family-app-${TAG}.apk"
+      - run: >
+          flutter build apk --release
+          --build-name "${TAG#v}" --build-number "${{ github.run_number }}"
+          --dart-define=APP_DOWNLOAD_URL=https://github.com/${{ github.repository }}/releases/latest/download/family-app.apk
+      - run: |
+          cp build/app/outputs/flutter-apk/app-release.apk "family-app-${TAG}.apk"
+          cp build/app/outputs/flutter-apk/app-release.apk family-app.apk
       - uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.event.release.tag_name }}
-          files: family-app-*.apk
+          files: family-app*.apk

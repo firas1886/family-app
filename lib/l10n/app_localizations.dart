@@ -632,6 +632,24 @@ abstract class AppLocalizations {
   /// **'Join our family in the Family app with code {code}'**
   String shareCodeMessage(String code);
 
+  /// No description provided for @inviteFamily.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite to family'**
+  String get inviteFamily;
+
+  /// No description provided for @inviteMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Join our family on the Family app:\n1) Install it: {link}\n2) Sign in with Google\n3) Enter the code {code}'**
+  String inviteMessage(String link, String code);
+
+  /// No description provided for @inviteMessageNoLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Join our family on the Family app: sign in with Google and enter the code {code}'**
+  String inviteMessageNoLink(String code);
+
   /// No description provided for @unitPcs.
   ///
   /// In en, this message translates to:

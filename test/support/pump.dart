@@ -27,6 +27,7 @@ Future<void> pumpWithFamily(
   String? authName,
   Locale locale = const Locale('en'),
   ReminderScheduler? scheduler,
+  List<String>? shared,
 }) async {
   SharedPreferences.setMockInitialValues({});
   final prefs = await SharedPreferences.getInstance();
@@ -42,6 +43,8 @@ Future<void> pumpWithFamily(
       authPhotoUrlProvider.overrideWithValue(photoUrl),
       // The Google account's name, for ProfileSync's blank-name repair.
       authDisplayNameProvider.overrideWithValue(authName),
+      // Tests never open a real share sheet; [shared] records what would be shared.
+      shareTextProvider.overrideWithValue(shared == null ? (_) {} : (text) => shared.add(text)),
     ],
     child: MaterialApp(
       locale: locale,

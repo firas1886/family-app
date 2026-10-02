@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:share_plus/share_plus.dart';
 
+import '../../app/links.dart';
 import '../../app/palette.dart';
 import '../../app/providers.dart';
 import '../../app/theme.dart';
@@ -15,6 +15,7 @@ import '../common/app_card.dart';
 import '../common/dialogs.dart';
 import '../common/member_avatar.dart';
 import '../common/offline_chip.dart';
+import 'invite.dart';
 
 class FamilyScreen extends ConsumerWidget {
   const FamilyScreen({super.key});
@@ -63,9 +64,12 @@ class FamilyScreen extends ConsumerWidget {
                     ),
                   ),
                   IconButton(
-                    tooltip: l.share,
+                    key: const Key('inviteFamily'),
+                    tooltip: l.inviteFamily,
                     icon: const Icon(Icons.share),
-                    onPressed: () => Share.share(l.shareCodeMessage(family.joinCode)),
+                    onPressed: () => ref.read(shareTextProvider)(
+                          inviteText(l, code: family.joinCode, link: appDownloadUrl),
+                        ),
                   ),
                   if (isParent)
                     IconButton(
